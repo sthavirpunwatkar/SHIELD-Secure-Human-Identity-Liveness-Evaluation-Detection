@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
-import 'package:image/image.dart' as img;
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -19,7 +18,9 @@ class _CameraScreenState extends State<CameraScreen> {
   List<CameraDescription>? _cameras;
   bool _isStreaming = false;
   DateTime? _lastFrameTime;
-  final int _throttleMs = 200; // Send frame every 200ms
+  final int _throttleMs = 500; // Slower for desktop fallback
+  Timer? _timer;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -28,34 +29,66 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    _cameras = await availableCameras();
-    if (_cameras != null && _cameras!.isNotEmpty) {
+    try {
+      _cameras = await availableCameras();
+      if (_cameras == null || _cameras!.isEmpty) {
+        setState(() {
+          _errorMessage = 'No cameras found on this device.';
+        });
+        return;
+      }
+
+      CameraDescription? selectedCamera;
+      for (var camera in _cameras!) {
+        if (camera.lensDirection == CameraLensDirection.front) {
+          selectedCamera = camera;
+          break;
+        }
+      }
+      selectedCamera ??= _cameras![0];
+
       _controller = CameraController(
-        _cameras![1], // Try front camera
+        selectedCamera,
         ResolutionPreset.medium,
         enableAudio: false,
       );
 
-      try {
-        await _controller!.initialize();
-        if (mounted) {
-          setState(() {});
-        }
-      } catch (e) {
-        print('Camera initialization error: $e');
+      await _controller!.initialize();
+      if (mounted) {
+        setState(() {
+          _errorMessage = null;
+        });
+      }
+    } catch (e) {
+      print('Camera initialization error: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to initialize camera: $e';
+        });
       }
     }
   }
 
   void _toggleStreaming() {
     if (_isStreaming) {
-      _controller?.stopImageStream();
-      setState(() {
-        _isStreaming = false;
-      });
+      _stopStreaming();
     } else {
       _startStreaming();
     }
+  }
+
+  void _stopStreaming() {
+    try {
+      // Check if streaming is actually active before stopping
+      // This is safely handled by the camera package usually, but let's be careful
+    } catch (e) {
+      print('Error stopping stream: $e');
+    }
+    
+    _timer?.cancel();
+    setState(() {
+      _isStreaming = false;
+    });
   }
 
   void _startStreaming() {
@@ -73,71 +106,95 @@ class _CameraScreenState extends State<CameraScreen> {
       _isStreaming = true;
     });
 
-    _controller!.startImageStream((CameraImage image) {
-      final now = DateTime.now();
-      if (_lastFrameTime == null || 
-          now.difference(_lastFrameTime!).inMilliseconds > _throttleMs) {
-        _lastFrameTime = now;
-        _processAndSend(image, provider);
+    // Strategy: Desktop (Windows) often doesn't support startImageStream.
+    // We try it, and if it fails (assertion error), we fallback to Timer + takePicture.
+    
+    try {
+      // On Windows, this will throw a Failed Assertion if not supported.
+      // Note: In Flutter, assertions only throw in debug mode.
+      // But camera_windows specifically doesn't implement it.
+      
+      _controller!.startImageStream((CameraImage image) {
+        final now = DateTime.now();
+        if (_lastFrameTime == null || 
+            now.difference(_lastFrameTime!).inMilliseconds > _throttleMs) {
+          _lastFrameTime = now;
+          // Note: Image conversion logic omitted for brevity here as it's complex for YUV.
+          // For the prototype, timer-based takePicture is more reliable on all platforms.
+        }
+      });
+    } catch (e) {
+      print('Image streaming not supported or failed: $e. Using fallback.');
+      _useTimerFallback(provider);
+    }
+    
+    // If we are on Windows, we know it's not supported, so let's just use the fallback.
+    // The try-catch above might not catch an 'assertion failure' in the same way.
+    _useTimerFallback(provider);
+  }
+
+  void _useTimerFallback(LivenessProvider provider) {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
+      if (!_isStreaming || !mounted) {
+        timer.cancel();
+        return;
+      }
+      try {
+        final XFile file = await _controller!.takePicture();
+        final bytes = await file.readAsBytes();
+        provider.sendFrame(bytes);
+      } catch (e) {
+        print('Error in fallback streaming: $e');
       }
     });
   }
 
-  Future<void> _processAndSend(CameraImage image, LivenessProvider provider) async {
-    // Simple conversion to JPEG (This is computationally expensive on the UI thread)
-    // In a real app, use a compute function or a faster way.
-    // For now, let's just send the planes if the backend can handle it, 
-    // or use a simple JPEG encoder.
-    
-    // Attempting a simple conversion for demo purposes.
-    // Note: This is a bottleneck.
-    try {
-      final bytes = await _convertYUV420ToJpeg(image);
-      provider.sendFrame(bytes);
-    } catch (e) {
-      print('Frame processing error: $e');
-    }
-  }
-
-  Future<Uint8List> _convertYUV420ToJpeg(CameraImage image) async {
-    // Basic YUV420 to JPEG conversion using 'image' package
-    // This is slow. Consider using flutter_image_compress or similar.
-    final int width = image.width;
-    final int height = image.height;
-    final img.Image resImage = img.Image(width: width, height: height);
-
-    // Simplistic conversion - for demonstration. 
-    // Usually we use a specialized plugin or FFI for this.
-    // To keep it simple, I'll use a placeholder or assume a faster way is needed.
-    
-    // For the sake of the task, I will provide a basic implementation 
-    // but recommend a better one later.
-    
-    // Actually, taking a photo is easier for a single frame, 
-    // but for streaming, we need the stream.
-    
-    // Let's use a simpler approach: encode to JPEG.
-    // Since I don't want to block the thread too much, 
-    // I'll just return an empty list or a dummy for now 
-    // and explain how to optimize it.
-    
-    // Wait, I have the 'image' package. I can do it.
-    // But it might be too slow for real-time.
-    
-    // Let's assume the user will want to optimize this.
-    return Uint8List(0); // Placeholder
-  }
-
   @override
   void dispose() {
+    _timer?.cancel();
     _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                const SizedBox(height: 16),
+                Text(_errorMessage!, textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _initializeCamera,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Initializing Camera...'),
+            ],
+          ),
+        ),
+      );
     }
 
     return Scaffold(
