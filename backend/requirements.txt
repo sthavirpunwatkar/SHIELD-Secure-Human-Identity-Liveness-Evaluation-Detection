@@ -1,0 +1,13 @@
+ultralytics
+torch
+torchvision
+mediapipe
+opencv-python
+numpy
+fastapi
+uvicorn
+python-multipart
+firebase-admin
+websockets
+onnxruntime
+msgpack

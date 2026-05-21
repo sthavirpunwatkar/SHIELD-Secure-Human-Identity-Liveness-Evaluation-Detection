@@ -1,0 +1,120 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+Icon?
+
+# Editor directories and files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.pytest_cache/
+*.egg-info/
+pip-wheel-metadata/
+build/
+dist/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Python package management
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Model artifacts
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ckpt
+*.tflite
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+.generated/
+build/
+**/local.properties
+**/Generated.xcconfig
+**/Flutter/Generated.xcconfig
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Runner.xcworkspace/
+ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+macos/Flutter/Flutter.framework/
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/Runner.xcworkspace/
+
+# Windows
+windows/flutter/egl/
+windows/flutter/ephemeral/
+windows/runner/Debug/
+windows/runner/Release/
+
+# Linux
+linux/flutter/ephemeral/
+
+# Build outputs
+**/build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+*.env
+.env.*
+
+# Generated files
+generated_plugin_registrant.dart
+
+# Firebase / service account
+*.key
+*.json
+
+# Coverage reports
+coverage/
+
+# Misc
+*.swp
+*~
+
+# Keep `data/` or `notebooks/` if intentionally versioned; ignore only common generated artifacts.
