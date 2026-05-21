@@ -14,90 +14,102 @@ class LivenessOverlay extends StatelessWidget {
         final isSpoof = result.verdict == 'Spoof';
         final color = isLive ? Colors.green : (isSpoof ? Colors.red : Colors.orange);
 
-        return Stack(
-          children: [
-            // Bounding Box (if available)
-            if (result.bbox != null && result.bbox!.length == 4)
-              Positioned(
-                left: result.bbox![0],
-                top: result.bbox![1],
-                width: result.bbox![2] - result.bbox![0],
-                height: result.bbox![3] - result.bbox![1],
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: color, width: 3),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            double scaleX = 1.0;
+            double scaleY = 1.0;
 
-            // Status Panel
-            Positioned(
-              bottom: 40,
-              left: 20,
-              right: 20,
-              child: Card(
-                color: Colors.black54,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Verdict: ${result.verdict}',
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+            if (result.frameSize != null && result.frameSize!.length == 2) {
+              scaleX = constraints.maxWidth / result.frameSize![0];
+              scaleY = constraints.maxHeight / result.frameSize![1];
+            }
+
+            return Stack(
+              children: [
+                // Bounding Box (scaled)
+                if (result.bbox != null && result.bbox!.length == 4)
+                  Positioned(
+                    left: result.bbox![0] * scaleX,
+                    top: result.bbox![1] * scaleY,
+                    width: (result.bbox![2] - result.bbox![0]) * scaleX,
+                    height: (result.bbox![3] - result.bbox![1]) * scaleY,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: color, width: 3),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 8),
-                      LinearProgressIndicator(
-                        value: result.confidence,
-                        backgroundColor: Colors.white24,
-                        color: color,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                  ),
+
+                // Status Panel
+                Positioned(
+                  bottom: 40,
+                  left: 20,
+                  right: 20,
+                  child: Card(
+                    color: Colors.black54,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%',
-                            style: const TextStyle(color: Colors.white),
+                            'Verdict: ${result.verdict}',
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          Text(
-                            'Latency: ${result.processingTimeMs}ms',
-                            style: const TextStyle(color: Colors.white),
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: result.confidence,
+                            backgroundColor: Colors.white24,
+                            color: color,
                           ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              Text(
+                                'Latency: ${result.processingTimeMs}ms',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          const Divider(color: Colors.white24),
+                          _buildDetailRow('Primary Liveness', result.details.primaryLiveness),
+                          _buildDetailRow('Behavioral Score', result.details.behavioralScore),
+                          _buildDetailRow('rPPG Score', result.details.rppgScore),
                         ],
                       ),
-                      const Divider(color: Colors.white24),
-                      _buildDetailRow('Primary Liveness', result.details.primaryLiveness),
-                      _buildDetailRow('Behavioral Score', result.details.behavioralScore),
-                      _buildDetailRow('rPPG Score', result.details.rppgScore),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            // Connection Status
-            Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: provider.isConnected ? Colors.green : Colors.red,
-                  borderRadius: BorderRadius.circular(12),
+                // Connection Status
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: provider.isConnected ? Colors.green : Colors.red,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      provider.isConnected ? 'Connected' : 'Disconnected',
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  provider.isConnected ? 'Connected' : 'Disconnected',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
