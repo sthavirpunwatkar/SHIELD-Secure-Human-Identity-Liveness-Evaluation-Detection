@@ -5,6 +5,7 @@ class LivenessResult {
   final int processingTimeMs;
   final LivenessDetails details;
   final List<double>? bbox;
+  final List<int>? frameSize;
 
   LivenessResult({
     required this.verdict,
@@ -13,6 +14,7 @@ class LivenessResult {
     required this.processingTimeMs,
     required this.details,
     this.bbox,
+    this.frameSize,
   });
 
   factory LivenessResult.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class LivenessResult {
       processingTimeMs: json['processing_time_ms'] ?? 0,
       details: LivenessDetails.fromJson(json['details'] ?? {}),
       bbox: json['bbox'] != null ? List<double>.from(json['bbox'].map((e) => e.toDouble())) : null,
+      frameSize: json['frame_size'] != null ? List<int>.from(json['frame_size']) : null,
     );
   }
 

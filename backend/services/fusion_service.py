@@ -76,20 +76,22 @@ class FusionService:
         final_confidence = sum(s * w for s, w in zip(scores, weights))
         
         # 4. Final Verdict Logic
-        if final_confidence > 0.7:
+        if final_confidence > 0.65: # Lowered from 0.7
             verdict = "Live"
-        elif final_confidence < 0.4:
+        elif final_confidence < 0.35: # Lowered from 0.4
             verdict = "Spoof"
         else:
             verdict = "Uncertain"
 
         processing_time = time.time() - start_time
+        h, w = frame.shape[:2]
 
         return {
             "verdict": verdict,
             "confidence": round(final_confidence, 2),
             "status": "success",
             "processing_time_ms": int(processing_time * 1000),
+            "frame_size": [w, h],
             "details": {
                 "primary_liveness": round(p_score, 2),
                 "secondary_liveness": round(s_score, 2),

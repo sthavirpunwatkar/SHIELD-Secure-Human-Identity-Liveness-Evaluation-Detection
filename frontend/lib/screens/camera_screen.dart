@@ -207,11 +207,17 @@ class _CameraScreenState extends State<CameraScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          CameraPreview(_controller!),
-          const LivenessOverlay(),
-        ],
+      body: Center(
+        child: AspectRatio(
+          aspectRatio: _controller!.value.aspectRatio,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CameraPreview(_controller!),
+              const LivenessOverlay(),
+            ],
+          ),
+        ),
       ),
     );
   }
