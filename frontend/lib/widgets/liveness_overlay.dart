@@ -123,7 +123,7 @@ class LivenessOverlay extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
           Text(
-            (value * 100).toStringAsFixed(0) + '%',
+            '${(value * 100).toStringAsFixed(0)}%',
             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ],

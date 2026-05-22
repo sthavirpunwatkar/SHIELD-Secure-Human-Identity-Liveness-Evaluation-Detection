@@ -12,8 +12,9 @@ class LivenessClassifier:
         """
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-        # Initialize EfficientNet-B0
-        self.model = models.efficientnet_b0(pretrained=True)
+        # Initialize EfficientNet-B0 with modern weights API
+        weights = models.EfficientNet_B0_Weights.DEFAULT
+        self.model = models.efficientnet_b0(weights=weights)
         # Modify the final layer for binary classification (Live vs Spoof)
         num_ftrs = self.model.classifier[1].in_features
         self.model.classifier[1] = nn.Linear(num_ftrs, 2)
