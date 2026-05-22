@@ -9,9 +9,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from inference.face_detector import FaceDetector
 from inference.liveness_classifier import LivenessClassifier
-from inference.minifas_net import MiniFASNet
+from inference.antispoof import AntispoofInference
 from inference.behavioral_analyzer import BehavioralAnalyzer
 from inference.rppg_detector import RPPGDetector
+from inference.quality import QualityScoreEngine
+from inference.fusion_engine import FusionEngine
 
 class FusionService:
     def __init__(self):
@@ -19,10 +21,12 @@ class FusionService:
         Initializes all core AI models for orchestration.
         """
         self.detector = FaceDetector()
-        self.primary_liveness = MiniFASNet() # MiniFASNet as primary
-        self.secondary_liveness = LivenessClassifier() # EfficientNet as comparison
+        self.quality_engine = QualityScoreEngine()
+        self.antispoof = AntispoofInference()
+        self.secondary_liveness = LivenessClassifier()
         self.behavioral = BehavioralAnalyzer()
         self.rppg = RPPGDetector()
+        self.fusion_engine = FusionEngine()
 
     def process_frame(self, frame):
         """
@@ -46,59 +50,46 @@ class FusionService:
         bbox = face_info['bbox']
         crop = self.detector.crop_face(frame, bbox)
 
-        # 2. Multi-Modal Inference
-        # Primary Liveness Score (MiniFASNet)
-        p_verdict, p_conf = self.primary_liveness.predict(crop)
-        p_score = p_conf if p_verdict == "Live" else (1.0 - p_conf)
+        # 2. Quality Gate
+        quality_res = self.quality_engine.evaluate(frame, crop)
+        if not quality_res["passes_gate"]:
+            return {
+                "verdict": "Low Quality",
+                "confidence": quality_res["quality_score"],
+                "status": "fail",
+                "quality_metrics": quality_res["metrics"],
+                "details": {"reason": "Quality gate failed"}
+            }
 
-        # Secondary Liveness Score (EfficientNet - Comparison)
-        s_verdict, s_conf = self.secondary_liveness.predict(crop)
-        s_score = s_conf if s_verdict == "Live" else (1.0 - s_conf)
-
-        # Average Liveness for Fusion (or just use Primary)
-        liveness_score = (p_score + s_score) / 2.0
-
-        # Behavioral Score (Motion/Heuristics)
+        # 3. Multi-Modal Inference
+        as_score = self.antispoof.predict(crop)
+        
+        # Behavioral Score (Blink)
         behavior = self.behavioral.analyze(frame, faces=faces)
-        # Simple behavioral score: 1.0 if landmarks found, bonus for blink
-        behavioral_score = 0.7 if behavior['landmarks_found'] else 0.0
-        if behavior['blink_detected']:
-            behavioral_score = 1.0
+        blink_score = 1.0 if behavior['blink_detected'] else 0.0
 
         # Physiological Score (rPPG)
         rppg_score = self.rppg.update(frame)
 
-        # 3. Decision Fusion (Weighted Average)
-        # Weights: Liveness (40%), Behavioral (30%), rPPG (30%)
-        weights = [0.4, 0.3, 0.3]
-        scores = [liveness_score, behavioral_score, rppg_score]
-        
-        final_confidence = sum(s * w for s, w in zip(scores, weights))
-        
-        # 4. Final Verdict Logic
-        if final_confidence > 0.65: # Lowered from 0.7
-            verdict = "Live"
-        elif final_confidence < 0.35: # Lowered from 0.4
-            verdict = "Spoof"
-        else:
-            verdict = "Uncertain"
+        # 4. Decision Fusion
+        fusion_res = self.fusion_engine.fuse(
+            rppg_score=rppg_score,
+            blink_score=blink_score,
+            antispoof_score=as_score,
+            challenge_score=0.5
+        )
 
         processing_time = time.time() - start_time
         h, w = frame.shape[:2]
 
         return {
-            "verdict": verdict,
-            "confidence": round(final_confidence, 2),
+            "verdict": fusion_res["verdict"],
+            "confidence": fusion_res["final_score"],
             "status": "success",
             "processing_time_ms": int(processing_time * 1000),
             "frame_size": [w, h],
-            "details": {
-                "primary_liveness": round(p_score, 2),
-                "secondary_liveness": round(s_score, 2),
-                "combined_liveness": round(liveness_score, 2),
-                "behavioral_score": round(behavioral_score, 2),
-                "rppg_score": round(rppg_score, 2)
-            },
+            "details": fusion_res["breakdown"],
+            "quality_metrics": quality_res["metrics"],
             "bbox": bbox
         }
 

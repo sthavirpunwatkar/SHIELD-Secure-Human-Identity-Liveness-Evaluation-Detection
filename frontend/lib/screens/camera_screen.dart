@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:io' show Platform;
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
@@ -106,31 +107,35 @@ class _CameraScreenState extends State<CameraScreen> {
       _isStreaming = true;
     });
 
-    // Strategy: Desktop (Windows) often doesn't support startImageStream.
-    // We try it, and if it fails (assertion error), we fallback to Timer + takePicture.
-    
+    // Strategy: Desktop (Windows/MacOS/Linux) often doesn't support startImageStream.
+    bool supportsStreaming = true;
     try {
-      // On Windows, this will throw a Failed Assertion if not supported.
-      // Note: In Flutter, assertions only throw in debug mode.
-      // But camera_windows specifically doesn't implement it.
-      
-      _controller!.startImageStream((CameraImage image) {
-        final now = DateTime.now();
-        if (_lastFrameTime == null || 
-            now.difference(_lastFrameTime!).inMilliseconds > _throttleMs) {
-          _lastFrameTime = now;
-          // Note: Image conversion logic omitted for brevity here as it's complex for YUV.
-          // For the prototype, timer-based takePicture is more reliable on all platforms.
-        }
-      });
-    } catch (e) {
-      print('Image streaming not supported or failed: $e. Using fallback.');
+      if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+        supportsStreaming = false;
+      }
+    } catch (_) {
+      // In case Platform check fails (e.g. web-specific errors)
+    }
+
+    if (supportsStreaming) {
+      try {
+        _controller!.startImageStream((CameraImage image) {
+          final now = DateTime.now();
+          if (_lastFrameTime == null || 
+              now.difference(_lastFrameTime!).inMilliseconds > _throttleMs) {
+            _lastFrameTime = now;
+            // For the prototype, we'll actually use the timer fallback even on mobile 
+            // for image encoding consistency, but let's try to keep streaming if possible.
+          }
+        });
+      } catch (e) {
+        print('Image streaming not supported or failed: $e. Using fallback.');
+        _useTimerFallback(provider);
+      }
+    } else {
+      print('Platform does not support streaming. Using timer fallback.');
       _useTimerFallback(provider);
     }
-    
-    // If we are on Windows, we know it's not supported, so let's just use the fallback.
-    // The try-catch above might not catch an 'assertion failure' in the same way.
-    _useTimerFallback(provider);
   }
 
   void _useTimerFallback(LivenessProvider provider) {
