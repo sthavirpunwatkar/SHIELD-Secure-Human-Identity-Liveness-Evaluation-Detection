@@ -53,6 +53,9 @@ class LivenessProvider with ChangeNotifier {
       _challengeService.setConnecting();
     }
     await _service.connect(url);
+    if (isChallenge && _service.isConnected) {
+      _challengeService.reset();
+    }
     notifyListeners();
   }
 

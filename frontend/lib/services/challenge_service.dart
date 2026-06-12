@@ -74,10 +74,10 @@ class ChallengeService {
   }
 
   void _handleChallenge(Map<String, dynamic> json) {
-    _currentAction = json['current_challenge'] ?? '';
-    _timeoutSeconds = json['challenge_timeout_s'] ?? 5;
-    _currentIndex = json['challenge_index'] ?? _currentIndex;
-    _totalChallenges = json['challenge_total'] ?? _totalChallenges;
+    _currentAction = json['current_challenge'] ?? json['action'] ?? '';
+    _timeoutSeconds = json['challenge_timeout_s'] ?? json['timeout_s'] ?? 5;
+    _currentIndex = json['challenge_index'] ?? json['index'] ?? _currentIndex;
+    _totalChallenges = json['challenge_total'] ?? json['total'] ?? _totalChallenges;
     _remainingSeconds = _timeoutSeconds;
 
     _setState(ChallengeState.challengeActive);
