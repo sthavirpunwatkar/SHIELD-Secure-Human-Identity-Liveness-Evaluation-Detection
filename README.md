@@ -21,6 +21,7 @@
 - **Sprint 3 (Deep rPPG):** Integrated `PhysNet`-style spatio-temporal 3D CNN for advanced physiological verification.
 - **Sprint 4 (Data Wrangling):** Created `DataWrangler` to standardize, filter, and manifest large-scale datasets (CASIA, CelebA, etc.).
 - **Sprint 5 (Evaluation):** Established a benchmarking suite with automated reporting and industry metrics (APCER, BPCER, ACER).
+- **Sprint 6 (Active Challenge-Response):** Implemented a full-duplex WebSocket challenge engine with randomized tasks (blink, turn, smile), temporal validation (anti-replay/jump-cut), and a glassmorphic Flutter UI overlay.
 - **Serialization Fix:** Resolved NumPy/JSON serialization errors for stable WebSocket communication.
 - **Windows Support:** Standardized timer-based camera streaming fallback for Windows Desktop.
 
