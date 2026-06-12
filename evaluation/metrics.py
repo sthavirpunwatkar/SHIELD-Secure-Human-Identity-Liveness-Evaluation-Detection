@@ -41,8 +41,87 @@ class FASMetrics:
             "fn": int(fn)
         }
 
+class ChallengeMetrics:
+    """Metrics specific to the Active Challenge-Response protocol.
+
+    Operates on a list of per-session result dicts, each containing:
+        * ``passed``  (bool)  – whether the session challenge was passed
+        * ``response_time_ms`` (float) – response latency in milliseconds
+        * ``is_attack`` (bool) – ground-truth label (True = attack, False = legit)
+    """
+
+    @staticmethod
+    def calculate(challenge_results: list) -> dict:
+        """Calculate challenge-specific evaluation metrics.
+
+        :param challenge_results: List of dicts, each with keys
+            ``passed`` (bool), ``response_time_ms`` (float),
+            ``is_attack`` (bool).
+        :return: Dictionary with the following metrics:
+
+            * **challenge_pass_rate** (CPR) – fraction of legitimate
+              users who passed the challenge.
+            * **challenge_false_reject_rate** (CFRR) – fraction of
+              legitimate users who *failed* the challenge (= 1 − CPR).
+            * **attack_prevention_rate** (APR) – fraction of attack
+              attempts that were correctly blocked (i.e. did **not**
+              pass the challenge).
+            * **mean_response_time_ms** (MRT) – arithmetic mean of
+              ``response_time_ms`` across all results.
+            * **median_response_time_ms** – median response time.
+            * **total_samples** – total number of result dicts processed.
+        """
+        if not challenge_results:
+            return {
+                "challenge_pass_rate": 0.0,
+                "challenge_false_reject_rate": 0.0,
+                "attack_prevention_rate": 0.0,
+                "mean_response_time_ms": 0.0,
+                "median_response_time_ms": 0.0,
+                "total_samples": 0,
+            }
+
+        legit = [r for r in challenge_results if not r["is_attack"]]
+        attacks = [r for r in challenge_results if r["is_attack"]]
+
+        # Challenge Pass Rate (CPR) — legit users who passed
+        legit_passed = sum(1 for r in legit if r["passed"])
+        cpr = legit_passed / len(legit) if legit else 0.0
+
+        # Challenge False Reject Rate (CFRR) — legit users who failed
+        cfrr = 1.0 - cpr
+
+        # Attack Prevention Rate (APR) — attacks that did NOT pass
+        attacks_blocked = sum(1 for r in attacks if not r["passed"])
+        apr = attacks_blocked / len(attacks) if attacks else 0.0
+
+        # Response-time statistics
+        times = np.array([r["response_time_ms"] for r in challenge_results])
+        mean_rt = float(np.mean(times))
+        median_rt = float(np.median(times))
+
+        return {
+            "challenge_pass_rate": round(cpr, 4),
+            "challenge_false_reject_rate": round(cfrr, 4),
+            "attack_prevention_rate": round(apr, 4),
+            "mean_response_time_ms": round(mean_rt, 2),
+            "median_response_time_ms": round(median_rt, 2),
+            "total_samples": len(challenge_results),
+        }
+
+
 if __name__ == "__main__":
-    # Test
+    # FASMetrics test
     y_true = [1, 1, 0, 0, 0]
     y_scores = [0.9, 0.4, 0.1, 0.8, 0.2]
-    print(FASMetrics.calculate(y_true, y_scores))
+    print("FASMetrics:", FASMetrics.calculate(y_true, y_scores))
+
+    # ChallengeMetrics test
+    sample_results = [
+        {"passed": True,  "response_time_ms": 450.0, "is_attack": False},
+        {"passed": True,  "response_time_ms": 520.0, "is_attack": False},
+        {"passed": False, "response_time_ms": 300.0, "is_attack": False},
+        {"passed": False, "response_time_ms": 100.0, "is_attack": True},
+        {"passed": True,  "response_time_ms":  80.0, "is_attack": True},
+    ]
+    print("ChallengeMetrics:", ChallengeMetrics.calculate(sample_results))
