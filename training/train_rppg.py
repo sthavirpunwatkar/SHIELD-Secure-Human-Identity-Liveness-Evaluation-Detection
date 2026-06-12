@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -40,8 +41,8 @@ def evaluate(model, dataloader, device, criterion):
             all_labels.extend(labels.cpu().numpy())
             
     val_loss /= len(dataloader.dataset)
-    all_preds = torch.tensor(all_preds).squeeze()
-    all_labels = torch.tensor(all_labels).squeeze()
+    all_preds = torch.tensor(np.array(all_preds)).squeeze()
+    all_labels = torch.tensor(np.array(all_labels)).squeeze()
     
     preds_binary = (all_preds > 0.5).float()
     acc = (preds_binary == all_labels).float().mean().item()
