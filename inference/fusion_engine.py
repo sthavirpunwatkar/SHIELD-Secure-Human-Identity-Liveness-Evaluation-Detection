@@ -40,7 +40,8 @@ class FusionEngine:
                 "rppg": rppg_score,
                 "blink": blink_score,
                 "antispoof": antispoof_score,
-                "challenge": challenge_score
+                "challenge": challenge_score,
+                "combined": round(final_score, 4)
             },
             "weights": self.weights
         }

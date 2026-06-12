@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/liveness_provider.dart';
 import 'screens/camera_screen.dart';
+import 'screens/challenge_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(builder: (_) => const CameraScreen())
                     )
                   : () async {
-                      await provider.connect();
+                      await provider.connect(isChallenge: false);
                       if (provider.isConnected) {
                         if (mounted) {
                           Navigator.of(context).push(
@@ -123,8 +124,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: provider.isConnected ? Colors.blue : Colors.blueGrey,
               ),
               child: Text(
-                provider.isConnected ? 'Start Liveness Check' : 'Connect & Start',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                provider.isConnected ? 'Passive Liveness Check' : 'Connect (Passive)',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: provider.isConnected 
+                  ? () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ChallengeScreen())
+                    )
+                  : () async {
+                      await provider.connect(isChallenge: true);
+                      if (provider.isConnected) {
+                        if (mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const ChallengeScreen())
+                          );
+                        }
+                      } else {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Failed to connect to backend'))
+                          );
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: provider.isConnected ? Colors.green : Colors.blueGrey,
+              ),
+              child: Text(
+                provider.isConnected ? 'Active Challenge Verification' : 'Connect (Active Challenge)',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
