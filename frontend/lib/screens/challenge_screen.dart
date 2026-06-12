@@ -34,7 +34,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
     // Subscribe to challenge state changes so the UI rebuilds
     final provider = Provider.of<LivenessProvider>(context, listen: false);
-    _challengeSub = provider.challengeStateStream.listen((_) {
+    _challengeSub = provider.challengeService.stateStream.listen((_) {
       if (mounted) setState(() {});
     });
   }
