@@ -1,5 +1,5 @@
 # SHIELD Benchmark Report
-Generated: 2026-06-12 23:44:38
+Generated: 2026-06-12 23:50:33
 
 ## Summary Metrics
 | Metric | Value |
@@ -9,7 +9,7 @@ Generated: 2026-06-12 23:44:38
 | APCER (Spoof Error) | 60.00% |
 | BPCER (Live Error) | 80.00% |
 | **ACER** | **70.00%** |
-| Inference Speed | 21.43 FPS |
+| Inference Speed | 18.75 FPS |
 
 ## Confusion Matrix
 - **True Positives (Live correctly identified):** 1

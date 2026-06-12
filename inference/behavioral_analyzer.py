@@ -4,15 +4,23 @@ import math
 
 try:
     import mediapipe as mp
-    # Try to import solutions, if it fails, we use fallback
     from mediapipe.python.solutions import face_mesh as mp_face_mesh
     HAS_MEDIAPIPE = True
+    USE_TASKS_API = False
 except (ImportError, AttributeError):
     try:
         import mediapipe.solutions.face_mesh as mp_face_mesh
         HAS_MEDIAPIPE = True
+        USE_TASKS_API = False
     except (ImportError, AttributeError):
-        HAS_MEDIAPIPE = False
+        try:
+            from mediapipe.tasks import python
+            from mediapipe.tasks.python import vision
+            HAS_MEDIAPIPE = True
+            USE_TASKS_API = True
+        except ImportError:
+            HAS_MEDIAPIPE = False
+            USE_TASKS_API = False
 
 
 # ============================================================
@@ -93,6 +101,8 @@ class BehavioralAnalyzer:
         """
         self.has_mediapipe = HAS_MEDIAPIPE
         self.face_mesh = None
+        self.landmarker = None
+        self.use_tasks_api = USE_TASKS_API
 
         # Temporal tracking for blink detection
         self._prev_ear = None
@@ -101,18 +111,33 @@ class BehavioralAnalyzer:
         self._ear_window_size = 5
 
         if self.has_mediapipe:
-            try:
-                self.face_mesh = mp_face_mesh.FaceMesh(
-                    static_image_mode=False,
-                    max_num_faces=1,
-                    refine_landmarks=True,
-                    min_detection_confidence=0.5,
-                    min_tracking_confidence=0.5
-                )
-                print("BehavioralAnalyzer: MediaPipe FaceMesh initialized.")
-            except Exception as e:
-                print(f"BehavioralAnalyzer: MediaPipe init failed: {e}. Using fallback.")
-                self.has_mediapipe = False
+            if not self.use_tasks_api:
+                try:
+                    self.face_mesh = mp_face_mesh.FaceMesh(
+                        static_image_mode=False,
+                        max_num_faces=1,
+                        refine_landmarks=True,
+                        min_detection_confidence=0.5,
+                        min_tracking_confidence=0.5
+                    )
+                    print("BehavioralAnalyzer: MediaPipe FaceMesh initialized.")
+                except Exception as e:
+                    print(f"BehavioralAnalyzer: MediaPipe init failed: {e}. Using fallback.")
+                    self.has_mediapipe = False
+            else:
+                try:
+                    base_options = python.BaseOptions(model_asset_path='models/face_landmarker.task')
+                    options = vision.FaceLandmarkerOptions(
+                        base_options=base_options,
+                        output_face_blendshapes=False,
+                        output_facial_transformation_matrixes=False,
+                        num_faces=1
+                    )
+                    self.landmarker = vision.FaceLandmarker.create_from_options(options)
+                    print("BehavioralAnalyzer: MediaPipe FaceLandmarker (Tasks API) initialized.")
+                except Exception as e:
+                    print(f"BehavioralAnalyzer: Tasks FaceLandmarker init failed: {e}. Using fallback.")
+                    self.has_mediapipe = False
         else:
             print("BehavioralAnalyzer: MediaPipe not available. Using fallback logic.")
 
@@ -343,18 +368,28 @@ class BehavioralAnalyzer:
             "landmarks_found": False
         }
 
-        if not self.has_mediapipe or not self.face_mesh:
+        if not self.has_mediapipe or (not self.face_mesh and not self.landmarker):
             return result
 
         try:
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            processed = self.face_mesh.process(rgb_frame)
-
-            if not processed.multi_face_landmarks:
+            face_landmarks = None
+            
+            if not self.use_tasks_api and self.face_mesh:
+                processed = self.face_mesh.process(rgb_frame)
+                if processed.multi_face_landmarks:
+                    face_landmarks = processed.multi_face_landmarks[0].landmark
+            elif self.use_tasks_api and self.landmarker:
+                import mediapipe as mp
+                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+                processed = self.landmarker.detect(mp_image)
+                if processed.face_landmarks:
+                    face_landmarks = processed.face_landmarks[0]
+                    
+            if face_landmarks is None:
                 return result
 
             result["landmarks_found"] = True
-            face_landmarks = processed.multi_face_landmarks[0].landmark
             img_h, img_w = frame.shape[:2]
 
             if challenge_type == "blink":
@@ -423,14 +458,24 @@ class BehavioralAnalyzer:
             "blink_count": self._blink_counter
         }
 
-        if self.has_mediapipe and self.face_mesh:
+        if self.has_mediapipe and (self.face_mesh or self.landmarker):
             try:
                 rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                processed = self.face_mesh.process(rgb_frame)
-
-                if processed.multi_face_landmarks:
+                face_landmarks = None
+                
+                if not self.use_tasks_api and self.face_mesh:
+                    processed = self.face_mesh.process(rgb_frame)
+                    if processed.multi_face_landmarks:
+                        face_landmarks = processed.multi_face_landmarks[0].landmark
+                elif self.use_tasks_api and self.landmarker:
+                    import mediapipe as mp
+                    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+                    processed = self.landmarker.detect(mp_image)
+                    if processed.face_landmarks:
+                        face_landmarks = processed.face_landmarks[0]
+                        
+                if face_landmarks is not None:
                     results["landmarks_found"] = True
-                    face_landmarks = processed.multi_face_landmarks[0].landmark
                     img_h, img_w = frame.shape[:2]
 
                     # Real EAR-based blink detection
