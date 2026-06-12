@@ -2,18 +2,30 @@ import cv2
 import numpy as np
 import torch
 import torch.nn as nn
+import os
 
 class RPPGDetector:
-    def __init__(self, window_size=30):
+    def __init__(self, window_size=30, model_path='models/rppg_1dcnn_v1.pt'):
         """
         Initializes the rPPG detector.
-        :param window_size: Number of frames to analyze for pulse detection.
         """
         self.window_size = window_size
         self.signal_buffer = []
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.weights_loaded = False
         
-        # Skeleton for 1D CNN
         self.model = self._build_model()
+        if model_path and os.path.exists(model_path):
+            try:
+                self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+                print(f"RPPGDetector: Loaded weights from {model_path}")
+                self.weights_loaded = True
+            except Exception as e:
+                print(f"RPPGDetector: Weight load failed: {e}")
+        else:
+            print(f"RPPGDetector: {model_path} not found. Running with mock fallback.")
+            
+        self.model.to(self.device)
         self.model.eval()
 
     def _build_model(self):
@@ -35,13 +47,10 @@ class RPPGDetector:
 
     def extract_roi_signal(self, frame, landmarks=None):
         """
-        Extracts the average green channel value from skin ROIs (forehead/cheeks).
+        Extracts the average green channel value from skin ROIs.
         """
-        # For now, we'll take the center of the frame as a placeholder ROI
         h, w = frame.shape[:2]
         roi = frame[int(h*0.4):int(h*0.6), int(w*0.4):int(w*0.6)]
-        
-        # Green channel is typically most sensitive to blood volume changes
         avg_green = np.mean(roi[:, :, 1])
         return avg_green
 
@@ -56,17 +65,18 @@ class RPPGDetector:
             self.signal_buffer.pop(0)
             
         if len(self.signal_buffer) == self.window_size:
-            # Normalize signal
+            if not self.weights_loaded:
+                return 0.5 # Neutral score fallback
+                
             sig = np.array(self.signal_buffer)
             sig = (sig - np.mean(sig)) / (np.std(sig) + 1e-6)
             
-            # Inference (Placeholder)
-            input_tensor = torch.FloatTensor(sig).unsqueeze(0).unsqueeze(0)
+            input_tensor = torch.FloatTensor(sig).unsqueeze(0).unsqueeze(0).to(self.device)
             with torch.no_grad():
                 score = self.model(input_tensor).item()
             return score
         
-        return 0.5 # Neutral score until buffer is full
+        return 0.5 
 
 if __name__ == "__main__":
     detector = RPPGDetector()
