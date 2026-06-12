@@ -22,43 +22,129 @@ app.add_middleware(
 async def health_check():
     return {"status": "healthy", "service": "SHIELD"}
 
-@app.websocket("/ws/verify")
-async def websocket_verify(websocket: WebSocket):
+from inference.session_manager import SessionManager
+
+# Global Session Manager
+session_manager = SessionManager()
+
+@app.websocket("/ws/challenge")
+async def websocket_challenge(websocket: WebSocket):
     """
-    WebSocket endpoint for real-time liveness streaming.
-    Receives binary image data and returns JSON analysis.
+    WebSocket endpoint for active challenge-response liveness streaming.
+    Receives text messages (commands) and binary image data.
     """
     await websocket.accept()
-    print(f"Client connected to WebSocket: {websocket.client}")
+    client_host = websocket.client.host if websocket.client else "unknown"
+    print(f"Client connected to Challenge WebSocket: {client_host}")
     
     try:
+        session = session_manager.create_session(client_id=client_host)
+        challenge_session = session.challenge_session
+    except RuntimeError as e:
+        await websocket.send_json({"type": "error", "message": str(e)})
+        await websocket.close()
+        return
+
+    try:
         while True:
-            # Receive binary frame data
-            data = await websocket.receive_bytes()
-            
-            # Decode frame
-            nparr = np.frombuffer(data, np.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            
-            if frame is None:
-                await websocket.send_json({"error": "Could not decode frame"})
+            message = await websocket.receive()
+
+            if "text" in message:
+                try:
+                    data = json.loads(message["text"])
+                    if data.get("type") == "start_challenge":
+                        challenge_session.start_current_challenge()
+                        current = challenge_session.get_current_challenge()
+                        await websocket.send_json({
+                            "type": "challenge",
+                            "action": current.value if current else None,
+                            "timeout_s": challenge_session.timeout_per_challenge,
+                            "index": challenge_session._current_index + 1,
+                            "total": challenge_session.num_challenges
+                        })
+                except json.JSONDecodeError:
+                    pass
                 continue
 
-            # Process through Fusion Service
-            result = fusion_service.process_frame(frame)
-            
-            # Send result back instantly
-            await websocket.send_json(result)
-            
-            # Optional: Log to Firebase in the background if verdict is conclusive
-            if result["verdict"] in ["Live", "Spoof"]:
-                # (You could use a background task here for even better performance)
-                pass
+            if "bytes" in message:
+                data = message["bytes"]
+                # Decode frame
+                nparr = np.frombuffer(data, np.uint8)
+                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                
+                if frame is None:
+                    continue
+
+                # Add frame to session manager (validates temporal consistency)
+                frame_res = session.add_frame(frame)
+                if not frame_res["accepted"]:
+                    if frame_res.get("expired"):
+                        await websocket.send_json({"type": "error", "message": "Session expired"})
+                        break
+                    continue
+
+                # Process through Fusion Service with challenge session
+                result = fusion_service.process_challenge_frame(frame, challenge_session)
+                
+                # Check challenge updates
+                if "challenge_info" in result and "session_update" in result["challenge_info"]:
+                    update = result["challenge_info"]["session_update"]
+                    
+                    if update.get("challenge_passed"):
+                        await websocket.send_json({
+                            "type": "challenge_result",
+                            "action": result["challenge_info"]["action"],
+                            "passed": True,
+                            "next_action": update.get("next_challenge")
+                        })
+                        
+                        if update.get("next_challenge"):
+                            await websocket.send_json({
+                                "type": "challenge",
+                                "action": update.get("next_challenge"),
+                                "timeout_s": challenge_session.timeout_per_challenge,
+                                "index": challenge_session._current_index + 1,
+                                "total": challenge_session.num_challenges
+                            })
+                            
+                    elif update.get("challenge_failed"):
+                        await websocket.send_json({
+                            "type": "challenge_result",
+                            "action": result["challenge_info"]["action"],
+                            "passed": False,
+                            "next_action": update.get("next_challenge")
+                        })
+                        
+                    elif update.get("timeout"):
+                        # Re-send the current challenge because of timeout/retry
+                        current = challenge_session.get_current_challenge()
+                        await websocket.send_json({
+                            "type": "challenge",
+                            "action": current.value if current else None,
+                            "timeout_s": challenge_session.timeout_per_challenge,
+                            "index": challenge_session._current_index + 1,
+                            "total": challenge_session.num_challenges
+                        })
+                        
+                    if update.get("session_complete"):
+                        # Send final verdict
+                        final_res = session.get_final_result()
+                        # Override verdict with the temporally validated one
+                        result["verdict"] = final_res["verdict"]
+                        result["temporal_valid"] = final_res["temporal_valid"]
+                        result["challenge_score"] = final_res["challenge_score"]
+                        await websocket.send_json(result)
+                        break # End session
+                else:
+                    # Normal frame update (can send partial progress if needed)
+                    # For now, just send the frame result silently or omitted to save bandwidth
+                    # We can send a generic verdict update
+                    pass
 
     except WebSocketDisconnect:
-        print(f"Client disconnected: {websocket.client}")
+        print(f"Client disconnected from Challenge WS: {client_host}")
     except Exception as e:
-        print(f"WebSocket Error: {e}")
+        print(f"Challenge WS Error: {e}")
     finally:
         try:
             await websocket.close()
