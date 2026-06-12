@@ -107,35 +107,8 @@ class _CameraScreenState extends State<CameraScreen> {
       _isStreaming = true;
     });
 
-    // Strategy: Desktop (Windows/MacOS/Linux) often doesn't support startImageStream.
-    bool supportsStreaming = true;
-    try {
-      if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
-        supportsStreaming = false;
-      }
-    } catch (_) {
-      // In case Platform check fails (e.g. web-specific errors)
-    }
-
-    if (supportsStreaming) {
-      try {
-        _controller!.startImageStream((CameraImage image) {
-          final now = DateTime.now();
-          if (_lastFrameTime == null || 
-              now.difference(_lastFrameTime!).inMilliseconds > _throttleMs) {
-            _lastFrameTime = now;
-            // For the prototype, we'll actually use the timer fallback even on mobile 
-            // for image encoding consistency, but let's try to keep streaming if possible.
-          }
-        });
-      } catch (e) {
-        print('Image streaming not supported or failed: $e. Using fallback.');
-        _useTimerFallback(provider);
-      }
-    } else {
-      print('Platform does not support streaming. Using timer fallback.');
-      _useTimerFallback(provider);
-    }
+    // Use the robust timer fallback to capture and encode frames as JPEGs cross-platform
+    _useTimerFallback(provider);
   }
 
   void _useTimerFallback(LivenessProvider provider) {

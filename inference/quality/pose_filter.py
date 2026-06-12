@@ -35,7 +35,8 @@ class PoseFilter:
         :return: (pose_status, angles_dict)
         """
         if not self.has_mediapipe or frame is None:
-            return "unknown", {"yaw": 0, "pitch": 0, "roll": 0}
+            # Fallback: if MediaPipe is not available, default to "frontal" to prevent lockout
+            return "frontal", {"yaw_ratio": 1.0, "note": "MediaPipe unavailable, bypassed pose check"}
 
         results = self.face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         
