@@ -7,9 +7,11 @@ import '../models/liveness_result.dart';
 class LivenessService {
   WebSocketChannel? _channel;
   final StreamController<LivenessResult> _resultController = StreamController<LivenessResult>.broadcast();
+  final StreamController<Map<String, dynamic>> _messageController = StreamController<Map<String, dynamic>>.broadcast();
   bool _isConnected = false;
 
   Stream<LivenessResult> get resultStream => _resultController.stream;
+  Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
   bool get isConnected => _isConnected;
 
   Future<void> connect(String url) async {
@@ -20,6 +22,7 @@ class LivenessService {
       _channel!.stream.listen(
         (data) {
           final Map<String, dynamic> json = jsonDecode(data);
+          _messageController.add(json);
           final result = LivenessResult.fromJson(json);
           _resultController.add(result);
         },
@@ -44,8 +47,15 @@ class LivenessService {
     }
   }
 
+  void sendMessage(Map<String, dynamic> jsonMsg) {
+    if (_isConnected && _channel != null) {
+      _channel!.sink.add(jsonEncode(jsonMsg));
+    }
+  }
+
   void dispose() {
     _channel?.sink.close();
     _resultController.close();
+    _messageController.close();
   }
 }
