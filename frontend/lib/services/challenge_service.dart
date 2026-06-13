@@ -193,10 +193,14 @@ class ChallengeService {
         return 'Turn your head left';
       case 'turn_right':
         return 'Turn your head right';
+      case 'nod_up':
+        return 'Nod your head up';
+      case 'nod_down':
+        return 'Nod your head down';
       case 'nod':
         return 'Nod your head up and down';
       case 'open_mouth':
-        return 'Open your mouth';
+        return 'Open your mouth wide';
       case 'raise_eyebrows':
         return 'Raise your eyebrows';
       default:
@@ -215,6 +219,10 @@ class ChallengeService {
         return Icons.arrow_back;
       case 'turn_right':
         return Icons.arrow_forward;
+      case 'nod_up':
+        return Icons.arrow_upward;
+      case 'nod_down':
+        return Icons.arrow_downward;
       case 'nod':
         return Icons.swap_vert;
       case 'open_mouth':

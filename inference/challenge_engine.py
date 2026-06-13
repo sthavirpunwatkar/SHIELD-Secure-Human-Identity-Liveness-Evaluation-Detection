@@ -126,6 +126,12 @@ class ChallengeSession:
             * ``next_challenge`` – the upcoming ChallengeType (or ``None``)
             * ``challenge_score`` – running score (0.0 – 1.0)
         """
+        # Auto-start the timer if start_current_challenge() was never called.
+        # This ensures frames submitted without a prior explicit start still
+        # trigger the timeout mechanism — preventing challenge bypass.
+        if self._challenge_start_time is None and not self._completed:
+            self._challenge_start_time = time.time()
+
         result: Dict = {
             "challenge_passed": False,
             "challenge_failed": False,

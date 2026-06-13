@@ -19,6 +19,56 @@ class ChallengeResult {
   }
 }
 
+/// Granular quality metrics received from the backend quality gate.
+class QualityMetrics {
+  final bool isBlurry;
+  final double blurScore;
+  final String illuminationStatus;
+  final double brightness;
+  final String poseStatus;
+  final bool isOccluded;
+  final double occlusionScore;
+
+  QualityMetrics({
+    required this.isBlurry,
+    required this.blurScore,
+    required this.illuminationStatus,
+    required this.brightness,
+    required this.poseStatus,
+    required this.isOccluded,
+    required this.occlusionScore,
+  });
+
+  factory QualityMetrics.fromJson(Map<String, dynamic> json) {
+    final blur = json['blur'] ?? {};
+    final illum = json['illumination'] ?? {};
+    final pose = json['pose'] ?? {};
+    final occl = json['occlusion'] ?? {};
+
+    return QualityMetrics(
+      isBlurry: blur['is_blurry'] ?? false,
+      blurScore: (blur['score'] ?? 0.0).toDouble(),
+      illuminationStatus: illum['status'] ?? 'unknown',
+      brightness: (illum['brightness'] ?? 0.0).toDouble(),
+      poseStatus: pose['status'] ?? 'unknown',
+      isOccluded: occl['is_occluded'] ?? false,
+      occlusionScore: (occl['score'] ?? 0.0).toDouble(),
+    );
+  }
+
+  factory QualityMetrics.empty() {
+    return QualityMetrics(
+      isBlurry: false,
+      blurScore: 0.0,
+      illuminationStatus: 'unknown',
+      brightness: 0.0,
+      poseStatus: 'unknown',
+      isOccluded: false,
+      occlusionScore: 0.0,
+    );
+  }
+}
+
 /// Aggregated liveness result from the backend, optionally including
 /// active challenge-response data when running in challenge mode.
 class LivenessResult {
@@ -27,6 +77,7 @@ class LivenessResult {
   final String status;
   final int processingTimeMs;
   final LivenessDetails details;
+  final QualityMetrics qualityMetrics;
   final List<double>? bbox;
   final List<int>? frameSize;
 
@@ -45,6 +96,7 @@ class LivenessResult {
     required this.status,
     required this.processingTimeMs,
     required this.details,
+    required this.qualityMetrics,
     this.bbox,
     this.frameSize,
     this.challengeResults,
@@ -69,6 +121,7 @@ class LivenessResult {
       status: json['status'] ?? 'fail',
       processingTimeMs: json['processing_time_ms'] ?? 0,
       details: LivenessDetails.fromJson(json['details'] ?? {}),
+      qualityMetrics: QualityMetrics.fromJson(json['quality_metrics'] ?? {}),
       bbox: json['bbox'] != null
           ? List<double>.from(json['bbox'].map((e) => e.toDouble()))
           : null,
@@ -92,6 +145,7 @@ class LivenessResult {
       status: 'idle',
       processingTimeMs: 0,
       details: LivenessDetails.empty(),
+      qualityMetrics: QualityMetrics.empty(),
     );
   }
 }

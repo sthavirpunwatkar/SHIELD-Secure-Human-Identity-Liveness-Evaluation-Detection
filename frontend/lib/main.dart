@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/liveness_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/challenge_screen.dart';
+import 'screens/pre_verification_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -132,14 +133,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: provider.isConnected 
                   ? () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ChallengeScreen())
+                      MaterialPageRoute(builder: (_) => const PreVerificationScreen())
                     )
                   : () async {
                       await provider.connect(isChallenge: true);
                       if (provider.isConnected) {
                         if (mounted) {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ChallengeScreen())
+                            MaterialPageRoute(builder: (_) => const PreVerificationScreen())
                           );
                         }
                       } else {

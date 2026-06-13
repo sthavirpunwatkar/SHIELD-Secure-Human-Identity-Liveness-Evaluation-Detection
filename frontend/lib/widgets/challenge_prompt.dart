@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/challenge_service.dart';
 
 /// Animated overlay that displays the current challenge instruction,
@@ -66,6 +67,13 @@ class _ChallengePromptState extends State<ChallengePrompt>
         widget.state == ChallengeState.failed) {
       _pulseController.stop();
       _resultController.forward(from: 0);
+
+      // Provide haptic feedback on result
+      if (widget.state == ChallengeState.allPassed) {
+        HapticFeedback.heavyImpact();
+      } else {
+        HapticFeedback.vibrate();
+      }
     } else if (widget.state == ChallengeState.challengeActive) {
       if (!_pulseController.isAnimating) {
         _pulseController.repeat(reverse: true);
