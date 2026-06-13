@@ -167,6 +167,11 @@ Rules:
 
 After completing each major goal or task, the following actions MUST be performed:
 1. **Update Graph:** Run `graphify update .` to synchronize the knowledge graph with the latest code changes.
-2. **Update Documentation:** Ensure `PROJECT_DIARY.md` and `README.md` reflect the latest progress.
+2. **Update Documentation:** Ensure `PROJECT_DIARY.md` is updated. **MANDATORY:** The `README.md` MUST always follow this structure:
+    - **Project Overview & Plan:** A clean explanation of what the project is and its core verification logic.
+    - **Installation & Setup:** Clear, step-by-step instructions for backend and frontend.
+    - **Benchmark Scores:** A table of the latest performance metrics (APCER, BPCER, ACER, Latency).
+    - **Competitive Innovation:** Highlight new techniques (e.g., Deep rPPG, Active+Passive Hybrid) compared to competitors.
+    - **Roadmap:** Current status and next planned improvements.
 3. **Synchronize:** Push all committed changes to the remote repository (`git push origin main`).
 4. **Audit:** After each feature creation or goal completion, invoke the `overview_agent` to perform a senior-level audit and fix any inconsistencies.
