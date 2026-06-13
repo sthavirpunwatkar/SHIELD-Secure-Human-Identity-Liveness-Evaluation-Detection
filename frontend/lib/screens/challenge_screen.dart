@@ -219,22 +219,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                       fit: StackFit.expand,
                       children: [
                         CameraPreview(_controller!),
-                        // Face guide oval
-                        CustomPaint(painter: _FaceGuideOvalPainter()),
-                        // Challenge prompt overlay
-                        Positioned(
-                          bottom: 24,
-                          left: 0,
-                          right: 0,
-                          child: ChallengePrompt(
-                            currentAction: cs.currentAction,
-                            remainingSeconds: cs.remainingSeconds,
-                            totalSeconds: cs.timeoutSeconds,
-                            currentIndex: cs.currentIndex,
-                            totalChallenges: cs.totalChallenges,
-                            state: challengeState,
-                          ),
-                        ),
+                        
+                        // Face guide oval with dynamic feedback
+                        _buildDynamicFaceGuide(provider, cs, challengeState),
+
                         // Connection badge
                         Positioned(
                           top: 10,
@@ -313,6 +301,61 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   }
 
   // ---------------------------------------------------------------------------
+  // Dynamic Face Guide and Spotlight
+  // ---------------------------------------------------------------------------
+
+  Widget _buildDynamicFaceGuide(
+    LivenessProvider provider,
+    ChallengeService cs,
+    ChallengeState challengeState,
+  ) {
+    final qm = provider.currentResult.qualityMetrics;
+    Color guideColor = Colors.white30;
+    String? warning;
+
+    if (provider.currentResult.verdict == 'No Face Detected') {
+      warning = 'Position your face in the oval';
+      guideColor = Colors.orangeAccent;
+    } else if (qm.isBlurry) {
+      warning = 'Hold still - image is blurry';
+      guideColor = Colors.redAccent;
+    } else if (qm.illuminationStatus == 'dark') {
+      warning = 'Too dark - find better lighting';
+      guideColor = Colors.redAccent;
+    } else if (qm.poseStatus != 'frontal' && qm.poseStatus != 'unknown') {
+      warning = 'Look straight at the camera';
+      guideColor = Colors.orangeAccent;
+    } else if (provider.currentResult.status == 'success') {
+      guideColor = Colors.greenAccent;
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        CustomPaint(
+          painter: _FaceGuideOvalPainter(
+            color: guideColor,
+            warning: warning,
+          ),
+        ),
+        Positioned(
+          bottom: 24,
+          left: 0,
+          right: 0,
+          child: ChallengePrompt(
+            currentAction: cs.currentAction,
+            remainingSeconds: cs.remainingSeconds,
+            totalSeconds: cs.timeoutSeconds,
+            currentIndex: cs.currentIndex,
+            totalChallenges: cs.totalChallenges,
+            state: challengeState,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Result summary card
   // ---------------------------------------------------------------------------
 
@@ -378,27 +421,76 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 }
 
 // =============================================================================
-// Face guide oval painter
+// Face guide oval painter with dynamic colors and spotlight effect
 // =============================================================================
 
 class _FaceGuideOvalPainter extends CustomPainter {
+  final Color color;
+  final String? warning;
+
+  _FaceGuideOvalPainter({this.color = Colors.white30, this.warning});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
     final center = Offset(size.width / 2, size.height * 0.38);
+    final width = size.width * 0.55;
+    final height = size.height * 0.45;
     final ovalRect = Rect.fromCenter(
       center: center,
-      width: size.width * 0.55,
-      height: size.height * 0.45,
+      width: width,
+      height: height,
     );
 
+    // 1. Draw Spotlight (Darkened background except for the face area)
+    final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final ovalPath = Path()..addOval(ovalRect);
+    final spotlightPath = Path.combine(PathOperation.difference, backgroundPath, ovalPath);
+
+    final spotlightPaint = Paint()
+      ..color = Colors.black.withOpacity(0.65)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+    canvas.drawPath(spotlightPath, spotlightPaint);
+
+    // 2. Draw the Oval Guide
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
+    // Outer glow for the oval
+    final glowPaint = Paint()
+      ..color = color.withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawOval(ovalRect, glowPaint);
     canvas.drawOval(ovalRect, paint);
+
+    // 3. Draw Warning Text if any
+    if (warning != null) {
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: warning,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            backgroundColor: Colors.black45,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      );
+      textPainter.layout(minWidth: 0, maxWidth: size.width * 0.8);
+      textPainter.paint(
+        canvas,
+        Offset(size.width / 2 - textPainter.width / 2, center.dy + height / 2 + 20),
+      );
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _FaceGuideOvalPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.warning != warning;
 }

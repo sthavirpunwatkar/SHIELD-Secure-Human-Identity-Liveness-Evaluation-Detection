@@ -114,17 +114,18 @@ async def websocket_challenge(websocket: WebSocket):
                             "passed": False,
                             "next_action": update.get("next_challenge")
                         })
-                        
-                    elif update.get("timeout"):
-                        # Re-send the current challenge because of timeout/retry
-                        current = challenge_session.get_current_challenge()
-                        await websocket.send_json({
-                            "type": "challenge",
-                            "action": current.value if current else None,
-                            "timeout_s": challenge_session.timeout_per_challenge,
-                            "index": challenge_session._current_index + 1,
-                            "total": challenge_session.num_challenges
-                        })
+                        # If there's a next challenge after failure, re-issue it
+                        if update.get("next_challenge") and not update.get("session_complete"):
+                            current = challenge_session.get_current_challenge()
+                            if current:
+                                challenge_session.start_current_challenge()
+                                await websocket.send_json({
+                                    "type": "challenge",
+                                    "action": current.value,
+                                    "timeout_s": challenge_session.timeout_per_challenge,
+                                    "index": challenge_session._current_index + 1,
+                                    "total": challenge_session.num_challenges
+                                })
                         
                     if update.get("session_complete"):
                         # Send final verdict
@@ -150,6 +151,44 @@ async def websocket_challenge(websocket: WebSocket):
             await websocket.close()
         except:
             pass
+
+@app.websocket("/ws/verify")
+async def websocket_verify_passive(websocket: WebSocket):
+    """
+    WebSocket endpoint for passive liveness detection (no challenge prompts).
+    Receives binary image frames and returns a fusion verdict per frame.
+    """
+    await websocket.accept()
+    client_host = websocket.client.host if websocket.client else "unknown"
+    print(f"Client connected to Passive Verify WebSocket: {client_host}")
+
+    try:
+        while True:
+            message = await websocket.receive()
+
+            if "bytes" in message:
+                data = message["bytes"]
+                nparr = np.frombuffer(data, np.uint8)
+                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                if frame is None:
+                    continue
+                result = fusion_service.process_frame(frame)
+                await websocket.send_json(result)
+
+            elif "text" in message:
+                # Ignore text messages in passive mode
+                pass
+
+    except WebSocketDisconnect:
+        print(f"Client disconnected from Passive WS: {client_host}")
+    except Exception as e:
+        print(f"Passive WS Error: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except:
+            pass
+
 
 @app.post("/verify")
 async def verify_liveness(file: UploadFile = File(...)):

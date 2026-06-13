@@ -95,6 +95,9 @@ class FASDataset(Dataset):
         if self.transform:
             image = self.transform(image)
             
-        # Convert to tensor [C, H, W]
-        tensor = torch.from_numpy(image).permute(2, 0, 1)
+        # Convert to tensor [C, H, W] if it's not already one
+        if isinstance(image, torch.Tensor):
+            tensor = image
+        else:
+            tensor = torch.from_numpy(image).permute(2, 0, 1)
         return tensor, torch.tensor(label, dtype=torch.long)
