@@ -117,4 +117,7 @@ coverage/
 *.swp
 *~
 
+# Project Running Guide
+RUNNING_GUIDE.md
+
 # Keep `data/` or `notebooks/` if intentionally versioned; ignore only common generated artifacts.
