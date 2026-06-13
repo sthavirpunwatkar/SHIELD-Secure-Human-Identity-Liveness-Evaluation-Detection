@@ -383,9 +383,33 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Score: ${(cs.challengeScore * 100).toStringAsFixed(1)}%',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Score: ${(cs.challengeScore * 100).toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              if (cs.temporalValid != null) ...[
+                const SizedBox(width: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: cs.temporalValid! ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: cs.temporalValid! ? Colors.green : Colors.red, width: 0.5),
+                  ),
+                  child: Text(
+                    cs.temporalValid! ? 'Temporal OK' : 'Temporal Failed',
+                    style: TextStyle(
+                      color: cs.temporalValid! ? Colors.greenAccent : Colors.redAccent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const Divider(color: Colors.white24, height: 24),
           // Individual challenge results

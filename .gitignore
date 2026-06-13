@@ -120,4 +120,10 @@ coverage/
 # Project Running Guide
 RUNNING_GUIDE.md
 
+# ML Data & Large Artifacts
+data/
+models/*.data
+training/models/
+**/__pycache__/
+
 # Keep `data/` or `notebooks/` if intentionally versioned; ignore only common generated artifacts.

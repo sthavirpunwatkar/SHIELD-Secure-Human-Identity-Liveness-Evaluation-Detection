@@ -80,6 +80,7 @@ class LivenessResult {
   final QualityMetrics qualityMetrics;
   final List<double>? bbox;
   final List<int>? frameSize;
+  final bool? temporalValid;
 
   // Challenge-response fields
   final List<ChallengeResult>? challengeResults;
@@ -99,6 +100,7 @@ class LivenessResult {
     required this.qualityMetrics,
     this.bbox,
     this.frameSize,
+    this.temporalValid,
     this.challengeResults,
     this.challengeScore,
     this.currentChallenge,
@@ -128,6 +130,7 @@ class LivenessResult {
       frameSize: json['frame_size'] != null
           ? List<int>.from(json['frame_size'])
           : null,
+      temporalValid: json['temporal_valid'],
       challengeResults: parsedChallenges,
       challengeScore: json['challenge_score'] != null ? (json['challenge_score'] as num).toDouble() : null,
       currentChallenge: json['action'],

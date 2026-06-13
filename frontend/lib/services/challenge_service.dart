@@ -23,6 +23,7 @@ class ChallengeService {
   int _totalChallenges = 3;
   int _passedCount = 0;
   double _challengeScore = 0.0;
+  bool? _temporalValid;
   Timer? _countdownTimer;
   int _remainingSeconds = 5;
   final List<ChallengeResult> _results = [];
@@ -37,6 +38,7 @@ class ChallengeService {
   int get totalChallenges => _totalChallenges;
   int get passedCount => _passedCount;
   double get challengeScore => _challengeScore;
+  bool? get temporalValid => _temporalValid;
   int get remainingSeconds => _remainingSeconds;
   List<ChallengeResult> get results => List.unmodifiable(_results);
 
@@ -106,6 +108,7 @@ class ChallengeService {
     _countdownTimer?.cancel();
     _challengeScore =
         json['challenge_score'] != null ? (json['challenge_score']).toDouble() : 0.0;
+    _temporalValid = json['temporal_valid'];
 
     // Parse aggregated results if the server sends them
     if (json['challenge_results'] != null) {
@@ -117,7 +120,22 @@ class ChallengeService {
     }
 
     final String verdict = json['verdict'] ?? '';
-    if (verdict == 'Live' || _passedCount == _totalChallenges) {
+    // Server verdict is final. Fallback to passedCount if verdict is unknown.
+    bool passed = false;
+    if (verdict == 'Live') {
+      passed = true;
+    } else if (verdict == 'Spoof') {
+      passed = false;
+    } else {
+      passed = _passedCount >= (_totalChallenges / 2); // Simple majority fallback
+    }
+
+    // If temporal validation failed, it's a spoof regardless of challenge scores
+    if (_temporalValid == false) {
+      passed = false;
+    }
+
+    if (passed) {
       _setState(ChallengeState.allPassed);
     } else {
       _setState(ChallengeState.failed);
