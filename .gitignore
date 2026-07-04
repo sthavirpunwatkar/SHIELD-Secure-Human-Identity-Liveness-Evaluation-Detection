@@ -127,3 +127,10 @@ training/models/
 **/__pycache__/
 
 # Keep `data/` or `notebooks/` if intentionally versioned; ignore only common generated artifacts.
+
+# Node modules
+node_modules/
+
+# Presentation QA artifacts
+slide-*.jpg
+SHIELD_CDAC_Project_Review.pdf
