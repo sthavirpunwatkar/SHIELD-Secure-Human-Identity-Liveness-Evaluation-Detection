@@ -7,10 +7,10 @@ class FusionEngine:
         if weights is None:
             # Default weights as per gemini_next_update.md
             self.weights = {
-                "rppg": 0.30,
-                "blink": 0.20,
-                "antispoof": 0.30,
-                "challenge": 0.20
+                "rppg": 0.10,
+                "blink": 0.10,
+                "antispoof": 0.15,
+                "challenge": 0.65
             }
         else:
             self.weights = weights

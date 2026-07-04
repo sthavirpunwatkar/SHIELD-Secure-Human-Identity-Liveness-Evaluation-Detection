@@ -95,6 +95,15 @@
     - Implemented a JPEG Compression Defense to preprocess crop inputs in `fusion_service.py` to prevent high-frequency adversarial noise.
 - **Differentiation:** Enhances production readiness by drastically lowering container image sizes and introducing passive security hardening.
 
+### Milestone 10: Fusion Weights Optimization (July 2026) - COMPLETED
+- **Objective:** Optimize the weighted fusion engine weights to minimize ACER and maximize accuracy.
+- **Key Achievements:**
+    - Implemented a grid-search tuning script `evaluation/tune_weights.py` to systematically search optimal weights.
+    - Added a `min_weight=0.10` constraint to prevent silencing any modal signal.
+    - Evaluated 1,771 weight combinations on the dataset, finding the optimal configuration: 10% rPPG, 10% Blink, 15% Antispoof, and 65% Challenge.
+    - Updated `inference/fusion_engine.py` default weights to apply the optimal combination.
+- **Differentiation:** Empirically calibrates the decision fusion module using dataset metrics instead of raw heuristics.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)
