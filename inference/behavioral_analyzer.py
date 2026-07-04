@@ -497,6 +497,7 @@ class BehavioralAnalyzer:
                     else:
                         results["head_turn"] = "center"
 
+                    results["raw_landmarks"] = face_landmarks
                     return results
             except Exception as e:
                 print(f"BehavioralAnalyzer: MediaPipe processing error: {e}")

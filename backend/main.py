@@ -87,16 +87,19 @@ async def websocket_challenge(websocket: WebSocket):
                     await websocket.send_json({"type": "error", "message": "Invalid image data"})
                     continue
 
-                # Add frame to session manager (validates temporal consistency)
-                frame_res = session.add_frame(frame)
+                # Process through Fusion Service with challenge session
+                result = fusion_service.process_challenge_frame(frame, challenge_session)
+                raw_landmarks = result.pop("_raw_landmarks", None)
+                # Add frame to session manager (validates temporal consistency and identity)
+                frame_res = session.add_frame(frame, landmarks=raw_landmarks)
                 if not frame_res["accepted"]:
                     if frame_res.get("expired"):
                         await websocket.send_json({"type": "error", "message": "Session expired"})
                         break
+                    if frame_res.get("reason") == "identity_swap_detected":
+                        await websocket.send_json({"type": "error", "message": "Identity mismatch detected"})
+                        break
                     continue
-
-                # Process through Fusion Service with challenge session
-                result = fusion_service.process_challenge_frame(frame, challenge_session)
                 
                 # Check challenge updates
                 if "challenge_info" in result and "session_update" in result["challenge_info"]:
