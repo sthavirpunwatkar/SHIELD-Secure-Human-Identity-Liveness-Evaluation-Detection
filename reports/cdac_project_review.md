@@ -4,13 +4,16 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 1: Title & Problem Formulation
+## Slide 1: Title & Problem Formulation (Cover Slide)
 
 ### Slide Content
 *   **Project Title:** SHIELD
 *   **Sub-title:** Multimodal Real-Time Biometric Liveness & Identity Verification System
-*   **Domain:** Biometrics & Computer Vision
-*   **Problem Formulation:**
+*   **Project Metadata:**
+    *   **Project Partners:** Sthavir Sunil Punwatkar, [Project Partner 2]
+    *   **Project Guide:** [Project Guide Name]
+    *   **Context:** CDAC Project Review  |  Domain: Biometrics & Computer Vision
+*   **Problem Formulation (Rounded Corner Card):**
     Identity fraud compromises remote verification systems:
     *   **Presentation Attacks (PA):** Static photo prints, video loop replays, and 3D masks deceive traditional facial recognition.
     *   **Identity Swapping:** User swaps mid-session (tag-team cheating) during active testing or authentication.
@@ -33,7 +36,7 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 3: System Architecture & Flow
+## Slide 3: System Architecture & Flow (Rounded Corner Cards)
 
 ### Slide Content
 *   **Workflow Flow:**
@@ -80,7 +83,7 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 6: Interface Design & Live Demonstration
+## Slide 6: Interface Design & Live Demonstration (Rounded Corner Cards)
 
 ### Slide Content
 *   **📱 Interactive Flutter Telemetry Dashboard:**

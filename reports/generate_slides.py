@@ -53,33 +53,62 @@ def create_deck():
     set_slide_bg(slide1, SHIELD_COVER_IMG)
     
     # Left Aligned Cover Details
-    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.8), Inches(5.5), Inches(2.2))
+    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(5.5), Inches(1.6))
     tf = title_box.text_frame
     tf.word_wrap = True
+    tf.margin_left = 0
+    tf.margin_top = 0
+    tf.margin_right = 0
+    tf.margin_bottom = 0
+    
     p1 = tf.paragraphs[0]
     p1.text = "SHIELD"
     p1.font.name = "Arial"
-    p1.font.size = Pt(46)
+    p1.font.size = Pt(42)
     p1.font.bold = True
     p1.font.color.rgb = TEXT_WHITE
     
     p2 = tf.add_paragraph()
     p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification System"
     p2.font.name = "Arial"
-    p2.font.size = Pt(18)
+    p2.font.size = Pt(15)
     p2.font.bold = True
     p2.font.color.rgb = ACCENT_BLUE
     p2.space_before = Pt(6)
 
-    p3 = tf.add_paragraph()
-    p3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
-    p3.font.name = "Arial"
-    p3.font.size = Pt(12)
-    p3.font.color.rgb = TEXT_DARK_GRAY
-    p3.space_before = Pt(8)
+    # Project Metadata (Partners & Guide)
+    meta_box = slide1.shapes.add_textbox(Inches(0.75), Inches(2.1), Inches(5.5), Inches(1.1))
+    tf_meta = meta_box.text_frame
+    tf_meta.word_wrap = True
+    tf_meta.margin_left = 0
+    tf_meta.margin_top = 0
+    tf_meta.margin_right = 0
+    tf_meta.margin_bottom = 0
+    
+    p_meta1 = tf_meta.paragraphs[0]
+    p_meta1.text = "Project Partners: Sthavir Sunil Punwatkar, [Project Partner 2]"
+    p_meta1.font.name = "Arial"
+    p_meta1.font.size = Pt(11.5)
+    p_meta1.font.bold = True
+    p_meta1.font.color.rgb = TEXT_MUTED
+    
+    p_meta2 = tf_meta.add_paragraph()
+    p_meta2.text = "Project Guide: [Project Guide Name]"
+    p_meta2.font.name = "Arial"
+    p_meta2.font.size = Pt(11.5)
+    p_meta2.font.bold = True
+    p_meta2.font.color.rgb = TEXT_MUTED
+    p_meta2.space_before = Pt(3)
+
+    p_meta3 = tf_meta.add_paragraph()
+    p_meta3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
+    p_meta3.font.name = "Arial"
+    p_meta3.font.size = Pt(11.5)
+    p_meta3.font.color.rgb = TEXT_DARK_GRAY
+    p_meta3.space_before = Pt(5)
 
     # Problem Statement Card (Left Overlay)
-    card1 = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(3.2), Inches(5.5), Inches(3.5))
+    card1 = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(3.3), Inches(5.5), Inches(3.6))
     card1.fill.solid()
     card1.fill.fore_color.rgb = CARD_BG
     card1.line.color.rgb = CARD_BORDER
@@ -209,7 +238,7 @@ def create_deck():
 
     for idx, (name, desc, tagline) in enumerate(pillars):
         x_pos = start_x + idx * (card_width + spacing)
-        card = slide3.shapes.add_shape(MSO_SHAPE.RECTANGLE, x_pos, y_pos, card_width, card_height)
+        card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, card_width, card_height)
         card.fill.solid()
         card.fill.fore_color.rgb = CARD_BG
         card.line.color.rgb = CARD_BORDER
@@ -372,7 +401,7 @@ def create_deck():
     add_title(slide6, "Interface Design & Live Demonstration")
 
     # Left card: UI Architecture
-    ui_card = slide6.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
+    ui_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
     ui_card.fill.solid()
     ui_card.fill.fore_color.rgb = CARD_BG
     ui_card.line.color.rgb = CARD_BORDER
@@ -406,7 +435,7 @@ def create_deck():
         p.space_after = Pt(8)
 
     # Right card: Live Demo Sequence
-    demo_card = slide6.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
+    demo_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
     demo_card.fill.solid()
     demo_card.fill.fore_color.rgb = CARD_BG
     demo_card.line.color.rgb = CARD_BORDER
