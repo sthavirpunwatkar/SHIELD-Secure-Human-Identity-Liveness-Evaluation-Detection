@@ -1,29 +1,30 @@
-# 🛡️ SHIELD - CDAC Project Review Slide Deck
+# 🛡️ SHIELD - CDAC Project Review Slide Deck (McKinsey Action Theme)
 
 This document serves as a slide-by-slide text guide and backup for the generated PowerPoint presentation `reports/cdac_project_review.pptx`.
 
 ---
 
-## Slide 1: Title & Problem Formulation (Cover Slide)
+## Slide 1: Title & Problem Formulation (SCR Cover Slide)
 
 ### Slide Content
 *   **Project Title:** SHIELD
-*   **Sub-title:** Multimodal Real-Time Biometric Liveness & Identity Verification System
+*   **Sub-title:** Multimodal Real-Time Biometric Liveness & Identity Verification
 *   **Project Metadata:**
     *   **Project Partners:** Sthavir Sunil Punwatkar, [Project Partner 2]
     *   **Project Guide:** [Project Guide Name]
     *   **Context:** CDAC Project Review  |  Domain: Biometrics & Computer Vision
-*   **Problem Formulation (Rounded Corner Card):**
-    Identity fraud compromises remote verification systems:
-    *   **Presentation Attacks (PA):** Static photo prints, video loop replays, and 3D masks deceive traditional facial recognition.
-    *   **Identity Swapping:** User swaps mid-session (tag-team cheating) during active testing or authentication.
-    *   **Deployment Limits:** Existing anti-spoofing methods require specialized depth hardware, rendering wide scale deployments impractical.
+*   **SITUATION & COMPLICATION (SCR Overlay Card):**
+    *   **Situation:** Remote high-stakes evaluations (exams, interviews) rely on standard 2D webcams for candidate authentication.
+    *   **Complication:** Traditional facial recognition is bypassed by presentation attacks (printed photos, video replay screens) and mid-session identity swapping.
+    *   **Resolution:** SHIELD introduces a unified real-time framework integrating facial texture patterns, physiological cardiac pulse (rPPG), and active behavioral challenges.
+*   **Right Side Illustration:** Holographic cyber shield visual framed on the right.
 
 ---
 
-## Slide 2: Project Objectives
+## Slide 2: Objectives (Target Resolution Matrix)
 
 ### Slide Content
+*   **Action Title:** Objectives: Establishing a Standard-Compliant, Low-Latency Defense for Remote Identity Verification
 *   **🎯 Core Objectives:**
     *   Develop an end-to-end, real-time liveness pipeline processing multi-layered verification streams in <100ms.
     *   Implement non-intrusive biological checks by extracting blood volume pulse (BVP) from standard RGB video feeds (rPPG).
@@ -36,9 +37,10 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 3: System Architecture Pipeline (Flowchart Slide)
+## Slide 3: Architecture (Data-Driven Pipeline)
 
 ### Slide Content
+*   **Action Title:** Architecture: Multi-Tiered Verification Processing Raw Webcam Frames to Final Score Fusion
 *   **⚙️ PIPELINE DATA FLOWCHART:**
     *   Visual architecture modeled as a neural block diagram, showing data routing through the processing steps:
         1.  **Video Frames (BGR stream)** (Pink input card)
@@ -54,19 +56,22 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 4: Multimodal Verification Pillars (Rounded Corner Cards)
+## Slide 4: Defense Pillars (Multimodal Mechanisms)
 
 ### Slide Content
-1.  **Passive Texture:** MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.
-2.  **Physiological rPPG:** 3D spatio-temporal CNN extracting cardiac micro-signals from skin color shifts to verify living tissue.
-3.  **Active Challenges:** Randomized directives (Blink, Turn, Smile) validated dynamically to establish immediate user cooperation.
-4.  **Temporal Validator:** Time-series integrity checking to trace jump-cuts and confirm time sync between challenge events.
+*   **Action Title:** Defense Pillars: Combining Spatial Textures, Cardiac Physiology, and Active Directives
+*   **Four Pillars Details:**
+    1.  **Passive Texture:** MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.
+    2.  **Physiological rPPG:** 3D spatio-temporal CNN extracting cardiac micro-signals from skin color shifts to verify living tissue.
+    3.  **Active Challenges:** Randomized directives (Blink, Turn, Smile) validated dynamically to establish immediate user cooperation.
+    4.  **Temporal Validator:** Time-series integrity checking to trace jump-cuts and confirm time sync between challenge events.
 
 ---
 
-## Slide 5: Results & Evaluation Matrix
+## Slide 5: Results & Performance Evaluation
 
 ### Slide Content
+*   **Action Title:** Results: SHIELD Exceeds Enterprise Standards with 1.0% ACER at 85ms Latency
 *   **Metrics Comparison Table:**
 
 | Metric Parameter | SHIELD Score |
@@ -81,27 +86,32 @@ This document serves as a slide-by-slide text guide and backup for the generated
     *   **BPCER:** Bona Fide Presentation Classification Error Rate. Measures the % of genuine live users incorrectly flagged as spoofs.
     *   **ACER:** Average Classification Error Rate. Calculated as the average of APCER and BPCER: ACER = (APCER + BPCER) / 2.
     *   **Calibration:** Evaluated on CASIA-FASD and CelebA-Spoof (10,000+ frames). System weights tuned via 1,771 test combinations under min_weight=0.10 constraint to achieve 1.0% ACER.
+*   **Right Side Illustration:** Speedometer telemetry dashboard visual.
 
 ---
 
 ## Slide 6: Novelty & Key Contributions
 
 ### Slide Content
-1.  **Real-Time Scale-Invariant Identity Consistency Check:**
-    Defeats mid-session candidate swapping (tag-team fraud):
-    *   Computes scale-invariant 4D geometric signature ratios (nose, eyes, chin, lip corners) using MediaPipe FaceMesh landmarks.
-    *   Signature distance is verified frame-by-frame. Websocket is killed immediately if signature drift exceeds threshold (>0.20).
-2.  **JPEG Compression Defenses:**
-    Enhances resilience against adversarial spatial noise attacks:
-    *   Integrates compression filters into the face crop step to cancel out artificial noise patterns generated by digital camera overlays.
-3.  **System Grid Search Optimization:**
-    *   Evaluated 1,771 separate sensor weight parameter combinations mathematically to eliminate sub-model silence.
+*   **Action Title:** Novelty: Scale-Invariant Identity Landmark Trajectories Prevent Mid-Session Swapping
+*   **Three Key Novelties:**
+    1.  **Real-Time Scale-Invariant Identity Consistency Check:**
+        Defeats mid-session candidate swapping (tag-team fraud):
+        *   Computes scale-invariant 4D geometric signature ratios (nose, eyes, chin, lip corners) using MediaPipe FaceMesh landmarks.
+        *   Signature distance is verified frame-by-frame. Websocket is killed immediately if signature drift exceeds threshold (>0.20).
+    2.  **JPEG Compression Defenses:**
+        Enhances resilience against adversarial spatial noise attacks:
+        *   Integrates compression filters into the face crop step to cancel out artificial noise patterns generated by digital camera overlays.
+    3.  **System Grid Search Optimization:**
+        *   Evaluated 1,771 separate sensor weight parameter combinations mathematically to eliminate sub-model silence.
+*   **Right Side Illustration:** 3D face mesh wireframe visual.
 
 ---
 
-## Slide 7: Interface Design & Live Demonstration (Rounded Corner Cards)
+## Slide 7: Deployment & UI Operations
 
 ### Slide Content
+*   **Action Title:** Deployment: Flutter Dashboard and WebSocket Ingestion Enable Seamless Live Audit Trails
 *   **📱 Interactive Flutter Telemetry Dashboard:**
     *   **Quality Telemetry Guide:** Interactive oval frame changing colors dynamically based on real-time quality parameters (Blur, Exposure, Pose).
     *   **Explainable Biometrics:** Displays clear confidence breakdowns for texture, biological rPPG, and active challenge scores in real-time.
