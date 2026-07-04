@@ -44,8 +44,8 @@ def create_deck():
             fill.solid()
             fill.fore_color.rgb = BG_COLOR
 
-    def add_title(slide, text, color=ACCENT_PURPLE, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
-        title_box = slide.shapes.add_textbox(left, top, width, Inches(0.8))
+    def add_action_title(slide, text, color=ACCENT_PURPLE, left=Inches(0.75), top=Inches(0.35), width=Inches(11.83), font_size=22):
+        title_box = slide.shapes.add_textbox(left, top, width, Inches(1.0))
         tf = title_box.text_frame
         tf.word_wrap = True
         tf.margin_left = 0
@@ -53,18 +53,18 @@ def create_deck():
         p = tf.paragraphs[0]
         p.text = text
         p.font.name = "Arial"
-        p.font.size = Pt(30)
+        p.font.size = Pt(font_size)
         p.font.bold = True
         p.font.color.rgb = color
         return title_box
 
-    # --- SLIDE 1: Title and Problem Statement (Cover) ---
+    # --- SLIDE 1: Title and Problem Statement (SCR Cover) ---
     slide_layout = prs.slide_layouts[6]
     slide1 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide1, SHIELD_COVER_IMG)
     
     # Left Aligned Cover Details
-    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(5.5), Inches(1.6))
+    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.3), Inches(5.5), Inches(1.7))
     tf = title_box.text_frame
     tf.word_wrap = True
     tf.margin_left = 0
@@ -75,20 +75,20 @@ def create_deck():
     p1 = tf.paragraphs[0]
     p1.text = "SHIELD"
     p1.font.name = "Arial"
-    p1.font.size = Pt(42)
+    p1.font.size = Pt(40)
     p1.font.bold = True
     p1.font.color.rgb = TEXT_WHITE
     
     p2 = tf.add_paragraph()
-    p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification System"
+    p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification"
     p2.font.name = "Arial"
-    p2.font.size = Pt(15)
+    p2.font.size = Pt(14)
     p2.font.bold = True
     p2.font.color.rgb = ACCENT_PURPLE
-    p2.space_before = Pt(6)
+    p2.space_before = Pt(4)
 
     # Project Metadata (Partners & Guide)
-    meta_box = slide1.shapes.add_textbox(Inches(0.75), Inches(2.1), Inches(5.5), Inches(1.1))
+    meta_box = slide1.shapes.add_textbox(Inches(0.75), Inches(2.0), Inches(5.5), Inches(1.1))
     tf_meta = meta_box.text_frame
     tf_meta.word_wrap = True
     tf_meta.margin_left = 0
@@ -99,14 +99,14 @@ def create_deck():
     p_meta1 = tf_meta.paragraphs[0]
     p_meta1.text = "Project Partners: Sthavir Sunil Punwatkar, [Project Partner 2]"
     p_meta1.font.name = "Arial"
-    p_meta1.font.size = Pt(11.5)
+    p_meta1.font.size = Pt(11)
     p_meta1.font.bold = True
     p_meta1.font.color.rgb = TEXT_MUTED
     
     p_meta2 = tf_meta.add_paragraph()
     p_meta2.text = "Project Guide: [Project Guide Name]"
     p_meta2.font.name = "Arial"
-    p_meta2.font.size = Pt(11.5)
+    p_meta2.font.size = Pt(11)
     p_meta2.font.bold = True
     p_meta2.font.color.rgb = TEXT_MUTED
     p_meta2.space_before = Pt(3)
@@ -114,12 +114,12 @@ def create_deck():
     p_meta3 = tf_meta.add_paragraph()
     p_meta3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
     p_meta3.font.name = "Arial"
-    p_meta3.font.size = Pt(11.5)
+    p_meta3.font.size = Pt(11)
     p_meta3.font.color.rgb = TEXT_DARK_GRAY
     p_meta3.space_before = Pt(5)
 
-    # Problem Statement Card (Left Overlay)
-    card1 = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(3.3), Inches(5.5), Inches(3.6))
+    # Problem Statement Card (SCR Situation Overlay)
+    card1 = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(3.2), Inches(5.5), Inches(3.7))
     card1.fill.solid()
     card1.fill.fore_color.rgb = CARD_BG
     card1.line.color.rgb = CARD_BORDER
@@ -128,33 +128,32 @@ def create_deck():
     tf_card = card1.text_frame
     tf_card.word_wrap = True
     tf_card.margin_left = Inches(0.25)
-    tf_card.margin_top = Inches(0.25)
+    tf_card.margin_top = Inches(0.2)
     tf_card.margin_right = Inches(0.25)
-    tf_card.margin_bottom = Inches(0.25)
+    tf_card.margin_bottom = Inches(0.2)
     
     p_prob_hdr = tf_card.paragraphs[0]
-    p_prob_hdr.text = "PROBLEM FORMULATION"
+    p_prob_hdr.text = "SITUATION & COMPLICATION"
     p_prob_hdr.font.name = "Arial"
-    p_prob_hdr.font.size = Pt(15)
+    p_prob_hdr.font.size = Pt(14)
     p_prob_hdr.font.bold = True
     p_prob_hdr.font.color.rgb = ACCENT_PURPLE
     
     p_prob_body = tf_card.add_paragraph()
     p_prob_body.text = (
-        "Remote biometric systems face vulnerabilities to spoofing:\n"
-        "• Presentation Attacks (PA): Static photo prints, video loop replays, and 3D masks deceive traditional facial recognition.\n"
-        "• Identity Swapping: User swaps mid-session (tag-team cheating) during active testing or authentication.\n"
-        "• Deployment Limits: Existing anti-spoofing methods require specialized depth hardware, rendering wide scale deployments impractical."
+        "• Context: Remote high-stakes evaluations (exams, interviews) rely on standard 2D webcams for candidate authentication.\n"
+        "• Complication: Traditional facial recognition is bypassed by presentation attacks (printed photos, video replay screens) and mid-session identity swapping.\n"
+        "• Resolution: SHIELD introduces a unified real-time framework integrating facial texture patterns, physiological cardiac pulse (rPPG), and active behavioral challenges."
     )
     p_prob_body.font.name = "Arial"
-    p_prob_body.font.size = Pt(11)
+    p_prob_body.font.size = Pt(10.5)
     p_prob_body.font.color.rgb = TEXT_MUTED
     p_prob_body.space_before = Pt(6)
 
-    # --- SLIDE 2: Objectives (Standard Layout) ---
+    # --- SLIDE 2: Objectives (Target Resolution Matrix) ---
     slide2 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide2)
-    add_title(slide2, "Project Objectives")
+    add_action_title(slide2, "Objectives: Establishing a Standard-Compliant, Low-Latency Defense for Remote Identity Verification")
 
     # Left Column: Primary Goals
     left_box = slide2.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(5.6), Inches(5.0))
@@ -220,7 +219,7 @@ def create_deck():
     # --- SLIDE 3: System Architecture & Flow (FLOWCHART BUILD) ---
     slide3 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide3)
-    add_title(slide3, "System Architecture Pipeline")
+    add_action_title(slide3, "Architecture: Multi-Tiered Verification Processing Raw Webcam Frames to Final Score Fusion")
 
     # Left text explanation
     left_desc = slide3.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(4.2), Inches(5.0))
@@ -344,7 +343,7 @@ def create_deck():
     # --- SLIDE 4: Multimodal Verification Pillars (Standard Layout) ---
     slide4 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide4)
-    add_title(slide4, "Multimodal Verification Pillars")
+    add_action_title(slide4, "Defense Pillars: Combining Spatial Textures, Cardiac Physiology, and Active Directives")
 
     # Description of 4 cards
     card_width = Inches(2.7)
@@ -400,13 +399,14 @@ def create_deck():
     slide5 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide5, TELEMETRY_IMG)
     
-    add_title(slide5, "Results & Evaluation Matrix", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
+    # Action Title (with smaller size font to fit within left boundary box)
+    add_action_title(slide5, "Results: SHIELD Exceeds Enterprise Standards with 1.0% ACER at 85ms Latency", TEXT_WHITE, Inches(0.75), Inches(0.3), Inches(5.6), font_size=19)
 
     # Metrics Table
     rows = 5
     cols = 2
     left = Inches(0.75)
-    top = Inches(1.3)
+    top = Inches(1.4)
     width = Inches(5.6)
     height = Inches(2.2)
     
@@ -450,7 +450,7 @@ def create_deck():
             p.alignment = PP_ALIGN.CENTER
 
     # Bounding Box for Details (Evaluation matrix definitions)
-    desc_box = slide5.shapes.add_textbox(Inches(0.75), Inches(3.7), Inches(5.6), Inches(3.3))
+    desc_box = slide5.shapes.add_textbox(Inches(0.75), Inches(3.8), Inches(5.6), Inches(3.2))
     tf_desc = desc_box.text_frame
     tf_desc.word_wrap = True
     
@@ -480,9 +480,10 @@ def create_deck():
     slide6 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide6, FACIAL_MESH_IMG)
     
-    add_title(slide6, "Novelty & Custom Contributions", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
+    # Action Title (with smaller size font to fit within left boundary box)
+    add_action_title(slide6, "Novelty: Scale-Invariant Identity Landmark Trajectories Prevent Mid-Session Swapping", TEXT_WHITE, Inches(0.75), Inches(0.3), Inches(5.6), font_size=19)
 
-    contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.3), Inches(5.6), Inches(5.8))
+    contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.4), Inches(5.6), Inches(5.7))
     tf_cnt = contrib_box.text_frame
     tf_cnt.word_wrap = True
     
@@ -523,7 +524,7 @@ def create_deck():
     # --- SLIDE 7: Demo Video & Live Telemetry UI (Standard Layout) ---
     slide7 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide7)
-    add_title(slide7, "Interface Design & Live Demonstration")
+    add_action_title(slide7, "Deployment: Flutter Dashboard and WebSocket Ingestion Enable Seamless Live Audit Trails")
 
     # Left card: UI Architecture
     ui_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))

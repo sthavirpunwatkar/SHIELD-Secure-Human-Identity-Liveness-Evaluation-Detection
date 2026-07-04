@@ -1,7 +1,7 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-04)
 
 ## Corpus Check
-- 100 files · ~47,230 words
+- 100 files · ~47,421 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d5ab696`
+- Built from commit: `99d34190`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -219,7 +219,7 @@ Nodes (10): ndarray, Compile the combined verification result.          Merges t
 
 ### Community 26 - "Community 26"
 Cohesion: 0.12
-Nodes (15): 🛡️ SHIELD - CDAC Project Review Slide Deck, Slide 1: Title & Problem Formulation (Cover Slide), Slide 2: Project Objectives, Slide 3: System Architecture Pipeline (Flowchart Slide), Slide 4: Multimodal Verification Pillars (Rounded Corner Cards), Slide 5: Results & Evaluation Matrix, Slide 6: Novelty & Key Contributions, Slide 7: Interface Design & Live Demonstration (Rounded Corner Cards) (+7 more)
+Nodes (15): 🛡️ SHIELD - CDAC Project Review Slide Deck (McKinsey Action Theme), Slide 1: Title & Problem Formulation (SCR Cover Slide), Slide 2: Objectives (Target Resolution Matrix), Slide 3: Architecture (Data-Driven Pipeline), Slide 4: Defense Pillars (Multimodal Mechanisms), Slide 5: Results & Performance Evaluation, Slide 6: Novelty & Key Contributions, Slide 7: Deployment & UI Operations (+7 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.10
@@ -334,7 +334,7 @@ Cohesion: 0.25
 Nodes (7): AI/Inference Pipeline, 🔍 Audit Checklist, Backend (Python/FastAPI), Frontend (Flutter/Dart), 🛡️ Overview Agent - Senior System Auditor, 🎯 Primary Directives, 🛠️ Tools & Workflow
 
 ## Knowledge Gaps
-- **282 isolated node(s):** `Slide Content`, `Slide Content`, `Slide Content`, `Slide Content`, `Slide Content` (+277 more)
+- **282 isolated node(s):** `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script`, `UIApplication`, `Any` (+277 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
