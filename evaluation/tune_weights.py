@@ -58,16 +58,14 @@ class WeightTuner:
         
         # Grid search over 4 weights summing to 1.0
         for r_w in np.arange(min_weight, 1.01, 0.05):
+            r_w = round(r_w, 2)
             for b_w in np.arange(min_weight, 1.01 - r_w, 0.05):
+                b_w = round(b_w, 2)
                 for a_w in np.arange(min_weight, 1.01 - r_w - b_w, 0.05):
-                    c_w = 1.0 - r_w - b_w - a_w
-                    if c_w < min_weight:
-                        continue
-                    
-                    r_w = round(r_w, 2)
-                    b_w = round(b_w, 2)
                     a_w = round(a_w, 2)
-                    c_w = round(c_w, 2)
+                    c_w = round(1.0 - r_w - b_w - a_w, 2)
+                    if c_w < round(min_weight, 2):
+                        continue
                     
                     y_true_list = []
                     y_pred_scores = []
