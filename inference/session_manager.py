@@ -53,6 +53,7 @@ class VerificationSession:
 
         self.frame_count: int = 0
         self.frame_hashes: Set[str] = set()
+        self._base_identity_signature = None
 
     # ------------------------------------------------------------------
     # Public API
@@ -65,7 +66,7 @@ class VerificationSession:
         """
         return time.time() > self.expires_at
 
-    def add_frame(self, frame: np.ndarray) -> Dict:
+    def add_frame(self, frame: np.ndarray, landmarks=None) -> Dict:
         """Ingest a single video frame for verification.
 
         Performs the following in order:
@@ -102,6 +103,18 @@ class VerificationSession:
             result["reason"] = "duplicate_frame_detected"
             return result
 
+        # --- Identity Consistency Check ---
+        if landmarks is not None:
+            signature = self._calculate_landmark_signature(landmarks)
+            if signature is not None:
+                if self._base_identity_signature is None:
+                    self._base_identity_signature = signature
+                else:
+                    distance = np.linalg.norm(self._base_identity_signature - signature)
+                    if distance > 0.20:
+                        result["reason"] = "identity_swap_detected"
+                        return result
+
         self.frame_hashes.add(frame_hash)
         self.frame_count += 1
         result["frame_number"] = self.frame_count
@@ -112,6 +125,39 @@ class VerificationSession:
         result["accepted"] = True
         result["reason"] = "frame_accepted"
         return result
+
+    def _get_landmark_coords(self, landmark):
+        if hasattr(landmark, "x"):
+            return np.array([landmark.x, landmark.y, landmark.z])
+        elif isinstance(landmark, dict):
+            return np.array([landmark.get("x", 0.0), landmark.get("y", 0.0), landmark.get("z", 0.0)])
+        else:
+            return np.array([landmark[0], landmark[1], landmark[2]])
+
+    def _calculate_landmark_signature(self, landmarks):
+        try:
+            # MediaPipe standard indices:
+            # 1: nose tip, 33: left eye corner, 263: right eye corner
+            # 152: chin, 61: left mouth corner, 291: right mouth corner
+            p_nose = self._get_landmark_coords(landmarks[1])
+            p_leye = self._get_landmark_coords(landmarks[33])
+            p_reye = self._get_landmark_coords(landmarks[263])
+            p_chin = self._get_landmark_coords(landmarks[152])
+            p_lmouth = self._get_landmark_coords(landmarks[61])
+            p_rmouth = self._get_landmark_coords(landmarks[291])
+            
+            interocular = np.linalg.norm(p_leye - p_reye)
+            if interocular == 0:
+                return None
+                
+            d_nose_chin = np.linalg.norm(p_nose - p_chin) / interocular
+            d_lmouth_rmouth = np.linalg.norm(p_lmouth - p_rmouth) / interocular
+            d_leye_lmouth = np.linalg.norm(p_leye - p_lmouth) / interocular
+            d_reye_rmouth = np.linalg.norm(p_reye - p_rmouth) / interocular
+            
+            return np.array([d_nose_chin, d_lmouth_rmouth, d_leye_lmouth, d_reye_rmouth])
+        except Exception:
+            return None
 
     def get_final_result(self) -> Dict:
         """Compile the combined verification result.

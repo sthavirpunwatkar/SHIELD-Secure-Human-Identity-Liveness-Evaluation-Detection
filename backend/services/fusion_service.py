@@ -77,6 +77,7 @@ class FusionService:
         # Behavioral Score (Blink) — now uses real EAR-based detection
         behavior = self.behavioral.analyze(frame, faces=faces)
         blink_score = 1.0 if behavior['blink_detected'] else 0.0
+        raw_landmarks = behavior.get("raw_landmarks")
 
         # Physiological Score (rPPG)
         rppg_score = self.rppg.update(frame)
@@ -135,6 +136,7 @@ class FusionService:
         if challenge_info is not None:
             result["challenge_info"] = challenge_info
 
+        result["_raw_landmarks"] = raw_landmarks
         return result
 
     def process_challenge_frame(self, frame, challenge_session):

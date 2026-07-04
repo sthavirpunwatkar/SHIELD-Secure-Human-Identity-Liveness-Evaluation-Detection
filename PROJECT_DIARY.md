@@ -106,6 +106,16 @@
     - Added a unit test `test_weight_tuner` in `test_fusion.py` to verify tuner logic.
 - **Differentiation:** Empirically calibrates the decision fusion module using dataset metrics instead of raw heuristics, verified by robust unit tests.
 
+### Milestone 11: Active Identity Consistency Check (July 2026) - COMPLETED
+- **Objective:** Prevent "tag-team" candidate swap attacks by validating identity consistency in real-time.
+- **Key Achievements:**
+    - Implemented scale-invariant 4D geometric signature computation from 6 stable landmarks (nose, eyes, chin, mouth corners) of MediaPipe FaceMesh.
+    - Normalized facial distances using the interocular distance to guarantee robust distance ratio comparisons under changing camera distances.
+    - Integrated verification directly into `VerificationSession.add_frame` with raw landmark passing from `FusionService` to avoid CPU/network overhead.
+    - Rejects frames and terminates active challenge sessions immediately (`Identity mismatch detected`) if signature distance exceeds `0.20`.
+    - Added comprehensive integration test (`test_websocket_identity_mismatch`) to assert correct rejection and error signaling.
+- **Differentiation:** Guards the session integrity against mid-session identity switches, establishing a critical verification parameter.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)
