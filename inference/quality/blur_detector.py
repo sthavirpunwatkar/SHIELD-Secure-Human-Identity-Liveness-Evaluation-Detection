@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class BlurDetector:
-    def __init__(self, threshold=100.0):
+    def __init__(self, threshold=20.0):
         """
         Initializes the Blur Detector using Variance of Laplacian.
         :param threshold: Threshold below which a frame is considered blurry.

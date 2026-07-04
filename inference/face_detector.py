@@ -42,8 +42,8 @@ class FaceDetector:
                 conf = float(box.conf[0])
                 
                 # If we are using a specific face model, we don't need to filter by class 0
-                # But for safety in this placeholder, we'll take boxes with conf > 0.5
-                if conf > 0.5:
+                # But for safety in this placeholder, we'll take boxes with conf > 0.35
+                if conf > 0.35:
                     xyxy = box.xyxy[0].tolist()
                     faces.append({
                         'bbox': [int(x) for x in xyxy],

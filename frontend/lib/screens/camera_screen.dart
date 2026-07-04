@@ -60,6 +60,7 @@ class _CameraScreenState extends State<CameraScreen> {
         setState(() {
           _errorMessage = null;
         });
+        _startStreaming();
       }
     } catch (e) {
       print('Camera initialization error: $e');
