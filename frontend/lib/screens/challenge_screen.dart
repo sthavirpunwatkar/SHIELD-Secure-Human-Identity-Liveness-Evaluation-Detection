@@ -67,8 +67,12 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         enableAudio: false,
       );
 
+      await Future.delayed(const Duration(milliseconds: 500)); // Release hardware lock from previous screen
       await _controller!.initialize();
-      if (mounted) setState(() => _errorMessage = null);
+      if (mounted) {
+        setState(() => _errorMessage = null);
+        _startChallenge();
+      }
     } catch (e) {
       print('Camera initialization error: $e');
       if (mounted) {
@@ -342,6 +346,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
           painter: _FaceGuideOvalPainter(
             color: guideColor,
             warning: warning,
+            bbox: provider.currentResult.bbox,
+            frameSize: provider.currentResult.frameSize,
           ),
         ),
         Positioned(
@@ -457,19 +463,43 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 class _FaceGuideOvalPainter extends CustomPainter {
   final Color color;
   final String? warning;
+  final List<double>? bbox;
+  final List<int>? frameSize;
 
-  _FaceGuideOvalPainter({this.color = Colors.white30, this.warning});
+  _FaceGuideOvalPainter({this.color = Colors.white30, this.warning, this.bbox, this.frameSize});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height * 0.38);
-    final width = size.width * 0.55;
-    final height = size.height * 0.45;
-    final ovalRect = Rect.fromCenter(
-      center: center,
-      width: width,
-      height: height,
-    );
+    Rect ovalRect;
+
+    if (bbox != null && bbox!.length == 4 && frameSize != null && frameSize!.length == 2) {
+      // Dynamic tracking using backend bounding box
+      final scaleX = size.width / frameSize![0];
+      final scaleY = size.height / frameSize![1];
+      
+      final left = bbox![0] * scaleX;
+      final top = bbox![1] * scaleY;
+      final width = (bbox![2] - bbox![0]) * scaleX;
+      final height = (bbox![3] - bbox![1]) * scaleY;
+      
+      ovalRect = Rect.fromLTWH(left, top, width, height);
+      // Inflate slightly so the oval nicely surrounds the face instead of clipping it
+      ovalRect = ovalRect.inflate(30);
+    } else {
+      // Static fallback: vertical portrait oval
+      final center = Offset(size.width / 2, size.height * 0.45);
+      final height = size.height * 0.6;
+      final width = height * 0.7; // Vertical aspect ratio
+      
+      ovalRect = Rect.fromCenter(
+        center: center,
+        width: width,
+        height: height,
+      );
+    }
+
+    final center = ovalRect.center;
+    final height = ovalRect.height;
 
     // 1. Draw Spotlight (Darkened background except for the face area)
     final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -522,5 +552,8 @@ class _FaceGuideOvalPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _FaceGuideOvalPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.warning != warning;
+      oldDelegate.color != color || 
+      oldDelegate.warning != warning ||
+      oldDelegate.bbox != bbox || 
+      oldDelegate.frameSize != frameSize;
 }

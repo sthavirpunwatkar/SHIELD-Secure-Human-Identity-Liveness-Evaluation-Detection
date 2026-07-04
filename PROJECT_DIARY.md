@@ -135,6 +135,15 @@
     - Restored active face detection and guidance oval responsiveness in the web interface by ensuring continuous, uncorrupted frame ingestion.
 - **Differentiation:** Guarantees production-grade cross-platform resilience, enabling SHIELD to run flawlessly inside standard web browsers without native plugin translation crashes.
 
+### Milestone 14: Quality Gate Calibration & Live Tracking Integration (July 2026) - COMPLETED
+- **Objective:** Fine-tune threshold metrics and resolve tracking inconsistencies for live webcam evaluation.
+- **Key Achievements:**
+    - Modified frontend Oval Painter in `challenge_screen.dart` to dynamically track the user's face using bounding box coordinates from the backend payload, resolving static-overlay issues.
+    - Adjusted aspect-ratio mathematics to prevent horizontal squashing of the tracking oval on wider screens.
+    - Created a symbolic link `models` in `backend/` to point to `../models`, instantly fixing `yolov8n-face.pt` load failures and ensuring accurate face cropping over generic body detection.
+    - Relaxed overly strict Quality Gate logic by lowering `BlurDetector`'s Laplacian variance threshold to 20.0 and widening `IlluminationDetector` bounds to accept real-world webcam conditions.
+- **Differentiation:** Enhances practical deployment viability by balancing rigorous spoof-prevention with forgiving environmental tolerances, drastically improving user accessibility.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)

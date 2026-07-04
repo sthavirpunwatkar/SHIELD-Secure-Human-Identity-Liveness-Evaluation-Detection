@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class IlluminationDetector:
-    def __init__(self, low_threshold=40, high_threshold=220):
+    def __init__(self, low_threshold=15, high_threshold=240):
         """
         Initializes the Illumination Detector.
         :param low_threshold: Minimum mean brightness for 'good' illumination.

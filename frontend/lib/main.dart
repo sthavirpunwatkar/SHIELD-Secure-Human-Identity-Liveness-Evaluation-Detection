@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _urlController.text = 'ws://192.168.1.100:8000/ws/verify'; // Example local IP
+    _urlController.text = 'ws://localhost:8000/ws/verify'; // Example local IP
   }
 
   @override
