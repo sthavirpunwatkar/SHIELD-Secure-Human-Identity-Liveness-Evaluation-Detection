@@ -13,36 +13,23 @@ import time
 BACKEND_URL = "http://localhost:8000"
 WS_URL = "ws://localhost:8000/ws/verify"
 
-def is_port_in_use(port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.bind(("127.0.0.1", port))
-            return False
-        except OSError:
-            return True
-
-def wait_for_port(port, timeout=5.0):
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.connect(("127.0.0.1", port))
-                return True
-            except OSError:
-                time.sleep(0.1)
-    return False
+def is_backend_running(port=8000):
+    import httpx
+    try:
+        # Use sync client to avoid async fixture complexity
+        with httpx.Client() as client:
+            response = client.get(f"http://127.0.0.1:{port}/health", timeout=0.5)
+            return response.status_code == 200 and response.json().get("status") == "healthy"
+    except Exception:
+        return False
 
 @pytest.fixture(scope="session", autouse=True)
 def run_backend_server():
     port = 8000
-    if is_port_in_use(port):
-        # Already running, just yield and do not spawn a new one
+    if is_backend_running(port):
         yield
         return
 
-    # Start backend server using uvicorn in the same python virtual environment
-    # We run it from the project root so it finds the 'models' directory,
-    # but we set PYTHONPATH to include the 'backend' folder so python finds 'services'
     import os
     project_root = os.path.dirname(os.path.abspath(__file__))
     backend_dir = os.path.join(project_root, "backend")
@@ -58,11 +45,19 @@ def run_backend_server():
         stderr=subprocess.DEVNULL
     )
     
-    # Wait for the port to become active
-    if not wait_for_port(port, timeout=12.0):
+    # Wait for the backend to start up and return healthy
+    start_time = time.time()
+    success = False
+    while time.time() - start_time < 20.0:  # Allow up to 20 seconds for model loading on CPU
+        if is_backend_running(port):
+            success = True
+            break
+        time.sleep(0.5)
+
+    if not success:
         proc.terminate()
         proc.wait()
-        raise RuntimeError("Failed to start FastAPI backend server for integration tests.")
+        raise RuntimeError("Failed to start FastAPI backend server for integration tests within 20 seconds.")
         
     try:
         yield
@@ -131,3 +126,41 @@ async def test_http_verify_endpoint():
         # but the API should handle it gracefully.
         response = await client.post(f"{BACKEND_URL}/verify", files=files)
         assert response.status_code in [200, 500] # 500 if firebase fails but we want to see it handled
+
+@pytest.mark.asyncio
+async def test_websocket_challenge_session_cleanup():
+    from backend.main import websocket_challenge, session_manager
+    from fastapi import WebSocket
+    from unittest.mock import AsyncMock, MagicMock
+    
+    # Mock WebSocket
+    mock_ws = AsyncMock(spec=WebSocket)
+    mock_ws.client = MagicMock()
+    mock_ws.client.host = "test_cleanup_host"
+    
+    receive_call_count = 0
+    async def mock_receive():
+        nonlocal receive_call_count
+        receive_call_count += 1
+        if receive_call_count == 1:
+            return {"text": '{"type": "start_challenge"}'}
+        else:
+            from fastapi import WebSocketDisconnect
+            raise WebSocketDisconnect()
+            
+    mock_ws.receive = mock_receive
+    mock_ws.accept = AsyncMock()
+    mock_ws.send_json = AsyncMock()
+    mock_ws.close = AsyncMock()
+    
+    # Verify initially no sessions for this host
+    initial_sessions_count = len(session_manager._sessions)
+    
+    # Run the websocket handler
+    try:
+        await websocket_challenge(mock_ws)
+    except Exception:
+        pass
+        
+    # Verify the session has been cleaned up and is not in session_manager._sessions
+    assert len(session_manager._sessions) == initial_sessions_count

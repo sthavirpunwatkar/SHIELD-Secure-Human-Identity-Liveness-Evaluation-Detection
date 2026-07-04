@@ -78,9 +78,13 @@
 - **Key Achievements:**
     - Mocked face detection, crop, and quality gate evaluation in `test_audit_integrity.py` to decouple integration logic from live model outputs.
     - Implemented a session-level pytest fixture in `test_backend.py` to automatically spawn the FastAPI server in a background subprocess.
-    - Set the `PYTHONPATH` environment variable and run uvicorn from the project root so it correctly loads both backend services and model weights.
+    - Configured uvicorn execution with the `PYTHONPATH` environment variable and project root `cwd` so it correctly resolves both model weights and local modules.
     - Resolved a websocket hang/deadlock by ensuring both passive and active endpoints return error JSON when invalid binary frames are sent.
-- **Differentiation:** Establishes a robust, zero-manual-intervention testing foundation that guarantees continuous integration runs completely green.
+    - Fixed a WebSocket session memory leak by implementing explicit session pruning in the `/ws/challenge` endpoint's `finally` block.
+    - Added dynamic path registrations to `backend/main.py` to support imports when running the server from any project directory.
+    - Replaced port binding checks in `test_backend.py`'s fixture with a robust `/health` HTTP API ping (allowing 20s for model loading on CPU).
+    - Added `test_websocket_challenge_session_cleanup` in `test_backend.py` to verify session garbage collection on disconnect.
+- **Differentiation:** Establishes a robust, zero-manual-intervention testing and production-grade memory safety foundation that guarantees continuous integration runs completely green.
 
 ---
 
