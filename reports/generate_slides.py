@@ -35,14 +35,16 @@ def create_deck():
             fill.solid()
             fill.fore_color.rgb = BG_COLOR
 
-    def add_title(slide, text, color=ACCENT_BLUE, left=Inches(0.75), top=Inches(0.5), width=Inches(11.83)):
+    def add_title(slide, text, color=ACCENT_BLUE, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
         title_box = slide.shapes.add_textbox(left, top, width, Inches(0.8))
         tf = title_box.text_frame
         tf.word_wrap = True
+        tf.margin_left = 0
+        tf.margin_top = 0
         p = tf.paragraphs[0]
         p.text = text
         p.font.name = "Arial"
-        p.font.size = Pt(32)
+        p.font.size = Pt(30)
         p.font.bold = True
         p.font.color.rgb = color
         return title_box
@@ -206,28 +208,79 @@ def create_deck():
         p_d.font.color.rgb = TEXT_MUTED
         p_d.space_after = Pt(6)
 
-    # --- SLIDE 3: Methodology (Standard Layout) ---
+    # --- SLIDE 3: System Architecture & Data Flow (Flowchart Slide) ---
     slide3 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide3)
-    add_title(slide3, "System Architecture & Flow")
+    add_title(slide3, "System Architecture & Data Flow")
 
-    # Workflow Visual Representation
-    flow_box = slide3.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(11.83), Inches(0.8))
-    tf_flow = flow_box.text_frame
-    p_flow = tf_flow.paragraphs[0]
-    p_flow.text = "Video Capture  ➔  YOLOv8 Face Detection  ➔  Quality telemetry  ➔  Multimodal Inference  ➔  Decision Fusion"
-    p_flow.font.name = "Arial"
-    p_flow.font.size = Pt(15)
-    p_flow.font.bold = True
-    p_flow.font.color.rgb = ACCENT_BLUE
-    p_flow.alignment = PP_ALIGN.CENTER
+    # Flowchart Card
+    card_flow = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.3), Inches(11.83), Inches(5.4))
+    card_flow.fill.solid()
+    card_flow.fill.fore_color.rgb = CARD_BG
+    card_flow.line.color.rgb = CARD_BORDER
+    card_flow.line.width = Pt(1.0)
+    
+    tf_flow = card_flow.text_frame
+    tf_flow.word_wrap = True
+    tf_flow.margin_left = Inches(0.4)
+    tf_flow.margin_top = Inches(0.3)
+    tf_flow.margin_right = Inches(0.4)
+    
+    p_f_hdr = tf_flow.paragraphs[0]
+    p_f_hdr.text = "⚙️ PIPELINE EXECUTION FLOW"
+    p_f_hdr.font.name = "Arial"
+    p_f_hdr.font.size = Pt(16)
+    p_f_hdr.font.bold = True
+    p_f_hdr.font.color.rgb = ACCENT_BLUE
+    p_f_hdr.space_after = Pt(14)
 
-    # 4 Cards for 4 Verification Pillars
+    # Text Art Flowchart (Uses Courier New to ensure exact monospacing and alignment)
+    flow_diagram = (
+        "                    [ STANDARD 2D WEBCAM VIDEO STREAM ]\n"
+        "                                     │\n"
+        "                                     ▼\n"
+        "                  [ YOLOv8-FACE DETECTION ENGINE (ONNX) ] ➔ (No Face ➔ Abort)\n"
+        "                                     │\n"
+        "                                     ▼\n"
+        "                 [ REAL-TIME IMAGE QUALITY FILTERING GATE ]\n"
+        "                  (Rejects Blurry, Low Light, or Occluded frames)\n"
+        "                                     │\n"
+        "                                     ▼\n"
+        "               ┌─────────────────────┼─────────────────────┐\n"
+        "               ▼                     ▼                     ▼\n"
+        "       [PASSIVE TEXTURE]      [PHYSIOLOGY CHECK]     [ACTIVE CHALLENGE]\n"
+        "         (MiniFASNet)           (Remote rPPG)        (Blink, Smile, Turn)\n"
+        "               │                     │                     │\n"
+        "               └─────────────────────┼─────────────────────┘\n"
+        "                                     │\n"
+        "                                     ▼\n"
+        "                  [ EXPLAINABLE WEIGHTED DECISION FUSION ]\n"
+        "                 (Dynamic weight computation for live parameters)\n"
+        "                                     │\n"
+        "                                     ▼\n"
+        "                         [ SECURE FUSION VERDICT ]\n"
+        "                         (Bona Fide Live / Spoof Rejection)"
+    )
+    
+    p_diag = tf_flow.add_paragraph()
+    p_diag.text = flow_diagram
+    p_diag.font.name = "Courier New"
+    p_diag.font.size = Pt(11)
+    p_diag.font.bold = True
+    p_diag.font.color.rgb = TEXT_MUTED
+    p_diag.space_before = Pt(4)
+
+    # --- SLIDE 4: Multimodal Verification Pillars (Standard Layout) ---
+    slide4 = prs.slides.add_slide(slide_layout)
+    set_slide_bg(slide4)
+    add_title(slide4, "Multimodal Verification Pillars")
+
+    # Description of 4 cards
     card_width = Inches(2.7)
-    card_height = Inches(4.2)
+    card_height = Inches(4.5)
     spacing = Inches(0.3)
     start_x = Inches(0.75)
-    y_pos = Inches(2.5)
+    y_pos = Inches(1.8)
 
     pillars = [
         ("Passive Texture", "MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.", "Spatial Textures"),
@@ -238,7 +291,7 @@ def create_deck():
 
     for idx, (name, desc, tagline) in enumerate(pillars):
         x_pos = start_x + idx * (card_width + spacing)
-        card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, card_width, card_height)
+        card = slide4.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, card_width, card_height)
         card.fill.solid()
         card.fill.fore_color.rgb = CARD_BG
         card.line.color.rgb = CARD_BORDER
@@ -247,7 +300,7 @@ def create_deck():
         tf_pillar = card.text_frame
         tf_pillar.word_wrap = True
         tf_pillar.margin_left = Inches(0.2)
-        tf_pillar.margin_top = Inches(0.2)
+        tf_pillar.margin_top = Inches(0.25)
         tf_pillar.margin_right = Inches(0.2)
         
         p_name = tf_pillar.paragraphs[0]
@@ -263,7 +316,7 @@ def create_deck():
         p_tag.font.size = Pt(9)
         p_tag.font.bold = True
         p_tag.font.color.rgb = ACCENT_BLUE
-        p_tag.space_after = Pt(10)
+        p_tag.space_after = Pt(12)
         
         p_desc = tf_pillar.add_paragraph()
         p_desc.text = desc
@@ -272,11 +325,11 @@ def create_deck():
         p_desc.font.color.rgb = TEXT_MUTED
         p_desc.space_before = Pt(5)
 
-    # --- SLIDE 4: Results & Evaluation Matrix (Image Backdrop Overlay) ---
-    slide4 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide4, TELEMETRY_IMG)
+    # --- SLIDE 5: Results & Evaluation Matrix (Image Backdrop Overlay) ---
+    slide5 = prs.slides.add_slide(slide_layout)
+    set_slide_bg(slide5, TELEMETRY_IMG)
     
-    add_title(slide4, "Results & Evaluation Matrix", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide5, "Results & Evaluation Matrix", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
     # Metrics Table
     rows = 5
@@ -286,7 +339,7 @@ def create_deck():
     width = Inches(5.6)
     height = Inches(2.2)
     
-    table_shape = slide4.shapes.add_table(rows, cols, left, top, width, height)
+    table_shape = slide5.shapes.add_table(rows, cols, left, top, width, height)
     table = table_shape.table
     table.columns[0].width = Inches(3.6)
     table.columns[1].width = Inches(2.0)
@@ -325,39 +378,40 @@ def create_deck():
                 p.font.color.rgb = TEXT_WHITE
             p.alignment = PP_ALIGN.CENTER
 
-    # Bounding Box for Details
-    desc_box = slide4.shapes.add_textbox(Inches(0.75), Inches(3.7), Inches(5.6), Inches(3.3))
+    # Bounding Box for Details (Evaluation matrix definitions)
+    desc_box = slide5.shapes.add_textbox(Inches(0.75), Inches(3.7), Inches(5.6), Inches(3.3))
     tf_desc = desc_box.text_frame
     tf_desc.word_wrap = True
     
     p_desc_hdr = tf_desc.paragraphs[0]
-    p_desc_hdr.text = "📊 Experimental Evaluation Setup"
+    p_desc_hdr.text = "📊 ISO/IEC 30107-3 Standard Metrics"
     p_desc_hdr.font.name = "Arial"
-    p_desc_hdr.font.size = Pt(16)
+    p_desc_hdr.font.size = Pt(15)
     p_desc_hdr.font.bold = True
     p_desc_hdr.font.color.rgb = ACCENT_BLUE
     p_desc_hdr.space_after = Pt(6)
     
     eval_bullets = [
-        "Benchmarked against unified subsets of CASIA-FASD and CelebA-Spoof, containing over 10,000 frames under diverse ambient variables.",
-        "Verified streaming processing speed exceeding 30 FPS.",
-        "Optimized fusion weight configuration (10% rPPG, 10% Blink, 15% Antispoof, 65% Challenge) via programmatic grid-search."
+        "APCER: Attack Presentation Classification Error Rate. Measures the % of spoof attacks incorrectly classified as live.",
+        "BPCER: Bona Fide Presentation Classification Error Rate. Measures the % of genuine live users incorrectly flagged as spoofs.",
+        "ACER: Average Classification Error Rate. Calculated as the average of APCER and BPCER: ACER = (APCER + BPCER) / 2.",
+        "Empirical Calibration: System weights tuned via 1,771 test combinations under min_weight=0.10 constraint to achieve 1.0% ACER."
     ]
     for bull in eval_bullets:
         p = tf_desc.add_paragraph()
-        p.text = "▪️ " + bull
+        p.text = "• " + bull
         p.font.name = "Arial"
-        p.font.size = Pt(11)
+        p.font.size = Pt(10.5)
         p.font.color.rgb = TEXT_MUTED
-        p.space_after = Pt(6)
+        p.space_after = Pt(4)
 
-    # --- SLIDE 5: Novelty & Key Contributions (Image Backdrop Overlay) ---
-    slide5 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide5, FACIAL_MESH_IMG)
+    # --- SLIDE 6: Novelty & Key Contributions (Image Backdrop Overlay) ---
+    slide6 = prs.slides.add_slide(slide_layout)
+    set_slide_bg(slide6, FACIAL_MESH_IMG)
     
-    add_title(slide5, "Novelty & Custom Contributions", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide6, "Novelty & Custom Contributions", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
-    contrib_box = slide5.shapes.add_textbox(Inches(0.75), Inches(1.3), Inches(5.6), Inches(5.8))
+    contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.3), Inches(5.6), Inches(5.8))
     tf_cnt = contrib_box.text_frame
     tf_cnt.word_wrap = True
     
@@ -395,13 +449,13 @@ def create_deck():
         p_d.font.color.rgb = TEXT_MUTED
         p_d.space_after = Pt(6)
 
-    # --- SLIDE 6: Demo Video & Live Telemetry UI (Standard Layout) ---
-    slide6 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide6)
-    add_title(slide6, "Interface Design & Live Demonstration")
+    # --- SLIDE 7: Demo Video & Live Telemetry UI (Standard Layout) ---
+    slide7 = prs.slides.add_slide(slide_layout)
+    set_slide_bg(slide7)
+    add_title(slide7, "Interface Design & Live Demonstration")
 
     # Left card: UI Architecture
-    ui_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
+    ui_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
     ui_card.fill.solid()
     ui_card.fill.fore_color.rgb = CARD_BG
     ui_card.line.color.rgb = CARD_BORDER
@@ -435,7 +489,7 @@ def create_deck():
         p.space_after = Pt(8)
 
     # Right card: Live Demo Sequence
-    demo_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
+    demo_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
     demo_card.fill.solid()
     demo_card.fill.fore_color.rgb = CARD_BG
     demo_card.line.color.rgb = CARD_BORDER

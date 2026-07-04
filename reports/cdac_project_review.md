@@ -36,20 +36,50 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 3: System Architecture & Flow (Rounded Corner Cards)
+## Slide 3: System Architecture & Data Flow (Flowchart Slide)
 
 ### Slide Content
-*   **Workflow Flow:**
-    `Video Capture  ➔  YOLOv8 Face Detection  ➔  Quality telemetry  ➔  Multimodal Inference  ➔  Decision Fusion`
-*   **Four Verification Pillars:**
-    1.  **Passive Texture:** MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.
-    2.  **Physiological rPPG:** 3D spatio-temporal CNN extracting cardiac micro-signals from skin color shifts to verify living tissue.
-    3.  **Active Challenges:** Randomized directives (Blink, Turn, Smile) validated dynamically to establish immediate user cooperation.
-    4.  **Temporal Validator:** Time-series integrity checking to trace jump-cuts and confirm time sync between challenge events.
+*   **⚙️ PIPELINE EXECUTION FLOWCHART:**
+    ```
+                        [ STANDARD 2D WEBCAM VIDEO STREAM ]
+                                         │
+                                         ▼
+                      [ YOLOv8-FACE DETECTION ENGINE (ONNX) ] ➔ (No Face ➔ Abort)
+                                         │
+                                         ▼
+                     [ REAL-TIME IMAGE QUALITY FILTERING GATE ]
+                      (Rejects Blurry, Low Light, or Occluded frames)
+                                         │
+                                         ▼
+                   ┌─────────────────────┼─────────────────────┐
+                   ▼                     ▼                     ▼
+           [PASSIVE TEXTURE]      [PHYSIOLOGY CHECK]     [ACTIVE CHALLENGE]
+             (MiniFASNet)           (Remote rPPG)        (Blink, Smile, Turn)
+                   │                     │                     │
+                   └─────────────────────┼─────────────────────┘
+                                         │
+                                         ▼
+                      [ EXPLAINABLE WEIGHTED DECISION FUSION ]
+                     (Dynamic weight computation for live parameters)
+                                         │
+                                         ▼
+                             [ SECURE FUSION VERDICT ]
+                             (Bona Fide Live / Spoof Rejection)
+    ```
 
 ---
 
-## Slide 4: Results & Evaluation Matrix
+## Slide 4: Multimodal Verification Pillars (Rounded Corner Cards)
+
+### Slide Content
+1.  **Passive Texture:** MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.
+2.  **Physiological rPPG:** 3D spatio-temporal CNN extracting cardiac micro-signals from skin color shifts to verify living tissue.
+3.  **Active Challenges:** Randomized directives (Blink, Turn, Smile) validated dynamically to establish immediate user cooperation.
+4.  **Temporal Validator:** Time-series integrity checking to trace jump-cuts and confirm time sync between challenge events.
+
+---
+
+## Slide 5: Results & Evaluation Matrix
 
 ### Slide Content
 *   **Metrics Comparison Table:**
@@ -61,14 +91,15 @@ This document serves as a slide-by-slide text guide and backup for the generated
 | **ACER (Average Error Rate)** | **1.0%** |
 | **End-to-End Inference Latency** | **85 ms** |
 
-*   **📊 Experimental Evaluation Setup:**
-    *   Benchmarked against unified subsets of CASIA-FASD and CelebA-Spoof, containing over 10,000 frames under diverse ambient variables.
-    *   Verified streaming processing speed exceeding 30 FPS.
-    *   Optimized fusion weight configuration (10% rPPG, 10% Blink, 15% Antispoof, 65% Challenge) via programmatic grid-search.
+*   **📊 ISO/IEC 30107-3 Standard Metrics & Setup:**
+    *   **APCER:** Attack Presentation Classification Error Rate. Measures the % of spoof attacks incorrectly classified as live.
+    *   **BPCER:** Bona Fide Presentation Classification Error Rate. Measures the % of genuine live users incorrectly flagged as spoofs.
+    *   **ACER:** Average Classification Error Rate. Calculated as the average of APCER and BPCER: ACER = (APCER + BPCER) / 2.
+    *   **Calibration:** Evaluated on CASIA-FASD and CelebA-Spoof (10,000+ frames). System weights tuned via 1,771 test combinations under min_weight=0.10 constraint to achieve 1.0% ACER.
 
 ---
 
-## Slide 5: Novelty & Key Contributions
+## Slide 6: Novelty & Key Contributions
 
 ### Slide Content
 1.  **Real-Time Scale-Invariant Identity Consistency Check:**
@@ -83,7 +114,7 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 6: Interface Design & Live Demonstration (Rounded Corner Cards)
+## Slide 7: Interface Design & Live Demonstration (Rounded Corner Cards)
 
 ### Slide Content
 *   **📱 Interactive Flutter Telemetry Dashboard:**
