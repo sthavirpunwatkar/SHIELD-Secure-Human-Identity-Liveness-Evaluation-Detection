@@ -67,7 +67,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         enableAudio: false,
       );
 
-      await Future.delayed(const Duration(milliseconds: 500)); // Release hardware lock from previous screen
+      await Future.delayed(const Duration(milliseconds: 2000)); // Release hardware lock from previous screen
       await _controller!.initialize();
       if (mounted) {
         setState(() => _errorMessage = null);
@@ -329,8 +329,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     } else if (qm.isBlurry) {
       warning = 'Hold still - image is blurry';
       guideColor = Colors.redAccent;
-    } else if (qm.illuminationStatus == 'dark') {
+    } else if (qm.illuminationStatus == 'underexposed') {
       warning = 'Too dark - find better lighting';
+      guideColor = Colors.redAccent;
+    } else if (qm.illuminationStatus == 'overexposed') {
+      warning = 'Too bright - avoid direct light';
       guideColor = Colors.redAccent;
     } else if (qm.poseStatus != 'frontal' && qm.poseStatus != 'unknown') {
       warning = 'Look straight at the camera';

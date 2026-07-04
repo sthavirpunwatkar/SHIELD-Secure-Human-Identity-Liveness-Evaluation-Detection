@@ -195,6 +195,7 @@ async def websocket_verify_passive(websocket: WebSocket):
                     await websocket.send_json({"error": "Invalid image data"})
                     continue
                 result = fusion_service.process_frame(frame)
+                result.pop("_raw_landmarks", None)
                 await websocket.send_json(result)
 
             elif "text" in message:

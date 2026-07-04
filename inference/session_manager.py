@@ -138,24 +138,23 @@ class VerificationSession:
         try:
             # MediaPipe standard indices:
             # 1: nose tip, 33: left eye corner, 263: right eye corner
-            # 152: chin, 61: left mouth corner, 291: right mouth corner
+            # 133: left eye inner, 362: right eye inner
             p_nose = self._get_landmark_coords(landmarks[1])
             p_leye = self._get_landmark_coords(landmarks[33])
             p_reye = self._get_landmark_coords(landmarks[263])
-            p_chin = self._get_landmark_coords(landmarks[152])
-            p_lmouth = self._get_landmark_coords(landmarks[61])
-            p_rmouth = self._get_landmark_coords(landmarks[291])
+            p_leye_in = self._get_landmark_coords(landmarks[133])
+            p_reye_in = self._get_landmark_coords(landmarks[362])
             
             interocular = np.linalg.norm(p_leye - p_reye)
             if interocular == 0:
                 return None
                 
-            d_nose_chin = np.linalg.norm(p_nose - p_chin) / interocular
-            d_lmouth_rmouth = np.linalg.norm(p_lmouth - p_rmouth) / interocular
-            d_leye_lmouth = np.linalg.norm(p_leye - p_lmouth) / interocular
-            d_reye_rmouth = np.linalg.norm(p_reye - p_rmouth) / interocular
+            d_nose_leye = np.linalg.norm(p_nose - p_leye) / interocular
+            d_nose_reye = np.linalg.norm(p_nose - p_reye) / interocular
+            d_leye_width = np.linalg.norm(p_leye - p_leye_in) / interocular
+            d_reye_width = np.linalg.norm(p_reye - p_reye_in) / interocular
             
-            return np.array([d_nose_chin, d_lmouth_rmouth, d_leye_lmouth, d_reye_rmouth])
+            return np.array([d_nose_leye, d_nose_reye, d_leye_width, d_reye_width])
         except Exception:
             return None
 
