@@ -18,6 +18,7 @@ class _CameraScreenState extends State<CameraScreen> {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   bool _isStreaming = false;
+  bool _isCapturing = false;
   DateTime? _lastFrameTime;
   final int _throttleMs = 500; // Slower for desktop fallback
   Timer? _timer;
@@ -113,17 +114,22 @@ class _CameraScreenState extends State<CameraScreen> {
 
   void _useTimerFallback(LivenessProvider provider) {
     _timer?.cancel();
+    _isCapturing = false;
     _timer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
       if (!_isStreaming || !mounted) {
         timer.cancel();
         return;
       }
+      if (_isCapturing) return; // Skip frame if previous capture is still in progress
+      _isCapturing = true;
       try {
         final XFile file = await _controller!.takePicture();
         final bytes = await file.readAsBytes();
         provider.sendFrame(bytes);
       } catch (e) {
         print('Error in fallback streaming: $e');
+      } finally {
+        _isCapturing = false;
       }
     });
   }

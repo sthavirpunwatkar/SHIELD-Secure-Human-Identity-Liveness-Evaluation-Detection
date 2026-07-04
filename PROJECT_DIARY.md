@@ -126,6 +126,15 @@
     - Conducted automated Content and Visual QA on PDF-to-image converted slides using headless LibreOffice and Poppler (`pdftoppm`).
 - **Differentiation:** Guarantees absolute design consistency, cross-platform compatibility, and a formal, communication-first layout that clearly conveys SHIELD's technical edge and ACER metrics to evaluators.
 
+### Milestone 13: Flutter Web Port Stability & Layout Hardening (July 2026) - COMPLETED
+- **Objective:** Fix frontend layout rendering crashes and camera capture exceptions when running on Google Chrome (web target).
+- **Key Achievements:**
+    - Wrapped the `HomeScreen` Column in a `SingleChildScrollView` to resolve the `RenderFlex overflowed by 82 pixels` layout error on small screens.
+    - Implemented a boolean state flag `_isCapturing` acting as an asynchronous execution lock inside both `camera_screen.dart` and `challenge_screen.dart`.
+    - Prevented overlapping calls to `takePicture()` on the Flutter `CameraController` (which was causing `CameraException: Previous capture has not returned yet` due to slower web execution speeds).
+    - Restored active face detection and guidance oval responsiveness in the web interface by ensuring continuous, uncorrupted frame ingestion.
+- **Differentiation:** Guarantees production-grade cross-platform resilience, enabling SHIELD to run flawlessly inside standard web browsers without native plugin translation crashes.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)
