@@ -12,148 +12,145 @@ def create_deck():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Custom Pitch Deck Color Palette (Matching Uploaded Media 0)
-    BG_COLOR = RGBColor(10, 10, 16)          # Ultra dark charcoal/black
-    ACCENT_PURPLE = RGBColor(138, 43, 226)   # Electric violet (accent highlights)
-    TEXT_WHITE = RGBColor(255, 255, 255)     # Clean white (primary text)
-    TEXT_MUTED = RGBColor(200, 200, 220)     # Soft light gray/lavender (body text)
-    TEXT_DARK_GRAY = RGBColor(130, 120, 150) # Muted slate (sub-info)
-    CARD_BG = RGBColor(24, 22, 34)           # Muted card background
-    CARD_BORDER = RGBColor(60, 50, 90)       # Dark violet border
+    # McKinsey Standard Color Palette
+    BG_COLOR = RGBColor(255, 255, 255)       # Crisp White background
+    ACCENT_NAVY = RGBColor(0, 32, 91)        # Deep Midnight Navy Blue (primary headers)
+    ACCENT_SLATE = RGBColor(120, 130, 140)   # Secondary Slate Gray
+    TEXT_DARK = RGBColor(33, 37, 41)         # Dark charcoal (primary body text)
+    TEXT_MUTED = RGBColor(80, 85, 95)        # Muted gray (description paragraphs)
+    CARD_BG = RGBColor(245, 246, 248)        # Clean light gray card background
+    CARD_BORDER = RGBColor(200, 205, 215)    # Thin card outline borders
+    FLOW_LINE_COLOR = RGBColor(140, 150, 160)# Muted gray for flowchart lines
 
-    # Flowchart Shape Colors (Matching Uploaded Media 1)
-    COLOR_INPUT = (RGBColor(248, 187, 208), RGBColor(40, 40, 40))   # Muted Pink
-    COLOR_DETECTION = (RGBColor(255, 224, 178), RGBColor(40, 40, 40)) # Muted Orange
-    COLOR_QUALITY = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))   # Muted Yellow
-    COLOR_PILLAR = (RGBColor(224, 242, 241), RGBColor(40, 40, 40))    # Muted Teal
-    COLOR_FUSION = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))    # Muted Yellow
-    COLOR_LINEAR = (RGBColor(225, 190, 231), RGBColor(40, 40, 40))    # Muted Purple
-    COLOR_SOFTMAX = (RGBColor(200, 230, 201), RGBColor(40, 40, 40))   # Muted Green
+    # Flowchart Shape Colors (Muted Professional Palette)
+    COLOR_INPUT = (RGBColor(245, 246, 248), ACCENT_NAVY)        # Light Gray, Navy Border
+    COLOR_DETECTION = (RGBColor(245, 246, 248), ACCENT_NAVY)    # Light Gray, Navy Border
+    COLOR_QUALITY = (RGBColor(245, 246, 248), ACCENT_NAVY)      # Light Gray, Navy Border
+    COLOR_PILLAR = (RGBColor(0, 51, 102), RGBColor(255, 255, 255)) # Navy Fill, White Text
+    COLOR_FUSION = (RGBColor(245, 246, 248), ACCENT_NAVY)      # Light Gray, Navy Border
+    COLOR_LINEAR = (RGBColor(245, 246, 248), ACCENT_NAVY)      # Light Gray, Navy Border
+    COLOR_SOFTMAX = (RGBColor(0, 32, 91), RGBColor(255, 255, 255))  # Deep Navy Fill, White Text
 
-    # Image Paths
-    SHIELD_COVER_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/shield_cover_visual_1783185170999.jpg"
-    TELEMETRY_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/telemetry_visual_1783185198779.jpg"
-    FACIAL_MESH_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/facial_mesh_visual_1783185185503.jpg"
+    def set_slide_bg(slide):
+        background = slide.background
+        fill = background.fill
+        fill.solid()
+        fill.fore_color.rgb = BG_COLOR
 
-    def set_slide_bg(slide, image_path=None):
-        if image_path and os.path.exists(image_path):
-            slide.shapes.add_picture(image_path, 0, 0, width=prs.slide_width, height=prs.slide_height)
-        else:
-            background = slide.background
-            fill = background.fill
-            fill.solid()
-            fill.fore_color.rgb = BG_COLOR
-
-    def add_action_title(slide, text, color=ACCENT_PURPLE, left=Inches(0.75), top=Inches(0.35), width=Inches(11.83), font_size=22):
-        title_box = slide.shapes.add_textbox(left, top, width, Inches(1.0))
+    def add_action_title(slide, text, color=ACCENT_NAVY, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83), font_size=20):
+        title_box = slide.shapes.add_textbox(left, top, width, Inches(0.9))
         tf = title_box.text_frame
         tf.word_wrap = True
         tf.margin_left = 0
         tf.margin_top = 0
         p = tf.paragraphs[0]
         p.text = text
-        p.font.name = "Arial"
+        p.font.name = "Georgia"
         p.font.size = Pt(font_size)
         p.font.bold = True
         p.font.color.rgb = color
         return title_box
 
-    # --- SLIDE 1: Title and Problem Statement (SCR Cover) ---
+    # --- SLIDE 1: Title and Executive Context (SCR Cover) ---
     slide_layout = prs.slide_layouts[6]
     slide1 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide1, SHIELD_COVER_IMG)
+    set_slide_bg(slide1)
     
     # Left Aligned Cover Details
-    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.3), Inches(5.5), Inches(1.7))
+    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(11.83), Inches(1.8))
     tf = title_box.text_frame
     tf.word_wrap = True
     tf.margin_left = 0
     tf.margin_top = 0
-    tf.margin_right = 0
-    tf.margin_bottom = 0
     
     p1 = tf.paragraphs[0]
-    p1.text = "SHIELD"
-    p1.font.name = "Arial"
-    p1.font.size = Pt(40)
+    p1.text = "SHIELD: A Multimodal Liveness Framework Securing Remote Identity Verification"
+    p1.font.name = "Georgia"
+    p1.font.size = Pt(32)
     p1.font.bold = True
-    p1.font.color.rgb = TEXT_WHITE
+    p1.font.color.rgb = ACCENT_NAVY
     
     p2 = tf.add_paragraph()
-    p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification"
+    p2.text = "Executive Briefing on Automated Anti-Spoofing and Liveness Detection"
     p2.font.name = "Arial"
-    p2.font.size = Pt(14)
-    p2.font.bold = True
-    p2.font.color.rgb = ACCENT_PURPLE
-    p2.space_before = Pt(4)
+    p2.font.size = Pt(15)
+    p2.font.italic = True
+    p2.font.color.rgb = ACCENT_SLATE
+    p2.space_before = Pt(8)
 
-    # Project Metadata (Partners & Guide)
-    meta_box = slide1.shapes.add_textbox(Inches(0.75), Inches(2.0), Inches(5.5), Inches(1.1))
-    tf_meta = meta_box.text_frame
-    tf_meta.word_wrap = True
-    tf_meta.margin_left = 0
-    tf_meta.margin_top = 0
-    tf_meta.margin_right = 0
-    tf_meta.margin_bottom = 0
-    
-    p_meta1 = tf_meta.paragraphs[0]
-    p_meta1.text = "Project Partners: Sthavir Sunil Punwatkar, [Project Partner 2]"
-    p_meta1.font.name = "Arial"
-    p_meta1.font.size = Pt(11)
-    p_meta1.font.bold = True
-    p_meta1.font.color.rgb = TEXT_MUTED
-    
-    p_meta2 = tf_meta.add_paragraph()
-    p_meta2.text = "Project Guide: [Project Guide Name]"
-    p_meta2.font.name = "Arial"
-    p_meta2.font.size = Pt(11)
-    p_meta2.font.bold = True
-    p_meta2.font.color.rgb = TEXT_MUTED
-    p_meta2.space_before = Pt(3)
+    p3 = tf.add_paragraph()
+    p3.text = "Project Partners: Sthavir Sunil Punwatkar, [Project Partner 2]  |  Project Guide: [Project Guide Name]"
+    p3.font.name = "Arial"
+    p3.font.size = Pt(11)
+    p3.font.bold = True
+    p3.font.color.rgb = TEXT_MUTED
+    p3.space_before = Pt(6)
 
-    p_meta3 = tf_meta.add_paragraph()
-    p_meta3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
-    p_meta3.font.name = "Arial"
-    p_meta3.font.size = Pt(11)
-    p_meta3.font.color.rgb = TEXT_DARK_GRAY
-    p_meta3.space_before = Pt(5)
+    p4 = tf.add_paragraph()
+    p4.text = "CDAC Project Review Board  |  Domain: Biometrics & Computer Vision"
+    p4.font.name = "Arial"
+    p4.font.size = Pt(11)
+    p4.font.color.rgb = ACCENT_SLATE
+    p4.space_before = Pt(4)
 
-    # Problem Statement Card (SCR Situation Overlay)
-    card1 = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(3.2), Inches(5.5), Inches(3.7))
-    card1.fill.solid()
-    card1.fill.fore_color.rgb = CARD_BG
-    card1.line.color.rgb = CARD_BORDER
-    card1.line.width = Pt(1.0)
-    
-    tf_card = card1.text_frame
-    tf_card.word_wrap = True
-    tf_card.margin_left = Inches(0.25)
-    tf_card.margin_top = Inches(0.2)
-    tf_card.margin_right = Inches(0.25)
-    tf_card.margin_bottom = Inches(0.2)
-    
-    p_prob_hdr = tf_card.paragraphs[0]
-    p_prob_hdr.text = "SITUATION & COMPLICATION"
-    p_prob_hdr.font.name = "Arial"
-    p_prob_hdr.font.size = Pt(14)
-    p_prob_hdr.font.bold = True
-    p_prob_hdr.font.color.rgb = ACCENT_PURPLE
-    
-    p_prob_body = tf_card.add_paragraph()
-    p_prob_body.text = (
-        "• Context: Remote high-stakes evaluations (exams, interviews) rely on standard 2D webcams for candidate authentication.\n"
-        "• Complication: Traditional facial recognition is bypassed by presentation attacks (printed photos, video replay screens) and mid-session identity swapping.\n"
-        "• Resolution: SHIELD introduces a unified real-time framework integrating facial texture patterns, physiological cardiac pulse (rPPG), and active behavioral challenges."
-    )
-    p_prob_body.font.name = "Arial"
-    p_prob_body.font.size = Pt(10.5)
-    p_prob_body.font.color.rgb = TEXT_MUTED
-    p_prob_body.space_before = Pt(6)
+    # 3-Column SCR Layout
+    col_w = Inches(3.7)
+    col_h = Inches(4.0)
+    col_spacing = Inches(0.4)
+    start_x = Inches(0.75)
+    y_pos = Inches(2.6)
+
+    scr_steps = [
+        ("SITUATION", "Remote Identity Verification", 
+         "High-stakes digital platforms (virtual examinations, remote job interviews, and enterprise attendance tracking) rely increasingly on automated 2D webcam authentication pipelines to verify candidate presence."),
+        ("COMPLICATION", "Vulnerability to Spoof Attacks", 
+         "Traditional facial recognition algorithms are highly vulnerable to presentation attacks—such as printed photos and digital replay screens—and mid-session identity swapping (tag-team authentication fraud)."),
+        ("RESOLUTION", "Multi-Layered Biometric Fusion", 
+         "SHIELD integrates passive spatial texture analysis, biological rPPG heart rate tracking, and active challenge directives into a unified, low-latency fusion framework processing video under <100ms.")
+    ]
+
+    for idx, (title, header, desc) in enumerate(scr_steps):
+        x_pos = start_x + idx * (col_w + col_spacing)
+        card = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, col_w, col_h)
+        card.fill.solid()
+        card.fill.fore_color.rgb = CARD_BG
+        card.line.color.rgb = CARD_BORDER
+        card.line.width = Pt(1.0)
+        
+        tf_card = card.text_frame
+        tf_card.word_wrap = True
+        tf_card.margin_left = Inches(0.2)
+        tf_card.margin_top = Inches(0.25)
+        tf_card.margin_right = Inches(0.2)
+        tf_card.margin_bottom = Inches(0.2)
+        
+        p_title = tf_card.paragraphs[0]
+        p_title.text = title
+        p_title.font.name = "Arial"
+        p_title.font.size = Pt(11)
+        p_title.font.bold = True
+        p_title.font.color.rgb = ACCENT_SLATE
+        
+        p_head = tf_card.add_paragraph()
+        p_head.text = header
+        p_head.font.name = "Georgia"
+        p_head.font.size = Pt(15)
+        p_head.font.bold = True
+        p_head.font.color.rgb = ACCENT_NAVY
+        p_head.space_before = Pt(4)
+        p_head.space_after = Pt(10)
+        
+        p_desc = tf_card.add_paragraph()
+        p_desc.text = desc
+        p_desc.font.name = "Arial"
+        p_desc.font.size = Pt(11)
+        p_desc.font.color.rgb = TEXT_DARK
+        p_desc.space_before = Pt(4)
 
     # --- SLIDE 2: Objectives (Target Resolution Matrix) ---
     slide2 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide2)
-    add_action_title(slide2, "Objectives: Establishing a Standard-Compliant, Low-Latency Defense for Remote Identity Verification")
+    add_action_title(slide2, "Objectives: Building an Edge-Deployable, ISO-Compliant Biometric Defense")
 
     # Left Column: Primary Goals
     left_box = slide2.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(5.6), Inches(5.0))
@@ -162,10 +159,10 @@ def create_deck():
     
     p_l1 = tf_left.paragraphs[0]
     p_l1.text = "🎯 Core Objectives"
-    p_l1.font.name = "Arial"
+    p_l1.font.name = "Georgia"
     p_l1.font.size = Pt(18)
     p_l1.font.bold = True
-    p_l1.font.color.rgb = ACCENT_PURPLE
+    p_l1.font.color.rgb = ACCENT_NAVY
     p_l1.space_after = Pt(10)
     
     objectives_list = [
@@ -179,7 +176,7 @@ def create_deck():
         p.text = "• " + obj
         p.font.name = "Arial"
         p.font.size = Pt(13)
-        p.font.color.rgb = TEXT_MUTED
+        p.font.color.rgb = TEXT_DARK
         p.space_after = Pt(12)
 
     # Right Column: High-Level Targets
@@ -189,10 +186,10 @@ def create_deck():
     
     p_r1 = tf_right.paragraphs[0]
     p_r1.text = "⚙️ Engineering Targets & KPIs"
-    p_r1.font.name = "Arial"
+    p_r1.font.name = "Georgia"
     p_r1.font.size = Pt(18)
     p_r1.font.bold = True
-    p_r1.font.color.rgb = TEXT_WHITE
+    p_r1.font.color.rgb = ACCENT_NAVY
     p_r1.space_after = Pt(10)
     
     kpis = [
@@ -206,14 +203,14 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_PURPLE
+        p_t.font.color.rgb = ACCENT_SLATE
         p_t.space_before = Pt(8)
         
         p_d = tf_right.add_paragraph()
         p_d.text = desc
         p_d.font.name = "Arial"
         p_d.font.size = Pt(12)
-        p_d.font.color.rgb = TEXT_MUTED
+        p_d.font.color.rgb = TEXT_DARK
         p_d.space_after = Pt(6)
 
     # --- SLIDE 3: System Architecture & Flow (FLOWCHART BUILD) ---
@@ -227,10 +224,10 @@ def create_deck():
     tf_ld.word_wrap = True
     p_ld_title = tf_ld.paragraphs[0]
     p_ld_title.text = "⚙️ Modular Data Pipeline"
-    p_ld_title.font.name = "Arial"
+    p_ld_title.font.name = "Georgia"
     p_ld_title.font.size = Pt(18)
     p_ld_title.font.bold = True
-    p_ld_title.font.color.rgb = ACCENT_PURPLE
+    p_ld_title.font.color.rgb = ACCENT_NAVY
     p_ld_title.space_after = Pt(12)
 
     bullets = [
@@ -244,7 +241,7 @@ def create_deck():
         p.text = "• " + b
         p.font.name = "Arial"
         p.font.size = Pt(12)
-        p.font.color.rgb = TEXT_MUTED
+        p.font.color.rgb = TEXT_DARK
         p.space_after = Pt(10)
 
     # Helper function to add nodes
@@ -271,7 +268,7 @@ def create_deck():
     def draw_arrow(start_x, start_y, end_x, end_y, is_elbow=False):
         conn_type = MSO_CONNECTOR.ELBOW if is_elbow else MSO_CONNECTOR.STRAIGHT
         conn = slide3.shapes.add_connector(conn_type, start_x, start_y, end_x, end_y)
-        conn.line.color.rgb = CARD_BORDER
+        conn.line.color.rgb = FLOW_LINE_COLOR
         conn.line.width = Pt(1.2)
         conn.line.end_arrowhead = 2 # Triangle arrow
 
@@ -299,7 +296,8 @@ def create_deck():
     # Draw Parallel Inference bounding card outline (Nx stack wrapper)
     y_pillars = y + Inches(0.8)
     p_card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(5.1), y_pillars - Inches(0.2), Inches(6.8), Inches(1.8))
-    p_card.fill.background()
+    p_card.fill.solid()
+    p_card.fill.fore_color.rgb = CARD_BG
     p_card.line.color.rgb = CARD_BORDER
     p_card.line.width = Pt(1.5)
     
@@ -309,7 +307,7 @@ def create_deck():
     lbl.text_frame.paragraphs[0].font.name = "Arial"
     lbl.text_frame.paragraphs[0].font.size = Pt(14)
     lbl.text_frame.paragraphs[0].font.bold = True
-    lbl.text_frame.paragraphs[0].font.color.rgb = ACCENT_PURPLE
+    lbl.text_frame.paragraphs[0].font.color.rgb = ACCENT_NAVY
 
     # 4. Pillars (Parallel stack)
     w_pil = Inches(1.8)
@@ -375,40 +373,39 @@ def create_deck():
         
         p_name = tf_pillar.paragraphs[0]
         p_name.text = f"{idx+1}. {name}"
-        p_name.font.name = "Arial"
+        p_name.font.name = "Georgia"
         p_name.font.size = Pt(15)
         p_name.font.bold = True
-        p_name.font.color.rgb = TEXT_WHITE
+        p_name.font.color.rgb = ACCENT_NAVY
         
         p_tag = tf_pillar.add_paragraph()
         p_tag.text = tagline.upper()
         p_tag.font.name = "Arial"
         p_tag.font.size = Pt(9)
         p_tag.font.bold = True
-        p_tag.font.color.rgb = ACCENT_PURPLE
+        p_tag.font.color.rgb = ACCENT_SLATE
         p_tag.space_after = Pt(12)
         
         p_desc = tf_pillar.add_paragraph()
         p_desc.text = desc
         p_desc.font.name = "Arial"
         p_desc.font.size = Pt(11.5)
-        p_desc.font.color.rgb = TEXT_MUTED
+        p_desc.font.color.rgb = TEXT_DARK
         p_desc.space_before = Pt(5)
 
-    # --- SLIDE 5: Results & Evaluation Matrix (Image Backdrop Overlay) ---
+    # --- SLIDE 5: Results & Evaluation Matrix (Clean Minimal Office Style) ---
     slide5 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide5, TELEMETRY_IMG)
+    set_slide_bg(slide5)
     
-    # Action Title (with smaller size font to fit within left boundary box)
-    add_action_title(slide5, "Results: SHIELD Exceeds Enterprise Standards with 1.0% ACER at 85ms Latency", TEXT_WHITE, Inches(0.75), Inches(0.3), Inches(5.6), font_size=19)
+    add_action_title(slide5, "Results: SHIELD Exceeds Enterprise Standards with 1.0% ACER at 85ms Latency")
 
     # Metrics Table
     rows = 5
     cols = 2
     left = Inches(0.75)
-    top = Inches(1.4)
+    top = Inches(1.5)
     width = Inches(5.6)
-    height = Inches(2.2)
+    height = Inches(4.5)
     
     table_shape = slide5.shapes.add_table(rows, cols, left, top, width, height)
     table = table_shape.table
@@ -425,7 +422,7 @@ def create_deck():
         p.font.name = "Arial"
         p.font.size = Pt(13)
         p.font.bold = True
-        p.font.color.rgb = ACCENT_PURPLE
+        p.font.color.rgb = ACCENT_NAVY
         p.alignment = PP_ALIGN.CENTER
         
     data = [
@@ -438,29 +435,29 @@ def create_deck():
         for c_idx, val in enumerate(row_data):
             cell = table.cell(r_idx + 1, c_idx)
             cell.fill.solid()
-            cell.fill.fore_color.rgb = BG_COLOR
+            cell.fill.fore_color.rgb = CARD_BG if r_idx % 2 == 0 else BG_COLOR
             p = cell.text_frame.paragraphs[0]
             p.text = val
             p.font.name = "Arial"
             p.font.size = Pt(11)
-            p.font.color.rgb = TEXT_MUTED
+            p.font.color.rgb = TEXT_DARK
             if c_idx == 1:
                 p.font.bold = True
-                p.font.color.rgb = TEXT_WHITE
+                p.font.color.rgb = ACCENT_NAVY
             p.alignment = PP_ALIGN.CENTER
 
     # Bounding Box for Details (Evaluation matrix definitions)
-    desc_box = slide5.shapes.add_textbox(Inches(0.75), Inches(3.8), Inches(5.6), Inches(3.2))
+    desc_box = slide5.shapes.add_textbox(Inches(6.8), Inches(1.5), Inches(5.7), Inches(5.0))
     tf_desc = desc_box.text_frame
     tf_desc.word_wrap = True
     
     p_desc_hdr = tf_desc.paragraphs[0]
     p_desc_hdr.text = "📊 ISO/IEC 30107-3 Standard Metrics"
-    p_desc_hdr.font.name = "Arial"
-    p_desc_hdr.font.size = Pt(15)
+    p_desc_hdr.font.name = "Georgia"
+    p_desc_hdr.font.size = Pt(18)
     p_desc_hdr.font.bold = True
-    p_desc_hdr.font.color.rgb = ACCENT_PURPLE
-    p_desc_hdr.space_after = Pt(6)
+    p_desc_hdr.font.color.rgb = ACCENT_NAVY
+    p_desc_hdr.space_after = Pt(10)
     
     eval_bullets = [
         "APCER: Attack Presentation Classification Error Rate. Measures the % of spoof attacks incorrectly classified as live.",
@@ -472,18 +469,17 @@ def create_deck():
         p = tf_desc.add_paragraph()
         p.text = "• " + bull
         p.font.name = "Arial"
-        p.font.size = Pt(10.5)
-        p.font.color.rgb = TEXT_MUTED
-        p.space_after = Pt(4)
+        p.font.size = Pt(12)
+        p.font.color.rgb = TEXT_DARK
+        p.space_after = Pt(8)
 
-    # --- SLIDE 6: Novelty & Key Contributions (Image Backdrop Overlay) ---
+    # --- SLIDE 6: Novelty & Key Contributions ---
     slide6 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide6, FACIAL_MESH_IMG)
+    set_slide_bg(slide6)
     
-    # Action Title (with smaller size font to fit within left boundary box)
-    add_action_title(slide6, "Novelty: Scale-Invariant Identity Landmark Trajectories Prevent Mid-Session Swapping", TEXT_WHITE, Inches(0.75), Inches(0.3), Inches(5.6), font_size=19)
+    add_action_title(slide6, "Novelty: Scale-Invariant Landmarks Block Candidate Swapping and Adversarial Noise")
 
-    contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.4), Inches(5.6), Inches(5.7))
+    contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(11.83), Inches(5.0))
     tf_cnt = contrib_box.text_frame
     tf_cnt.word_wrap = True
     
@@ -508,18 +504,18 @@ def create_deck():
     for idx, (title, desc) in enumerate(contributions):
         p_t = tf_cnt.paragraphs[0] if idx == 0 else tf_cnt.add_paragraph()
         p_t.text = title
-        p_t.font.name = "Arial"
-        p_t.font.size = Pt(14)
+        p_t.font.name = "Georgia"
+        p_t.font.size = Pt(16)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_PURPLE
-        p_t.space_before = Pt(8)
+        p_t.font.color.rgb = ACCENT_NAVY
+        p_t.space_before = Pt(12)
         
         p_d = tf_cnt.add_paragraph()
         p_d.text = desc
         p_d.font.name = "Arial"
-        p_d.font.size = Pt(11)
-        p_d.font.color.rgb = TEXT_MUTED
-        p_d.space_after = Pt(6)
+        p_d.font.size = Pt(12.5)
+        p_d.font.color.rgb = TEXT_DARK
+        p_d.space_after = Pt(8)
 
     # --- SLIDE 7: Demo Video & Live Telemetry UI (Standard Layout) ---
     slide7 = prs.slides.add_slide(slide_layout)
@@ -527,7 +523,7 @@ def create_deck():
     add_action_title(slide7, "Deployment: Flutter Dashboard and WebSocket Ingestion Enable Seamless Live Audit Trails")
 
     # Left card: UI Architecture
-    ui_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
+    ui_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.8))
     ui_card.fill.solid()
     ui_card.fill.fore_color.rgb = CARD_BG
     ui_card.line.color.rgb = CARD_BORDER
@@ -541,10 +537,10 @@ def create_deck():
     
     p_ui_hdr = tf_ui.paragraphs[0]
     p_ui_hdr.text = "📱 Interactive Flutter Telemetry Dashboard"
-    p_ui_hdr.font.name = "Arial"
+    p_ui_hdr.font.name = "Georgia"
     p_ui_hdr.font.size = Pt(18)
     p_ui_hdr.font.bold = True
-    p_ui_hdr.font.color.rgb = TEXT_WHITE
+    p_ui_hdr.font.color.rgb = ACCENT_NAVY
     p_ui_hdr.space_after = Pt(10)
     
     ui_bullets = [
@@ -557,11 +553,11 @@ def create_deck():
         p.text = "• " + bull
         p.font.name = "Arial"
         p.font.size = Pt(13)
-        p.font.color.rgb = TEXT_MUTED
+        p.font.color.rgb = TEXT_DARK
         p.space_after = Pt(8)
 
     # Right card: Live Demo Sequence
-    demo_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
+    demo_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.8))
     demo_card.fill.solid()
     demo_card.fill.fore_color.rgb = CARD_BG
     demo_card.line.color.rgb = CARD_BORDER
@@ -575,10 +571,10 @@ def create_deck():
     
     p_demo_hdr = tf_demo.paragraphs[0]
     p_demo_hdr.text = "🎥 Live Demonstration Protocol"
-    p_demo_hdr.font.name = "Arial"
+    p_demo_hdr.font.name = "Georgia"
     p_demo_hdr.font.size = Pt(18)
     p_demo_hdr.font.bold = True
-    p_demo_hdr.font.color.rgb = ACCENT_PURPLE
+    p_demo_hdr.font.color.rgb = ACCENT_NAVY
     p_demo_hdr.space_after = Pt(10)
     
     demo_text = (
@@ -593,7 +589,7 @@ def create_deck():
     p_demo_body.text = demo_text
     p_demo_body.font.name = "Arial"
     p_demo_body.font.size = Pt(12)
-    p_demo_body.font.color.rgb = TEXT_MUTED
+    p_demo_body.font.color.rgb = TEXT_DARK
     p_demo_body.space_before = Pt(5)
 
     # Save
