@@ -5,9 +5,70 @@ import json
 import cv2
 import numpy as np
 import httpx
+import subprocess
+import sys
+import socket
+import time
 
 BACKEND_URL = "http://localhost:8000"
 WS_URL = "ws://localhost:8000/ws/verify"
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("127.0.0.1", port))
+            return False
+        except OSError:
+            return True
+
+def wait_for_port(port, timeout=5.0):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.connect(("127.0.0.1", port))
+                return True
+            except OSError:
+                time.sleep(0.1)
+    return False
+
+@pytest.fixture(scope="session", autouse=True)
+def run_backend_server():
+    port = 8000
+    if is_port_in_use(port):
+        # Already running, just yield and do not spawn a new one
+        yield
+        return
+
+    # Start backend server using uvicorn in the same python virtual environment
+    # We run it from the project root so it finds the 'models' directory,
+    # but we set PYTHONPATH to include the 'backend' folder so python finds 'services'
+    import os
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    backend_dir = os.path.join(project_root, "backend")
+    
+    env = os.environ.copy()
+    env["PYTHONPATH"] = backend_dir + os.pathsep + env.get("PYTHONPATH", "")
+
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", str(port)],
+        cwd=project_root,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    
+    # Wait for the port to become active
+    if not wait_for_port(port, timeout=12.0):
+        proc.terminate()
+        proc.wait()
+        raise RuntimeError("Failed to start FastAPI backend server for integration tests.")
+        
+    try:
+        yield
+    finally:
+        proc.terminate()
+        proc.wait()
 
 @pytest.mark.asyncio
 async def test_health_check():
