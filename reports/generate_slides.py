@@ -4,7 +4,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 
 def create_deck():
     prs = Presentation()
@@ -12,14 +12,23 @@ def create_deck():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Industry Standard & Minimal Color Palette
-    BG_COLOR = RGBColor(18, 20, 26)         # Deep slate/black
-    ACCENT_BLUE = RGBColor(41, 121, 255)    # Corporate slate blue (primary accent)
-    TEXT_WHITE = RGBColor(255, 255, 255)    # Clean white (primary text)
-    TEXT_MUTED = RGBColor(210, 215, 223)    # Soft light gray (body text)
-    TEXT_DARK_GRAY = RGBColor(140, 150, 165)# Muted gray (sub-info)
-    CARD_BG = RGBColor(28, 32, 42)          # Card background
-    CARD_BORDER = RGBColor(55, 71, 79)      # Muted slate border
+    # Custom Pitch Deck Color Palette (Matching Uploaded Media 0)
+    BG_COLOR = RGBColor(10, 10, 16)          # Ultra dark charcoal/black
+    ACCENT_PURPLE = RGBColor(138, 43, 226)   # Electric violet (accent highlights)
+    TEXT_WHITE = RGBColor(255, 255, 255)     # Clean white (primary text)
+    TEXT_MUTED = RGBColor(200, 200, 220)     # Soft light gray/lavender (body text)
+    TEXT_DARK_GRAY = RGBColor(130, 120, 150) # Muted slate (sub-info)
+    CARD_BG = RGBColor(24, 22, 34)           # Muted card background
+    CARD_BORDER = RGBColor(60, 50, 90)       # Dark violet border
+
+    # Flowchart Shape Colors (Matching Uploaded Media 1)
+    COLOR_INPUT = (RGBColor(248, 187, 208), RGBColor(40, 40, 40))   # Muted Pink
+    COLOR_DETECTION = (RGBColor(255, 224, 178), RGBColor(40, 40, 40)) # Muted Orange
+    COLOR_QUALITY = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))   # Muted Yellow
+    COLOR_PILLAR = (RGBColor(224, 242, 241), RGBColor(40, 40, 40))    # Muted Teal
+    COLOR_FUSION = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))    # Muted Yellow
+    COLOR_LINEAR = (RGBColor(225, 190, 231), RGBColor(40, 40, 40))    # Muted Purple
+    COLOR_SOFTMAX = (RGBColor(200, 230, 201), RGBColor(40, 40, 40))   # Muted Green
 
     # Image Paths
     SHIELD_COVER_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/shield_cover_visual_1783185170999.jpg"
@@ -35,7 +44,7 @@ def create_deck():
             fill.solid()
             fill.fore_color.rgb = BG_COLOR
 
-    def add_title(slide, text, color=ACCENT_BLUE, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
+    def add_title(slide, text, color=ACCENT_PURPLE, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
         title_box = slide.shapes.add_textbox(left, top, width, Inches(0.8))
         tf = title_box.text_frame
         tf.word_wrap = True
@@ -54,7 +63,7 @@ def create_deck():
     slide1 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide1, SHIELD_COVER_IMG)
     
-    # Left Aligned Cover Details
+    # Title details overlay
     title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(5.5), Inches(1.6))
     tf = title_box.text_frame
     tf.word_wrap = True
@@ -75,7 +84,7 @@ def create_deck():
     p2.font.name = "Arial"
     p2.font.size = Pt(15)
     p2.font.bold = True
-    p2.font.color.rgb = ACCENT_BLUE
+    p2.font.color.rgb = ACCENT_PURPLE
     p2.space_before = Pt(6)
 
     # Project Metadata (Partners & Guide)
@@ -128,7 +137,7 @@ def create_deck():
     p_prob_hdr.font.name = "Arial"
     p_prob_hdr.font.size = Pt(15)
     p_prob_hdr.font.bold = True
-    p_prob_hdr.font.color.rgb = ACCENT_BLUE
+    p_prob_hdr.font.color.rgb = ACCENT_PURPLE
     
     p_prob_body = tf_card.add_paragraph()
     p_prob_body.text = (
@@ -157,7 +166,7 @@ def create_deck():
     p_l1.font.name = "Arial"
     p_l1.font.size = Pt(18)
     p_l1.font.bold = True
-    p_l1.font.color.rgb = ACCENT_BLUE
+    p_l1.font.color.rgb = ACCENT_PURPLE
     p_l1.space_after = Pt(10)
     
     objectives_list = [
@@ -198,7 +207,7 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_BLUE
+        p_t.font.color.rgb = ACCENT_PURPLE
         p_t.space_before = Pt(8)
         
         p_d = tf_right.add_paragraph()
@@ -208,67 +217,129 @@ def create_deck():
         p_d.font.color.rgb = TEXT_MUTED
         p_d.space_after = Pt(6)
 
-    # --- SLIDE 3: System Architecture & Data Flow (Flowchart Slide) ---
+    # --- SLIDE 3: System Architecture & Flow (FLOWCHART BUILD) ---
     slide3 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide3)
-    add_title(slide3, "System Architecture & Data Flow")
+    add_title(slide3, "System Architecture Pipeline")
 
-    # Flowchart Card
-    card_flow = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.3), Inches(11.83), Inches(5.4))
-    card_flow.fill.solid()
-    card_flow.fill.fore_color.rgb = CARD_BG
-    card_flow.line.color.rgb = CARD_BORDER
-    card_flow.line.width = Pt(1.0)
-    
-    tf_flow = card_flow.text_frame
-    tf_flow.word_wrap = True
-    tf_flow.margin_left = Inches(0.4)
-    tf_flow.margin_top = Inches(0.3)
-    tf_flow.margin_right = Inches(0.4)
-    
-    p_f_hdr = tf_flow.paragraphs[0]
-    p_f_hdr.text = "⚙️ PIPELINE EXECUTION FLOW"
-    p_f_hdr.font.name = "Arial"
-    p_f_hdr.font.size = Pt(16)
-    p_f_hdr.font.bold = True
-    p_f_hdr.font.color.rgb = ACCENT_BLUE
-    p_f_hdr.space_after = Pt(14)
+    # Left text explanation
+    left_desc = slide3.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(4.2), Inches(5.0))
+    tf_ld = left_desc.text_frame
+    tf_ld.word_wrap = True
+    p_ld_title = tf_ld.paragraphs[0]
+    p_ld_title.text = "⚙️ Modular Data Pipeline"
+    p_ld_title.font.name = "Arial"
+    p_ld_title.font.size = Pt(18)
+    p_ld_title.font.bold = True
+    p_ld_title.font.color.rgb = ACCENT_PURPLE
+    p_ld_title.space_after = Pt(12)
 
-    # Text Art Flowchart (Uses Courier New to ensure exact monospacing and alignment)
-    flow_diagram = (
-        "                    [ STANDARD 2D WEBCAM VIDEO STREAM ]\n"
-        "                                     │\n"
-        "                                     ▼\n"
-        "                  [ YOLOv8-FACE DETECTION ENGINE (ONNX) ] ➔ (No Face ➔ Abort)\n"
-        "                                     │\n"
-        "                                     ▼\n"
-        "                 [ REAL-TIME IMAGE QUALITY FILTERING GATE ]\n"
-        "                  (Rejects Blurry, Low Light, or Occluded frames)\n"
-        "                                     │\n"
-        "                                     ▼\n"
-        "               ┌─────────────────────┼─────────────────────┐\n"
-        "               ▼                     ▼                     ▼\n"
-        "       [PASSIVE TEXTURE]      [PHYSIOLOGY CHECK]     [ACTIVE CHALLENGE]\n"
-        "         (MiniFASNet)           (Remote rPPG)        (Blink, Smile, Turn)\n"
-        "               │                     │                     │\n"
-        "               └─────────────────────┼─────────────────────┘\n"
-        "                                     │\n"
-        "                                     ▼\n"
-        "                  [ EXPLAINABLE WEIGHTED DECISION FUSION ]\n"
-        "                 (Dynamic weight computation for live parameters)\n"
-        "                                     │\n"
-        "                                     ▼\n"
-        "                         [ SECURE FUSION VERDICT ]\n"
-        "                         (Bona Fide Live / Spoof Rejection)"
-    )
+    bullets = [
+        "A modular layer architecture styled after high-performance neural blocks (like Transformer stacks).",
+        "Frames pass sequentially through detection, validation, and quality gates before running parallel inferences.",
+        "Texture (Spatial), Physiology (Biological BVP), and Challenge (Temporal Actions) operate as distinct pipelines.",
+        "Decision Fusion acts as the linear convergence layer to calculate output probabilities."
+    ]
+    for b in bullets:
+        p = tf_ld.add_paragraph()
+        p.text = "• " + b
+        p.font.name = "Arial"
+        p.font.size = Pt(12)
+        p.font.color.rgb = TEXT_MUTED
+        p.space_after = Pt(10)
+
+    # Helper function to add nodes
+    def draw_node(text, left, top, width, height, fill_color, text_color):
+        shape = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = fill_color
+        shape.line.color.rgb = CARD_BORDER
+        shape.line.width = Pt(1.0)
+        
+        tf = shape.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0.02)
+        p = tf.paragraphs[0]
+        p.text = text
+        p.font.name = "Arial"
+        p.font.size = Pt(9.5)
+        p.font.bold = True
+        p.font.color.rgb = text_color
+        p.alignment = PP_ALIGN.CENTER
+        return shape
+
+    # Helper to draw connectors
+    def draw_arrow(start_x, start_y, end_x, end_y, is_elbow=False):
+        conn_type = MSO_CONNECTOR.ELBOW if is_elbow else MSO_CONNECTOR.STRAIGHT
+        conn = slide3.shapes.add_connector(conn_type, start_x, start_y, end_x, end_y)
+        conn.line.color.rgb = CARD_BORDER
+        conn.line.width = Pt(1.2)
+        conn.line.end_arrowhead = 2 # Triangle arrow
+
+    # Node Dimensions
+    nw = Inches(2.2)   # width
+    nh = Inches(0.4)   # height
+    cx = Inches(8.5)   # Center of block diagram area
+
+    # Draw Flowchart blocks (Image 1 Style)
+    y = Inches(1.1)
     
-    p_diag = tf_flow.add_paragraph()
-    p_diag.text = flow_diagram
-    p_diag.font.name = "Courier New"
-    p_diag.font.size = Pt(11)
-    p_diag.font.bold = True
-    p_diag.font.color.rgb = TEXT_MUTED
-    p_diag.space_before = Pt(4)
+    # 1. Inputs
+    draw_node("Video Frames (BGR stream)", cx - nw/2, y, nw, nh, COLOR_INPUT[0], COLOR_INPUT[1])
+    draw_arrow(cx, y + nh, cx, y + nh + Inches(0.2))
+    
+    # 2. YOLOv8
+    y += Inches(0.6)
+    draw_node("YOLOv8-Face Detection", cx - nw/2, y, nw, nh, COLOR_DETECTION[0], COLOR_DETECTION[1])
+    draw_arrow(cx, y + nh, cx, y + nh + Inches(0.2))
+
+    # 3. Quality Gate
+    y += Inches(0.6)
+    draw_node("Signal Quality Filter Gate", cx - nw/2, y, nw, nh, COLOR_QUALITY[0], COLOR_QUALITY[1])
+    
+    # Draw Parallel Inference bounding card outline (Nx stack wrapper)
+    y_pillars = y + Inches(0.8)
+    p_card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(5.1), y_pillars - Inches(0.2), Inches(6.8), Inches(1.8))
+    p_card.fill.background()
+    p_card.line.color.rgb = CARD_BORDER
+    p_card.line.width = Pt(1.5)
+    
+    # Bounding card title (NX label)
+    lbl = slide3.shapes.add_textbox(Inches(11.35), y_pillars + Inches(0.4), Inches(0.5), Inches(0.4))
+    lbl.text_frame.paragraphs[0].text = "3x"
+    lbl.text_frame.paragraphs[0].font.name = "Arial"
+    lbl.text_frame.paragraphs[0].font.size = Pt(14)
+    lbl.text_frame.paragraphs[0].font.bold = True
+    lbl.text_frame.paragraphs[0].font.color.rgb = ACCENT_PURPLE
+
+    # 4. Pillars (Parallel stack)
+    w_pil = Inches(1.8)
+    draw_node("Passive Texture CNN", Inches(5.4), y_pillars, w_pil, Inches(1.2), COLOR_PILLAR[0], COLOR_PILLAR[1])
+    draw_node("Physiological rPPG", Inches(7.6), y_pillars, w_pil, Inches(1.2), COLOR_PILLAR[0], COLOR_PILLAR[1])
+    draw_node("Active Challenges", Inches(9.8), y_pillars, w_pil, Inches(1.2), COLOR_PILLAR[0], COLOR_PILLAR[1])
+
+    # Connectors from Quality Gate to the 3 pillars
+    draw_arrow(cx, y + nh, cx, y_pillars, is_elbow=False)
+    draw_arrow(cx, y + nh, Inches(6.3), y_pillars, is_elbow=True)
+    draw_arrow(cx, y + nh, Inches(10.7), y_pillars, is_elbow=True)
+
+    # 5. Fusion Engine
+    y = y_pillars + Inches(1.8)
+    draw_node("Weighted Decision Fusion", cx - nw/2, y, nw, nh, COLOR_FUSION[0], COLOR_FUSION[1])
+    
+    # Connectors from 3 pillars to Fusion
+    draw_arrow(Inches(6.3), y_pillars + Inches(1.2), cx, y, is_elbow=True)
+    draw_arrow(cx, y_pillars + Inches(1.2), cx, y, is_elbow=False)
+    draw_arrow(Inches(10.7), y_pillars + Inches(1.2), cx, y, is_elbow=True)
+
+    # 6. Linear classification
+    y += Inches(0.6)
+    draw_node("Linear Decision Threshold", cx - nw/2, y, nw, nh, COLOR_LINEAR[0], COLOR_LINEAR[1])
+    draw_arrow(cx, y + nh, cx, y + nh + Inches(0.2))
+
+    # 7. Softmax/Output
+    y += Inches(0.6)
+    draw_node("Output Verdict (Live/Spoof)", cx - nw/2, y, nw, nh, COLOR_SOFTMAX[0], COLOR_SOFTMAX[1])
 
     # --- SLIDE 4: Multimodal Verification Pillars (Standard Layout) ---
     slide4 = prs.slides.add_slide(slide_layout)
@@ -315,7 +386,7 @@ def create_deck():
         p_tag.font.name = "Arial"
         p_tag.font.size = Pt(9)
         p_tag.font.bold = True
-        p_tag.font.color.rgb = ACCENT_BLUE
+        p_tag.font.color.rgb = ACCENT_PURPLE
         p_tag.space_after = Pt(12)
         
         p_desc = tf_pillar.add_paragraph()
@@ -354,7 +425,7 @@ def create_deck():
         p.font.name = "Arial"
         p.font.size = Pt(13)
         p.font.bold = True
-        p.font.color.rgb = ACCENT_BLUE
+        p.font.color.rgb = ACCENT_PURPLE
         p.alignment = PP_ALIGN.CENTER
         
     data = [
@@ -388,7 +459,7 @@ def create_deck():
     p_desc_hdr.font.name = "Arial"
     p_desc_hdr.font.size = Pt(15)
     p_desc_hdr.font.bold = True
-    p_desc_hdr.font.color.rgb = ACCENT_BLUE
+    p_desc_hdr.font.color.rgb = ACCENT_PURPLE
     p_desc_hdr.space_after = Pt(6)
     
     eval_bullets = [
@@ -439,7 +510,7 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_BLUE
+        p_t.font.color.rgb = ACCENT_PURPLE
         p_t.space_before = Pt(8)
         
         p_d = tf_cnt.add_paragraph()
@@ -506,7 +577,7 @@ def create_deck():
     p_demo_hdr.font.name = "Arial"
     p_demo_hdr.font.size = Pt(18)
     p_demo_hdr.font.bold = True
-    p_demo_hdr.font.color.rgb = ACCENT_BLUE
+    p_demo_hdr.font.color.rgb = ACCENT_PURPLE
     p_demo_hdr.space_after = Pt(10)
     
     demo_text = (
