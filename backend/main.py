@@ -5,6 +5,17 @@ import numpy as np
 import io
 import uuid
 import json
+import os
+import sys
+
+# Ensure backend and project root directories are in sys.path to allow sibling imports
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(backend_dir)
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from services.fusion_service import fusion_service
 from services.firebase_service import firebase_service
 
@@ -148,6 +159,12 @@ async def websocket_challenge(websocket: WebSocket):
     except Exception as e:
         print(f"Challenge WS Error: {e}")
     finally:
+        # Cleanup the session to prevent memory leak and session limit issues
+        if "session" in locals() and session.session_id in session_manager._sessions:
+            try:
+                del session_manager._sessions[session.session_id]
+            except Exception as cleanup_err:
+                print(f"Error cleaning up challenge session: {cleanup_err}")
         try:
             await websocket.close()
         except:

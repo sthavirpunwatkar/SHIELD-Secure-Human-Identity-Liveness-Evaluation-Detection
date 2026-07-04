@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-04)
 
 ## Corpus Check
-- 102 files · ~43,074 words
+- 102 files · ~43,300 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 937 nodes · 1323 edges · 83 communities (70 shown, 13 thin omitted)
+- 937 nodes · 1324 edges · 82 communities (69 shown, 13 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 123 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `48ff4b24`
+- Built from commit: `30c32fdc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -67,7 +67,6 @@
 - [[_COMMUNITY_Community 49|Community 49]]
 - [[_COMMUNITY_Community 50|Community 50]]
 - [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
@@ -111,7 +110,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (83 total, 13 thin omitted)
+## Communities (82 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.09
@@ -127,7 +126,7 @@ Nodes (37): double?, int?, action, bbox, behavioralScore, blurScore, brightness,
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
-Nodes (30): Animation, AnimationController, ChallengeState, package:flutter/services.dart, build, _buildActiveCard, _buildContent, _buildIdleCard (+22 more)
+Nodes (33): Animation, AnimationController, ChallengeState, CustomPainter, package:flutter/services.dart, _FaceGuideOvalPainter, build, _buildActiveCard (+25 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.22
@@ -154,8 +153,8 @@ Cohesion: 0.13
 Nodes (13): BehavioralAnalyzer, Resets temporal tracking counters (call between sessions)., Initializes Behavioral analysis. Falls back to simple heuristics if MediaPipe fa, FaceDetector, Detects faces in a given frame.         :param frame: OpenCV image (BGR)., Crops a face from the frame based on a bounding box.         :param frame: OpenC, Initializes the YOLOv8 face detector.         :param model_path: Path to the YOL, LivenessClassifier (+5 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.11
-Nodes (13): WebSocket endpoint for passive liveness detection (no challenge prompts).     Re, Receives an image frame and runs the SHIELD liveness detection pipeline., WebSocket endpoint for active challenge-response liveness streaming.     Receive, verify_liveness(), websocket_challenge(), websocket_verify_passive(), DateTime?, FirebaseService (+5 more)
+Cohesion: 0.08
+Nodes (16): WebSocket endpoint for passive liveness detection (no challenge prompts).     Re, Receives an image frame and runs the SHIELD liveness detection pipeline., WebSocket endpoint for active challenge-response liveness streaming.     Receive, verify_liveness(), websocket_challenge(), websocket_verify_passive(), DateTime?, FirebaseService (+8 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.11
@@ -170,8 +169,8 @@ Cohesion: 0.09
 Nodes (22): ChallengeService, ChallengeService get, ChallengeState get, LivenessResult get, LivenessResult, _challengeService, challengeState, _challengeUrl (+14 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.08
-Nodes (29): ChangeNotifier, Color, dart:math, LivenessProvider, _startStreaming, build, _buildDynamicFaceGuide, _buildResultSummary (+21 more)
+Cohesion: 0.09
+Nodes (22): Color, dart:math, build, _buildDynamicFaceGuide, _buildResultSummary, _cameras, _challengeSub, color (+14 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.09
@@ -190,8 +189,8 @@ Cohesion: 0.11
 Nodes (13): ndarray, Validate that the user's response time is humanly plausible.          :param cha, Check that the background region stays stable across stored frames.          The, Clear the internal frame buffer., Extract the background border region of a greyscale frame.          Keeps only t, Lightweight temporal-consistency checker for liveness verification.      Maintai, Initialise the TemporalValidator.          :param min_response_time: Minimum cre, Store a frame (converted to greyscale) and its timestamp.          :param frame: (+5 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.10
-Nodes (21): challenge_screen.dart, build, createState, initState, main, ShieldApp, _urlController, MaterialPageRoute (+13 more)
+Cohesion: 0.18
+Nodes (10): challenge_screen.dart, ShieldApp, package:flutter/material.dart, ../providers/liveness_provider.dart, _buildPrepCard, PreVerificationScreen, StatelessWidget, build (+2 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.12
@@ -218,12 +217,12 @@ Cohesion: 0.15
 Nodes (10): ndarray, Compile the combined verification result.          Merges the challenge score fr, Look up a session by its ID.          :param session_id: UUID string of the desi, A single end-to-end liveness-verification session.      Bundles a :class:`Challe, Check whether this session has exceeded its TTL.          :return: ``True`` when, Ingest a single video frame for verification.          Performs the following in, VerificationSession, Test duplicate-frame detection in a VerificationSession. (+2 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.24
-Nodes (11): HomeScreen, _HomeScreenState, CameraScreen, _CameraScreenState, ChallengeScreen, _ChallengeScreenState, State, StatefulWidget (+3 more)
+Cohesion: 0.28
+Nodes (9): CameraScreen, _CameraScreenState, ChallengeScreen, _ChallengeScreenState, State, StatefulWidget, TickerProviderStateMixin, ChallengePrompt (+1 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.22
-Nodes (9): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Server-side state machine that genera, Enumeration of supported liveness-challenge actions., SHIELD – Verification Session Manager  Manages active verification sessions, com, SHIELD – Temporal Validator  Validates that challenge responses are temporally c, SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te, Test frame coherence detection. (+1 more)
+Cohesion: 0.16
+Nodes (12): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Server-side state machine that genera, Enumeration of supported liveness-challenge actions., SHIELD – Verification Session Manager  Manages active verification sessions, com, SHIELD – Temporal Validator  Validates that challenge responses are temporally c, SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te, Pass 2 out of 3 challenges and verify the resulting score. (+4 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.17
@@ -290,8 +289,8 @@ Cohesion: 0.29
 Nodes (3): RunnerTests, RunnerTests, XCTestCase
 
 ### Community 46 - "Community 46"
-Cohesion: 0.24
-Nodes (3): is_port_in_use(), run_backend_server(), wait_for_port()
+Cohesion: 0.20
+Nodes (10): createState, HomeScreen, _HomeScreenState, initState, main, _urlController, screens/camera_screen.dart, screens/challenge_screen.dart (+2 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.33
@@ -307,19 +306,15 @@ Nodes (4): Conclusion, Confusion Matrix, SHIELD Benchmark Report, Summary Metric
 
 ### Community 51 - "Community 51"
 Cohesion: 0.50
-Nodes (3): Pass 2 out of 3 challenges and verify the resulting score., Passing 2/3 challenges should yield score ≈ 0.6667., TestChallengePartialPass
-
-### Community 52 - "Community 52"
-Cohesion: 0.50
-Nodes (3): Verify that `is_timed_out()` fires correctly., Starting a challenge and sleeping past the timeout should flag it., TestChallengeTimeoutDetection
+Nodes (3): Verify that the generated challenge sequence contains unique items., Each challenge in a session's sequence must be unique., TestChallengeSequenceUniqueness
 
 ### Community 53 - "Community 53"
 Cohesion: 0.50
 Nodes (3): Verify that retries are consumed before a challenge is marked failed., With max_retries=2, three timeouts are needed to fail a challenge., TestChallengeRetryLogic
 
 ### Community 54 - "Community 54"
-Cohesion: 0.67
-Nodes (3): CustomPainter, _FaceGuideOvalPainter, _CountdownRingPainter
+Cohesion: 0.20
+Nodes (10): ChangeNotifier, build, MaterialPageRoute, LivenessProvider, _startStreaming, initState, _resetChallenge, _startChallenge (+2 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.50
@@ -341,12 +336,12 @@ Nodes (7): AI/Inference Pipeline, 🔍 Audit Checklist, Backend (Python/FastAPI)
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ChallengeSession` connect `Community 20` to `Community 36`, `Community 40`, `Community 9`, `Community 42`, `Community 18`, `Community 51`, `Community 52`, `Community 53`, `Community 22`, `Community 23`, `Community 56`, `Community 25`, `Community 55`, `Community 27`, `Community 31`?**
+- **Why does `ChallengeSession` connect `Community 20` to `Community 36`, `Community 40`, `Community 9`, `Community 42`, `Community 18`, `Community 51`, `Community 53`, `Community 22`, `Community 23`, `Community 56`, `Community 25`, `Community 55`, `Community 27`, `Community 31`?**
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
+- **Why does `SessionManager` connect `Community 22` to `Community 36`, `Community 40`, `Community 10`, `Community 42`, `Community 18`, `Community 51`, `Community 20`, `Community 53`, `Community 55`, `Community 56`, `Community 25`, `Community 27`?**
   _High betweenness centrality (0.063) - this node is a cross-community bridge._
-- **Why does `SessionManager` connect `Community 22` to `Community 36`, `Community 40`, `Community 10`, `Community 42`, `Community 18`, `Community 51`, `Community 20`, `Community 53`, `Community 52`, `Community 55`, `Community 56`, `Community 25`, `Community 27`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Why does `QualityScoreEngine` connect `Community 5` to `Community 9`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Are the 21 inferred relationships involving `ChallengeSession` (e.g. with `BenchmarkEngine` and `ChallengeBenchmark`) actually correct?**
   _`ChallengeSession` has 21 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 18 inferred relationships involving `TemporalValidator` (e.g. with `ndarray` and `SessionManager`) actually correct?**
