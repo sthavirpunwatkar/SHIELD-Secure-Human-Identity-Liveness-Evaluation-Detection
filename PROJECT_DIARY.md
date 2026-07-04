@@ -86,6 +86,15 @@
     - Added `test_websocket_challenge_session_cleanup` in `test_backend.py` to verify session garbage collection on disconnect.
 - **Differentiation:** Establishes a robust, zero-manual-intervention testing and production-grade memory safety foundation that guarantees continuous integration runs completely green.
 
+### Milestone 9: Codebase Optimization & Hardening (July 2026) - COMPLETED
+- **Objective:** Optimize dependencies, remove speculative/dead code, and implement a robust JPEG compression defense.
+- **Key Achievements:**
+    - Conducted a repository-wide over-engineering audit (invoked via ponytail).
+    - Cleaned up 256 lines of dead/speculative code by removing unused classes: `LivenessClassifier`, `MiniFASNet` (PyTorch variant), and `DeepRPPGDetector`/`PhysNet`, along with their related test scripts.
+    - Removed heavy, unused packages `torchvision` and `msgpack` from `requirements.txt` to minimize deployment footprint.
+    - Implemented a JPEG Compression Defense to preprocess crop inputs in `fusion_service.py` to prevent high-frequency adversarial noise.
+- **Differentiation:** Enhances production readiness by drastically lowering container image sizes and introducing passive security hardening.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)
@@ -98,7 +107,7 @@
 ---
 
 ## 📈 Current Status & Next Steps
-- **Status:** All core sprints completed. Test suite is 100% green and stabilized.
+- **Status:** All core sprints completed. Codebase is optimized and test suite is 100% green.
 - **Next Steps:** 
     - Fine-tuning fusion weights based on final benchmark results.
     - Optimizing ONNX inference for edge devices.

@@ -8,7 +8,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from inference.face_detector import FaceDetector
-from inference.liveness_classifier import LivenessClassifier
 from inference.antispoof import AntispoofInference
 from inference.behavioral_analyzer import BehavioralAnalyzer
 from inference.rppg_detector import RPPGDetector
@@ -25,7 +24,6 @@ class FusionService:
         self.detector = FaceDetector()
         self.quality_engine = QualityScoreEngine()
         self.antispoof = AntispoofInference()
-        self.secondary_liveness = LivenessClassifier()
         self.behavioral = BehavioralAnalyzer()
         self.rppg = RPPGDetector()
         self.fusion_engine = FusionEngine()
@@ -67,6 +65,13 @@ class FusionService:
             }
 
         # 3. Multi-Modal Inference
+        
+        # JPEG Compression Defense (clears adversarial noise)
+        _, jpeg_buf = cv2.imencode('.jpg', crop, [cv2.IMWRITE_JPEG_QUALITY, 90])
+        defended_crop = cv2.imdecode(jpeg_buf, cv2.IMREAD_COLOR)
+        if defended_crop is not None:
+            crop = defended_crop
+
         as_score = self.antispoof.predict(crop)
 
         # Behavioral Score (Blink) — now uses real EAR-based detection

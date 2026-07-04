@@ -60,12 +60,5 @@ class TestAuditIntegrity(unittest.TestCase):
         self.assertIsInstance(fusion_service.rppg, RPPGDetector)
         print("✓ RPPGDetector found in FusionService.")
 
-    def test_physnet_exists(self):
-        """Proof that the 3D Spatio-Temporal model mentioned in README exists."""
-        from inference.rppg_dl.physnet import PhysNet
-        model = PhysNet()
-        self.assertIsNotNone(model)
-        print("✓ PhysNet (3D Spatio-Temporal CNN) code exists in inference/rppg_dl/.")
-
 if __name__ == "__main__":
     unittest.main()
