@@ -18,7 +18,8 @@ void main() {
     // Verify that SHIELD title is present
     expect(find.text('SHIELD'), findsOneWidget);
     
-    // Verify that the start button is present
-    expect(find.text('Connect & Start'), findsOneWidget);
+    // Verify that the connect buttons are present
+    expect(find.text('Connect (Passive)'), findsOneWidget);
+    expect(find.text('Connect (Active Challenge)'), findsOneWidget);
   });
 }
