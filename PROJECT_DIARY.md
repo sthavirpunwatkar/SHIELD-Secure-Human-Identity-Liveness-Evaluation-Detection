@@ -116,6 +116,16 @@
     - Added comprehensive integration test (`test_websocket_identity_mismatch`) to assert correct rejection and error signaling.
 - **Differentiation:** Guards the session integrity against mid-session identity switches, establishing a critical verification parameter.
 
+### Milestone 12: CDAC Academic Review Presentation (July 2026) - COMPLETED
+- **Objective:** Design and generate a high-quality 10-slide academic presentation for CDAC project review using automated toolchains.
+- **Key Achievements:**
+    - Authored a slide-generator script `generate_deck.js` using `pptxgenjs` to build structured academic slides.
+    - Designed 10 communication-first slides matching project guidelines (situation-complication-resolution narrative structure, dark/light sandwich palette).
+    - Constructed custom SVG-to-native-shape vector elements for flowchart representations (Camera Input -> YOLOv8 Face -> Quality Gate -> Parallel Modality Extractors -> Fusion -> Decisive UI) and clean table styling.
+    - Successfully resolved rendering bugs like title rule collisions, play icon alignment inside circles, and cell highlighting using the programmatic pptxgenjs layout API.
+    - Conducted automated Content and Visual QA on PDF-to-image converted slides using headless LibreOffice and Poppler (`pdftoppm`).
+- **Differentiation:** Guarantees absolute design consistency, cross-platform compatibility, and a formal, communication-first layout that clearly conveys SHIELD's technical edge and ACER metrics to evaluators.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)
