@@ -12,37 +12,39 @@ def create_deck():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Minimal Office White Color Palette
-    BG_COLOR = RGBColor(255, 255, 255)       # Crisp Pure White
-    ACCENT_BLUE = RGBColor(0, 102, 204)      # Professional corporate blue
-    TEXT_DARK = RGBColor(20, 24, 33)         # Near black (primary headers)
-    TEXT_MUTED = RGBColor(60, 64, 75)        # Dark slate gray (body text)
-    TEXT_LIGHT_GRAY = RGBColor(110, 115, 125)# Muted gray (sub-info)
-    CARD_BG = RGBColor(245, 246, 248)        # Muted light gray card background
-    CARD_BORDER = RGBColor(200, 205, 215)    # Muted card borders
-    FLOW_LINE_COLOR = RGBColor(160, 165, 175)# Soft gray for flowchart lines
+    # Custom Pitch Deck Color Palette (Matching Uploaded Media 0)
+    BG_COLOR = RGBColor(10, 10, 16)          # Ultra dark charcoal/black
+    ACCENT_PURPLE = RGBColor(138, 43, 226)   # Electric violet (accent highlights)
+    TEXT_WHITE = RGBColor(255, 255, 255)     # Clean white (primary text)
+    TEXT_MUTED = RGBColor(200, 200, 220)     # Soft light gray/lavender (body text)
+    TEXT_DARK_GRAY = RGBColor(130, 120, 150) # Muted slate (sub-info)
+    CARD_BG = RGBColor(24, 22, 34)           # Muted card background
+    CARD_BORDER = RGBColor(60, 50, 90)       # Dark violet border
 
-    # Flowchart Shape Colors (Muted Pastels for White Background)
-    COLOR_INPUT = (RGBColor(252, 228, 236), RGBColor(60, 60, 60))   # Muted Pink
-    COLOR_DETECTION = (RGBColor(255, 243, 224), RGBColor(60, 60, 60)) # Muted Orange
-    COLOR_QUALITY = (RGBColor(255, 253, 231), RGBColor(60, 60, 60))   # Muted Yellow
-    COLOR_PILLAR = (RGBColor(224, 242, 241), RGBColor(60, 60, 60))    # Muted Teal
-    COLOR_FUSION = (RGBColor(255, 253, 231), RGBColor(60, 60, 60))    # Muted Yellow
-    COLOR_LINEAR = (RGBColor(243, 229, 245), RGBColor(60, 60, 60))    # Muted Purple
-    COLOR_SOFTMAX = (RGBColor(232, 245, 233), RGBColor(60, 60, 60))   # Muted Green
+    # Flowchart Shape Colors (Matching Uploaded Media 1)
+    COLOR_INPUT = (RGBColor(248, 187, 208), RGBColor(40, 40, 40))   # Muted Pink
+    COLOR_DETECTION = (RGBColor(255, 224, 178), RGBColor(40, 40, 40)) # Muted Orange
+    COLOR_QUALITY = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))   # Muted Yellow
+    COLOR_PILLAR = (RGBColor(224, 242, 241), RGBColor(40, 40, 40))    # Muted Teal
+    COLOR_FUSION = (RGBColor(255, 249, 196), RGBColor(40, 40, 40))    # Muted Yellow
+    COLOR_LINEAR = (RGBColor(225, 190, 231), RGBColor(40, 40, 40))    # Muted Purple
+    COLOR_SOFTMAX = (RGBColor(200, 230, 201), RGBColor(40, 40, 40))   # Muted Green
 
     # Image Paths
     SHIELD_COVER_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/shield_cover_visual_1783185170999.jpg"
     TELEMETRY_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/telemetry_visual_1783185198779.jpg"
     FACIAL_MESH_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/facial_mesh_visual_1783185185503.jpg"
 
-    def set_slide_bg(slide):
-        background = slide.background
-        fill = background.fill
-        fill.solid()
-        fill.fore_color.rgb = BG_COLOR
+    def set_slide_bg(slide, image_path=None):
+        if image_path and os.path.exists(image_path):
+            slide.shapes.add_picture(image_path, 0, 0, width=prs.slide_width, height=prs.slide_height)
+        else:
+            background = slide.background
+            fill = background.fill
+            fill.solid()
+            fill.fore_color.rgb = BG_COLOR
 
-    def add_title(slide, text, color=TEXT_DARK, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
+    def add_title(slide, text, color=ACCENT_PURPLE, left=Inches(0.75), top=Inches(0.4), width=Inches(11.83)):
         title_box = slide.shapes.add_textbox(left, top, width, Inches(0.8))
         tf = title_box.text_frame
         tf.word_wrap = True
@@ -59,11 +61,7 @@ def create_deck():
     # --- SLIDE 1: Title and Problem Statement (Cover) ---
     slide_layout = prs.slide_layouts[6]
     slide1 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide1)
-    
-    # Right-aligned picture illustration
-    if os.path.exists(SHIELD_COVER_IMG):
-        slide1.shapes.add_picture(SHIELD_COVER_IMG, Inches(6.8), Inches(0.8), width=Inches(5.7), height=Inches(5.8))
+    set_slide_bg(slide1, SHIELD_COVER_IMG)
     
     # Left Aligned Cover Details
     title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(5.5), Inches(1.6))
@@ -79,14 +77,14 @@ def create_deck():
     p1.font.name = "Arial"
     p1.font.size = Pt(42)
     p1.font.bold = True
-    p1.font.color.rgb = TEXT_DARK
+    p1.font.color.rgb = TEXT_WHITE
     
     p2 = tf.add_paragraph()
     p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification System"
     p2.font.name = "Arial"
     p2.font.size = Pt(15)
     p2.font.bold = True
-    p2.font.color.rgb = ACCENT_BLUE
+    p2.font.color.rgb = ACCENT_PURPLE
     p2.space_before = Pt(6)
 
     # Project Metadata (Partners & Guide)
@@ -117,7 +115,7 @@ def create_deck():
     p_meta3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
     p_meta3.font.name = "Arial"
     p_meta3.font.size = Pt(11.5)
-    p_meta3.font.color.rgb = TEXT_LIGHT_GRAY
+    p_meta3.font.color.rgb = TEXT_DARK_GRAY
     p_meta3.space_before = Pt(5)
 
     # Problem Statement Card (Left Overlay)
@@ -139,7 +137,7 @@ def create_deck():
     p_prob_hdr.font.name = "Arial"
     p_prob_hdr.font.size = Pt(15)
     p_prob_hdr.font.bold = True
-    p_prob_hdr.font.color.rgb = ACCENT_BLUE
+    p_prob_hdr.font.color.rgb = ACCENT_PURPLE
     
     p_prob_body = tf_card.add_paragraph()
     p_prob_body.text = (
@@ -168,7 +166,7 @@ def create_deck():
     p_l1.font.name = "Arial"
     p_l1.font.size = Pt(18)
     p_l1.font.bold = True
-    p_l1.font.color.rgb = ACCENT_BLUE
+    p_l1.font.color.rgb = ACCENT_PURPLE
     p_l1.space_after = Pt(10)
     
     objectives_list = [
@@ -195,7 +193,7 @@ def create_deck():
     p_r1.font.name = "Arial"
     p_r1.font.size = Pt(18)
     p_r1.font.bold = True
-    p_r1.font.color.rgb = TEXT_DARK
+    p_r1.font.color.rgb = TEXT_WHITE
     p_r1.space_after = Pt(10)
     
     kpis = [
@@ -209,7 +207,7 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_BLUE
+        p_t.font.color.rgb = ACCENT_PURPLE
         p_t.space_before = Pt(8)
         
         p_d = tf_right.add_paragraph()
@@ -233,7 +231,7 @@ def create_deck():
     p_ld_title.font.name = "Arial"
     p_ld_title.font.size = Pt(18)
     p_ld_title.font.bold = True
-    p_ld_title.font.color.rgb = ACCENT_BLUE
+    p_ld_title.font.color.rgb = ACCENT_PURPLE
     p_ld_title.space_after = Pt(12)
 
     bullets = [
@@ -274,7 +272,7 @@ def create_deck():
     def draw_arrow(start_x, start_y, end_x, end_y, is_elbow=False):
         conn_type = MSO_CONNECTOR.ELBOW if is_elbow else MSO_CONNECTOR.STRAIGHT
         conn = slide3.shapes.add_connector(conn_type, start_x, start_y, end_x, end_y)
-        conn.line.color.rgb = FLOW_LINE_COLOR
+        conn.line.color.rgb = CARD_BORDER
         conn.line.width = Pt(1.2)
         conn.line.end_arrowhead = 2 # Triangle arrow
 
@@ -302,8 +300,7 @@ def create_deck():
     # Draw Parallel Inference bounding card outline (Nx stack wrapper)
     y_pillars = y + Inches(0.8)
     p_card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(5.1), y_pillars - Inches(0.2), Inches(6.8), Inches(1.8))
-    p_card.fill.solid()
-    p_card.fill.fore_color.rgb = CARD_BG
+    p_card.fill.background()
     p_card.line.color.rgb = CARD_BORDER
     p_card.line.width = Pt(1.5)
     
@@ -313,7 +310,7 @@ def create_deck():
     lbl.text_frame.paragraphs[0].font.name = "Arial"
     lbl.text_frame.paragraphs[0].font.size = Pt(14)
     lbl.text_frame.paragraphs[0].font.bold = True
-    lbl.text_frame.paragraphs[0].font.color.rgb = ACCENT_BLUE
+    lbl.text_frame.paragraphs[0].font.color.rgb = ACCENT_PURPLE
 
     # 4. Pillars (Parallel stack)
     w_pil = Inches(1.8)
@@ -382,14 +379,14 @@ def create_deck():
         p_name.font.name = "Arial"
         p_name.font.size = Pt(15)
         p_name.font.bold = True
-        p_name.font.color.rgb = TEXT_DARK
+        p_name.font.color.rgb = TEXT_WHITE
         
         p_tag = tf_pillar.add_paragraph()
         p_tag.text = tagline.upper()
         p_tag.font.name = "Arial"
         p_tag.font.size = Pt(9)
         p_tag.font.bold = True
-        p_tag.font.color.rgb = ACCENT_BLUE
+        p_tag.font.color.rgb = ACCENT_PURPLE
         p_tag.space_after = Pt(12)
         
         p_desc = tf_pillar.add_paragraph()
@@ -399,15 +396,11 @@ def create_deck():
         p_desc.font.color.rgb = TEXT_MUTED
         p_desc.space_before = Pt(5)
 
-    # --- SLIDE 5: Results & Evaluation Matrix (Image Illustration Right) ---
+    # --- SLIDE 5: Results & Evaluation Matrix (Image Backdrop Overlay) ---
     slide5 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide5)
+    set_slide_bg(slide5, TELEMETRY_IMG)
     
-    # Right-aligned picture illustration
-    if os.path.exists(TELEMETRY_IMG):
-        slide5.shapes.add_picture(TELEMETRY_IMG, Inches(6.8), Inches(0.8), width=Inches(5.7), height=Inches(5.8))
-
-    add_title(slide5, "Results & Evaluation Matrix", TEXT_DARK, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide5, "Results & Evaluation Matrix", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
     # Metrics Table
     rows = 5
@@ -432,7 +425,7 @@ def create_deck():
         p.font.name = "Arial"
         p.font.size = Pt(13)
         p.font.bold = True
-        p.font.color.rgb = ACCENT_BLUE
+        p.font.color.rgb = ACCENT_PURPLE
         p.alignment = PP_ALIGN.CENTER
         
     data = [
@@ -453,10 +446,10 @@ def create_deck():
             p.font.color.rgb = TEXT_MUTED
             if c_idx == 1:
                 p.font.bold = True
-                p.font.color.rgb = TEXT_DARK
+                p.font.color.rgb = TEXT_WHITE
             p.alignment = PP_ALIGN.CENTER
 
-    # Bounding Box for Details
+    # Bounding Box for Details (Evaluation matrix definitions)
     desc_box = slide5.shapes.add_textbox(Inches(0.75), Inches(3.7), Inches(5.6), Inches(3.3))
     tf_desc = desc_box.text_frame
     tf_desc.word_wrap = True
@@ -466,7 +459,7 @@ def create_deck():
     p_desc_hdr.font.name = "Arial"
     p_desc_hdr.font.size = Pt(15)
     p_desc_hdr.font.bold = True
-    p_desc_hdr.font.color.rgb = ACCENT_BLUE
+    p_desc_hdr.font.color.rgb = ACCENT_PURPLE
     p_desc_hdr.space_after = Pt(6)
     
     eval_bullets = [
@@ -483,15 +476,11 @@ def create_deck():
         p.font.color.rgb = TEXT_MUTED
         p.space_after = Pt(4)
 
-    # --- SLIDE 6: Novelty & Key Contributions (Image Illustration Right) ---
+    # --- SLIDE 6: Novelty & Key Contributions (Image Backdrop Overlay) ---
     slide6 = prs.slides.add_slide(slide_layout)
-    set_slide_bg(slide6)
+    set_slide_bg(slide6, FACIAL_MESH_IMG)
     
-    # Right-aligned picture illustration
-    if os.path.exists(FACIAL_MESH_IMG):
-        slide6.shapes.add_picture(FACIAL_MESH_IMG, Inches(6.8), Inches(0.8), width=Inches(5.7), height=Inches(5.8))
-    
-    add_title(slide6, "Novelty & Custom Contributions", TEXT_DARK, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide6, "Novelty & Custom Contributions", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
     contrib_box = slide6.shapes.add_textbox(Inches(0.75), Inches(1.3), Inches(5.6), Inches(5.8))
     tf_cnt = contrib_box.text_frame
@@ -521,7 +510,7 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_BLUE
+        p_t.font.color.rgb = ACCENT_PURPLE
         p_t.space_before = Pt(8)
         
         p_d = tf_cnt.add_paragraph()
@@ -554,7 +543,7 @@ def create_deck():
     p_ui_hdr.font.name = "Arial"
     p_ui_hdr.font.size = Pt(18)
     p_ui_hdr.font.bold = True
-    p_ui_hdr.font.color.rgb = TEXT_DARK
+    p_ui_hdr.font.color.rgb = TEXT_WHITE
     p_ui_hdr.space_after = Pt(10)
     
     ui_bullets = [
@@ -588,7 +577,7 @@ def create_deck():
     p_demo_hdr.font.name = "Arial"
     p_demo_hdr.font.size = Pt(18)
     p_demo_hdr.font.bold = True
-    p_demo_hdr.font.color.rgb = ACCENT_BLUE
+    p_demo_hdr.font.color.rgb = ACCENT_PURPLE
     p_demo_hdr.space_after = Pt(10)
     
     demo_text = (
