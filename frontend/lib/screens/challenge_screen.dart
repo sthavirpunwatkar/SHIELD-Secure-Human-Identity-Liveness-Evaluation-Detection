@@ -21,6 +21,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   bool _isStreaming = false;
+  bool _isCapturing = false;
   Timer? _frameTimer;
   final int _throttleMs = 500;
   String? _errorMessage;
@@ -94,17 +95,22 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     setState(() => _isStreaming = true);
 
     _frameTimer?.cancel();
+    _isCapturing = false;
     _frameTimer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
       if (!_isStreaming || !mounted) {
         timer.cancel();
         return;
       }
+      if (_isCapturing) return; // Skip frame if previous capture is still in progress
+      _isCapturing = true;
       try {
         final XFile file = await _controller!.takePicture();
         final bytes = await file.readAsBytes();
         provider.sendFrame(bytes);
       } catch (e) {
         print('Error in challenge streaming: $e');
+      } finally {
+        _isCapturing = false;
       }
     });
   }
