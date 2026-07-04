@@ -73,6 +73,7 @@ async def websocket_challenge(websocket: WebSocket):
                 frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                 
                 if frame is None:
+                    await websocket.send_json({"type": "error", "message": "Invalid image data"})
                     continue
 
                 # Add frame to session manager (validates temporal consistency)
@@ -171,6 +172,7 @@ async def websocket_verify_passive(websocket: WebSocket):
                 nparr = np.frombuffer(data, np.uint8)
                 frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                 if frame is None:
+                    await websocket.send_json({"error": "Invalid image data"})
                     continue
                 result = fusion_service.process_frame(frame)
                 await websocket.send_json(result)
