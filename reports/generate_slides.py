@@ -63,7 +63,7 @@ def create_deck():
     slide1 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide1, SHIELD_COVER_IMG)
     
-    # Title details overlay
+    # Left Aligned Cover Details
     title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.4), Inches(5.5), Inches(1.6))
     tf = title_box.text_frame
     tf.word_wrap = True
