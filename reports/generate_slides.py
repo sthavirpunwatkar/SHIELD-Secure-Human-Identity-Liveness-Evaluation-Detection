@@ -8,17 +8,18 @@ from pptx.enum.shapes import MSO_SHAPE
 
 def create_deck():
     prs = Presentation()
-    # Use widescreen 16:9 format
+    # Widescreen 16:9 format
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     
-    # Theme Colors
-    BG_COLOR = RGBColor(18, 20, 26)       # Deep charcoal
-    ACCENT_CYAN = RGBColor(0, 210, 255)   # Neon cyan
-    TEXT_WHITE = RGBColor(240, 240, 240)  # Off-white
-    ACCENT_MINT = RGBColor(0, 255, 170)   # Mint green
-    MUTED_GRAY = RGBColor(150, 160, 175)  # Muted gray
-    CARD_BG = RGBColor(28, 32, 42)        # Muted card background
+    # Industry Standard & Minimal Color Palette
+    BG_COLOR = RGBColor(18, 20, 26)         # Deep slate/black
+    ACCENT_BLUE = RGBColor(41, 121, 255)    # Corporate slate blue (primary accent)
+    TEXT_WHITE = RGBColor(255, 255, 255)    # Clean white (primary text)
+    TEXT_MUTED = RGBColor(210, 215, 223)    # Soft light gray (body text)
+    TEXT_DARK_GRAY = RGBColor(140, 150, 165)# Muted gray (sub-info)
+    CARD_BG = RGBColor(28, 32, 42)          # Card background
+    CARD_BORDER = RGBColor(55, 71, 79)      # Muted slate border
 
     # Image Paths
     SHIELD_COVER_IMG = "/home/sp/.gemini/antigravity-cli/brain/25018484-f1af-4d12-9a28-f0e9940aa64f/shield_cover_visual_1783185170999.jpg"
@@ -27,7 +28,6 @@ def create_deck():
 
     def set_slide_bg(slide, image_path=None):
         if image_path and os.path.exists(image_path):
-            # Add full-bleed image backdrop
             slide.shapes.add_picture(image_path, 0, 0, width=prs.slide_width, height=prs.slide_height)
         else:
             background = slide.background
@@ -35,81 +35,81 @@ def create_deck():
             fill.solid()
             fill.fore_color.rgb = BG_COLOR
 
-    def add_title(slide, text, color=ACCENT_CYAN, left=Inches(0.75), top=Inches(0.5), width=Inches(11.83)):
+    def add_title(slide, text, color=ACCENT_BLUE, left=Inches(0.75), top=Inches(0.5), width=Inches(11.83)):
         title_box = slide.shapes.add_textbox(left, top, width, Inches(0.8))
         tf = title_box.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
         p.text = text
         p.font.name = "Arial"
-        p.font.size = Pt(36)
+        p.font.size = Pt(32)
         p.font.bold = True
         p.font.color.rgb = color
         return title_box
 
-    # --- SLIDE 1: Title and Problem Statement ---
-    slide_layout = prs.slide_layouts[6] # Blank layout
+    # --- SLIDE 1: Title and Problem Statement (Cover) ---
+    slide_layout = prs.slide_layouts[6]
     slide1 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide1, SHIELD_COVER_IMG)
     
-    # Title & Subtitle (Left Aligned Bounding Box)
-    main_title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.8), Inches(5.5), Inches(1.8))
-    tf = main_title_box.text_frame
+    # Left Aligned Cover Details
+    title_box = slide1.shapes.add_textbox(Inches(0.75), Inches(0.8), Inches(5.5), Inches(2.2))
+    tf = title_box.text_frame
     tf.word_wrap = True
     p1 = tf.paragraphs[0]
     p1.text = "SHIELD"
     p1.font.name = "Arial"
-    p1.font.size = Pt(44)
+    p1.font.size = Pt(46)
     p1.font.bold = True
-    p1.font.color.rgb = ACCENT_CYAN
+    p1.font.color.rgb = TEXT_WHITE
     
     p2 = tf.add_paragraph()
-    p2.text = "Secure Human Identity & Liveness Evaluation Detection"
+    p2.text = "Multimodal Real-Time Biometric Liveness & Identity Verification System"
     p2.font.name = "Arial"
-    p2.font.size = Pt(20)
+    p2.font.size = Pt(18)
     p2.font.bold = True
-    p2.font.color.rgb = TEXT_WHITE
-    p2.space_before = Pt(8)
+    p2.font.color.rgb = ACCENT_BLUE
+    p2.space_before = Pt(6)
 
     p3 = tf.add_paragraph()
-    p3.text = "CDAC Project Review  |  Anti-Spoofing & Biometrics"
+    p3.text = "CDAC Project Review  |  Domain: Biometrics & Computer Vision"
     p3.font.name = "Arial"
-    p3.font.size = Pt(13)
-    p3.font.color.rgb = MUTED_GRAY
+    p3.font.size = Pt(12)
+    p3.font.color.rgb = TEXT_DARK_GRAY
     p3.space_before = Pt(8)
 
-    # Problem Statement Card (Left-Aligned overlay)
+    # Problem Statement Card (Left Overlay)
     card1 = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(3.2), Inches(5.5), Inches(3.5))
     card1.fill.solid()
     card1.fill.fore_color.rgb = CARD_BG
-    card1.line.color.rgb = ACCENT_CYAN
-    card1.line.width = Pt(1.5)
+    card1.line.color.rgb = CARD_BORDER
+    card1.line.width = Pt(1.0)
     
     tf_card = card1.text_frame
     tf_card.word_wrap = True
-    tf_card.margin_left = Inches(0.2)
-    tf_card.margin_top = Inches(0.2)
-    tf_card.margin_right = Inches(0.2)
-    tf_card.margin_bottom = Inches(0.2)
+    tf_card.margin_left = Inches(0.25)
+    tf_card.margin_top = Inches(0.25)
+    tf_card.margin_right = Inches(0.25)
+    tf_card.margin_bottom = Inches(0.25)
     
     p_prob_hdr = tf_card.paragraphs[0]
-    p_prob_hdr.text = "PROBLEM STATEMENT"
+    p_prob_hdr.text = "PROBLEM FORMULATION"
     p_prob_hdr.font.name = "Arial"
-    p_prob_hdr.font.size = Pt(16)
+    p_prob_hdr.font.size = Pt(15)
     p_prob_hdr.font.bold = True
-    p_prob_hdr.font.color.rgb = ACCENT_MINT
+    p_prob_hdr.font.color.rgb = ACCENT_BLUE
     
     p_prob_body = tf_card.add_paragraph()
     p_prob_body.text = (
-        "Identity fraud compromises remote verification systems:\n"
-        "• Spoof Attacks: Printed photos, screen video replays, and 3D silicone masks bypass typical biometrics.\n"
-        "• Identity Swap Attacks: Users swap mid-session (tag-team attacks) during active sessions.\n"
-        "• Hardware Constraints: Existing defenses rely on costly 3D depth cameras, limiting massive deployments."
+        "Remote biometric systems face vulnerabilities to spoofing:\n"
+        "• Presentation Attacks (PA): Static photo prints, video loop replays, and 3D masks deceive traditional facial recognition.\n"
+        "• Identity Swapping: User swaps mid-session (tag-team cheating) during active testing or authentication.\n"
+        "• Deployment Limits: Existing anti-spoofing methods require specialized depth hardware, rendering wide scale deployments impractical."
     )
     p_prob_body.font.name = "Arial"
-    p_prob_body.font.size = Pt(12)
-    p_prob_body.font.color.rgb = TEXT_WHITE
-    p_prob_body.space_before = Pt(8)
+    p_prob_body.font.size = Pt(11)
+    p_prob_body.font.color.rgb = TEXT_MUTED
+    p_prob_body.space_before = Pt(6)
 
     # --- SLIDE 2: Objectives (Standard Layout) ---
     slide2 = prs.slides.add_slide(slide_layout)
@@ -124,23 +124,23 @@ def create_deck():
     p_l1 = tf_left.paragraphs[0]
     p_l1.text = "🎯 Core Objectives"
     p_l1.font.name = "Arial"
-    p_l1.font.size = Pt(20)
+    p_l1.font.size = Pt(18)
     p_l1.font.bold = True
-    p_l1.font.color.rgb = ACCENT_MINT
+    p_l1.font.color.rgb = ACCENT_BLUE
     p_l1.space_after = Pt(10)
     
     objectives_list = [
-        "Develop an end-to-end, ultra-low latency (<100ms) multi-layered pipeline for biometric verification.",
-        "Implement non-intrusive biological checks (physiological heart-rate validation via rPPG) without dedicated sensors.",
-        "Construct interactive active challenge-response tasks preventing pre-recorded synthetic deepfakes.",
-        "Establish an explainable fusion architecture to provide forensic audit capability for each verification decision."
+        "Develop an end-to-end, real-time liveness pipeline processing multi-layered verification streams in <100ms.",
+        "Implement non-intrusive biological checks by extracting blood volume pulse (BVP) from standard RGB video feeds (rPPG).",
+        "Introduce randomized active challenge-response tasks combined with frame validation to counter pre-recorded replays.",
+        "Construct an explainable multi-modal decision fusion engine to facilitate detailed audit trails."
     ]
     for obj in objectives_list:
         p = tf_left.add_paragraph()
         p.text = "• " + obj
         p.font.name = "Arial"
-        p.font.size = Pt(14)
-        p.font.color.rgb = TEXT_WHITE
+        p.font.size = Pt(13)
+        p.font.color.rgb = TEXT_MUTED
         p.space_after = Pt(12)
 
     # Right Column: High-Level Targets
@@ -149,48 +149,48 @@ def create_deck():
     tf_right.word_wrap = True
     
     p_r1 = tf_right.paragraphs[0]
-    p_r1.text = "⚡ Engineering Target KPIs"
+    p_r1.text = "⚙️ Engineering Targets & KPIs"
     p_r1.font.name = "Arial"
-    p_r1.font.size = Pt(20)
+    p_r1.font.size = Pt(18)
     p_r1.font.bold = True
-    p_r1.font.color.rgb = ACCENT_CYAN
+    p_r1.font.color.rgb = TEXT_WHITE
     p_r1.space_after = Pt(10)
     
     kpis = [
-        ("ISO/IEC 30107-3 Standard Compliance", "Targeting ACER (Average Classification Error Rate) below 1.5% to beat enterprise systems."),
-        ("Edge-Compatible Latency Profiles", "Ensure end-to-end processing (detection, crops, fusion, classification) runs in less than 100ms on CPU."),
-        ("Zero-Dependency Webcam Deployment", "Operate smoothly over normal RGB standard 2D webcams, eliminating hardware friction.")
+        ("ISO/IEC 30107-3 Standard Adherence", "Deliver an ACER (Average Classification Error Rate) under 1.5% to verify enterprise-level security."),
+        ("Edge-Deployable Performance", "Optimize inference workloads to support execution in under 100ms on consumer-grade CPUs."),
+        ("Zero-Dependency RGB Deployment", "Perform biological, texture, and active checks using simple 2D webcams without dedicated sensors.")
     ]
     for title, desc in kpis:
         p_t = tf_right.add_paragraph()
-        p_t.text = "🔹 " + title
+        p_t.text = "▪️ " + title
         p_t.font.name = "Arial"
-        p_t.font.size = Pt(16)
+        p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = TEXT_WHITE
-        p_t.space_before = Pt(10)
+        p_t.font.color.rgb = ACCENT_BLUE
+        p_t.space_before = Pt(8)
         
         p_d = tf_right.add_paragraph()
         p_d.text = desc
         p_d.font.name = "Arial"
-        p_d.font.size = Pt(13)
-        p_d.font.color.rgb = MUTED_GRAY
-        p_d.space_after = Pt(8)
+        p_d.font.size = Pt(12)
+        p_d.font.color.rgb = TEXT_MUTED
+        p_d.space_after = Pt(6)
 
     # --- SLIDE 3: Methodology (Standard Layout) ---
     slide3 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide3)
-    add_title(slide3, "System Architecture & Methodology")
+    add_title(slide3, "System Architecture & Flow")
 
     # Workflow Visual Representation
     flow_box = slide3.shapes.add_textbox(Inches(0.75), Inches(1.5), Inches(11.83), Inches(0.8))
     tf_flow = flow_box.text_frame
     p_flow = tf_flow.paragraphs[0]
-    p_flow.text = "Camera Capture  ➡️  YOLOv8 Face Detection  ➡️  Signal Quality Gate  ➡️  Multimodal Inference  ➡️  Decision Fusion"
+    p_flow.text = "Video Capture  ➔  YOLOv8 Face Detection  ➔  Quality telemetry  ➔  Multimodal Inference  ➔  Decision Fusion"
     p_flow.font.name = "Arial"
     p_flow.font.size = Pt(15)
     p_flow.font.bold = True
-    p_flow.font.color.rgb = ACCENT_CYAN
+    p_flow.font.color.rgb = ACCENT_BLUE
     p_flow.alignment = PP_ALIGN.CENTER
 
     # 4 Cards for 4 Verification Pillars
@@ -201,19 +201,19 @@ def create_deck():
     y_pos = Inches(2.5)
 
     pillars = [
-        ("Passive Texture", "MiniFASNet CNN analyzing high-frequency texture cues to distinguish human skin from printed papers or screen pixels.", "CNN Inference"),
-        ("Physiological rPPG", "3D Spatio-Temporal CNN extracting blood volume pulse (BVP) from blood flow micro-fluctuations in skin.", "Biological Pulse"),
-        ("Active Challenges", "Randomized directives (Smile, Blink, Turn) generated by ChallengeEngine to ensure presence.", "Challenge-Response"),
-        ("Temporal Audit", "TemporalValidator matching challenge execution times and checking for jump-cut manipulations.", "Jump-cut Check")
+        ("Passive Texture", "MiniFASNet CNN classification parsing high-frequency surface patterns to detect print paper/screen structures.", "Spatial Textures"),
+        ("Physiological rPPG", "3D spatio-temporal CNN extracting cardiac micro-signals from skin color shifts to verify living tissue.", "Heart Rate Pulse"),
+        ("Active Challenges", "Randomized directives (Blink, Turn, Smile) validated dynamically to establish immediate user cooperation.", "Challenge Actions"),
+        ("Temporal Validator", "Time-series integrity checking to trace jump-cuts and confirm time sync between challenge events.", "Temporal Cuts")
     ]
 
     for idx, (name, desc, tagline) in enumerate(pillars):
         x_pos = start_x + idx * (card_width + spacing)
-        card = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x_pos, y_pos, card_width, card_height)
+        card = slide3.shapes.add_shape(MSO_SHAPE.RECTANGLE, x_pos, y_pos, card_width, card_height)
         card.fill.solid()
         card.fill.fore_color.rgb = CARD_BG
-        card.line.color.rgb = ACCENT_CYAN
-        card.line.width = Pt(1.5)
+        card.line.color.rgb = CARD_BORDER
+        card.line.width = Pt(1.0)
         
         tf_pillar = card.text_frame
         tf_pillar.word_wrap = True
@@ -224,33 +224,32 @@ def create_deck():
         p_name = tf_pillar.paragraphs[0]
         p_name.text = f"{idx+1}. {name}"
         p_name.font.name = "Arial"
-        p_name.font.size = Pt(16)
+        p_name.font.size = Pt(15)
         p_name.font.bold = True
-        p_name.font.color.rgb = ACCENT_MINT
+        p_name.font.color.rgb = TEXT_WHITE
         
         p_tag = tf_pillar.add_paragraph()
         p_tag.text = tagline.upper()
         p_tag.font.name = "Arial"
-        p_tag.font.size = Pt(10)
+        p_tag.font.size = Pt(9)
         p_tag.font.bold = True
-        p_tag.font.color.rgb = MUTED_GRAY
+        p_tag.font.color.rgb = ACCENT_BLUE
         p_tag.space_after = Pt(10)
         
         p_desc = tf_pillar.add_paragraph()
         p_desc.text = desc
         p_desc.font.name = "Arial"
-        p_desc.font.size = Pt(12)
-        p_desc.font.color.rgb = TEXT_WHITE
+        p_desc.font.size = Pt(11.5)
+        p_desc.font.color.rgb = TEXT_MUTED
         p_desc.space_before = Pt(5)
 
     # --- SLIDE 4: Results & Evaluation Matrix (Image Backdrop Overlay) ---
     slide4 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide4, TELEMETRY_IMG)
     
-    # Left Aligned Text Box
-    add_title(slide4, "Results & Evaluation Matrix", ACCENT_CYAN, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide4, "Results & Evaluation Matrix", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
-    # Table of Performance Metrics (Left Aligned)
+    # Metrics Table
     rows = 5
     cols = 2
     left = Inches(0.75)
@@ -263,7 +262,7 @@ def create_deck():
     table.columns[0].width = Inches(3.6)
     table.columns[1].width = Inches(2.0)
     
-    headers = ["Metric Name", "SHIELD Score"]
+    headers = ["Metric Parameter", "SHIELD Score"]
     for c_idx, text in enumerate(headers):
         cell = table.cell(0, c_idx)
         cell.fill.solid()
@@ -273,14 +272,14 @@ def create_deck():
         p.font.name = "Arial"
         p.font.size = Pt(13)
         p.font.bold = True
-        p.font.color.rgb = ACCENT_CYAN
+        p.font.color.rgb = ACCENT_BLUE
         p.alignment = PP_ALIGN.CENTER
         
     data = [
-        ["APCER (Attack Error)", "1.2%"],
-        ["BPCER (Bona Fide Error)", "0.8%"],
-        ["ACER (Average Error)", "1.0%"],
-        ["Inference Latency", "85 ms"]
+        ["APCER (Attack Error Rate)", "1.2%"],
+        ["BPCER (Bona Fide Error Rate)", "0.8%"],
+        ["ACER (Average Error Rate)", "1.0%"],
+        ["End-to-End Inference Latency", "85 ms"]
     ]
     for r_idx, row_data in enumerate(data):
         for c_idx, val in enumerate(row_data):
@@ -291,44 +290,43 @@ def create_deck():
             p.text = val
             p.font.name = "Arial"
             p.font.size = Pt(11)
-            p.font.color.rgb = TEXT_WHITE
+            p.font.color.rgb = TEXT_MUTED
             if c_idx == 1:
                 p.font.bold = True
-                p.font.color.rgb = ACCENT_MINT
+                p.font.color.rgb = TEXT_WHITE
             p.alignment = PP_ALIGN.CENTER
 
-    # Additional description under table (Left Aligned Bounding Box)
+    # Bounding Box for Details
     desc_box = slide4.shapes.add_textbox(Inches(0.75), Inches(3.7), Inches(5.6), Inches(3.3))
     tf_desc = desc_box.text_frame
     tf_desc.word_wrap = True
     
     p_desc_hdr = tf_desc.paragraphs[0]
-    p_desc_hdr.text = "📊 Dataset & Optimization Results"
+    p_desc_hdr.text = "📊 Experimental Evaluation Setup"
     p_desc_hdr.font.name = "Arial"
     p_desc_hdr.font.size = Pt(16)
     p_desc_hdr.font.bold = True
-    p_desc_hdr.font.color.rgb = ACCENT_MINT
+    p_desc_hdr.font.color.rgb = ACCENT_BLUE
     p_desc_hdr.space_after = Pt(6)
     
     eval_bullets = [
-        "Tested on unified sets of CASIA-FASD and CelebA-Spoof datasets, comprising over 10,000 frames.",
-        "Real-Time evaluation verified WebSockets frame streaming rate above 30 FPS.",
-        "Weighted Decision Fusion: Calibrated dynamically using grid search over 1,771 separate sensor weight parameter combinations."
+        "Benchmarked against unified subsets of CASIA-FASD and CelebA-Spoof, containing over 10,000 frames under diverse ambient variables.",
+        "Verified streaming processing speed exceeding 30 FPS.",
+        "Optimized fusion weight configuration (10% rPPG, 10% Blink, 15% Antispoof, 65% Challenge) via programmatic grid-search."
     ]
     for bull in eval_bullets:
         p = tf_desc.add_paragraph()
-        p.text = "• " + bull
+        p.text = "▪️ " + bull
         p.font.name = "Arial"
         p.font.size = Pt(11)
-        p.font.color.rgb = TEXT_WHITE
+        p.font.color.rgb = TEXT_MUTED
         p.space_after = Pt(6)
 
-    # --- SLIDE 5: Novelty & Custom Contributions (Image Backdrop Overlay) ---
+    # --- SLIDE 5: Novelty & Key Contributions (Image Backdrop Overlay) ---
     slide5 = prs.slides.add_slide(slide_layout)
     set_slide_bg(slide5, FACIAL_MESH_IMG)
     
-    # Left Aligned Text Box
-    add_title(slide5, "Novelty & Key Contributions", ACCENT_CYAN, Inches(0.75), Inches(0.4), Inches(5.6))
+    add_title(slide5, "Novelty & Custom Contributions", TEXT_WHITE, Inches(0.75), Inches(0.4), Inches(5.6))
 
     contrib_box = slide5.shapes.add_textbox(Inches(0.75), Inches(1.3), Inches(5.6), Inches(5.8))
     tf_cnt = contrib_box.text_frame
@@ -337,18 +335,18 @@ def create_deck():
     contributions = [
         (
             "1. Real-Time Scale-Invariant Identity Consistency Check",
-            "Defeats mid-session user swaps (tag-team candidate swaps):\n"
-            "• Computes scale-invariant 4D signature ratios (nose, eyes, chin, lip corners) via MediaPipe FaceMesh geometry.\n"
-            "• Distance is tracked frame-by-frame. Connection immediately killed and flagged if signature variation exceeds threshold (>0.20)."
+            "Defeats mid-session candidate swapping (tag-team fraud):\n"
+            "• Computes scale-invariant 4D geometric signature ratios (nose, eyes, chin, lip corners) using MediaPipe FaceMesh landmarks.\n"
+            "• Signature distance is verified frame-by-frame. Websocket is killed immediately if signature drift exceeds threshold (>0.20)."
         ),
         (
-            "2. JPEG Compression Noise Defenses",
-            "Filters high-frequency adversarial texture attacks:\n"
-            "• Integrates compression filtering directly into the crop stages to wipe out artificial noise artifacts used by adversarial camera filters."
+            "2. JPEG Compression Defenses",
+            "Enhances resilience against adversarial spatial noise attacks:\n"
+            "• Integrates compression filters into the face crop step to cancel out artificial noise patterns generated by digital camera overlays."
         ),
         (
-            "3. Decision Fusion Engine Calibration",
-            "• Optimized decision fusion weights (10% rPPG, 10% Blink, 15% Antispoof, and 65% Challenge) via multi-constraint grid search."
+            "3. Systematic Grid Search Optimization",
+            "• Evaluated 1,771 separate sensor weight parameter combinations mathematically to eliminate sub-model silence."
         )
     ]
     
@@ -358,14 +356,14 @@ def create_deck():
         p_t.font.name = "Arial"
         p_t.font.size = Pt(14)
         p_t.font.bold = True
-        p_t.font.color.rgb = ACCENT_MINT
+        p_t.font.color.rgb = ACCENT_BLUE
         p_t.space_before = Pt(8)
         
         p_d = tf_cnt.add_paragraph()
         p_d.text = desc
         p_d.font.name = "Arial"
         p_d.font.size = Pt(11)
-        p_d.font.color.rgb = TEXT_WHITE
+        p_d.font.color.rgb = TEXT_MUTED
         p_d.space_after = Pt(6)
 
     # --- SLIDE 6: Demo Video & Live Telemetry UI (Standard Layout) ---
@@ -374,11 +372,11 @@ def create_deck():
     add_title(slide6, "Interface Design & Live Demonstration")
 
     # Left card: UI Architecture
-    ui_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
+    ui_card = slide6.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.75), Inches(1.8), Inches(5.6), Inches(4.5))
     ui_card.fill.solid()
     ui_card.fill.fore_color.rgb = CARD_BG
-    ui_card.line.color.rgb = ACCENT_CYAN
-    ui_card.line.width = Pt(1.5)
+    ui_card.line.color.rgb = CARD_BORDER
+    ui_card.line.width = Pt(1.0)
     
     tf_ui = ui_card.text_frame
     tf_ui.word_wrap = True
@@ -387,32 +385,32 @@ def create_deck():
     tf_ui.margin_right = Inches(0.3)
     
     p_ui_hdr = tf_ui.paragraphs[0]
-    p_ui_hdr.text = "📱 Immersive Flutter Telemetry Panel"
+    p_ui_hdr.text = "📱 Interactive Flutter Telemetry Dashboard"
     p_ui_hdr.font.name = "Arial"
     p_ui_hdr.font.size = Pt(18)
     p_ui_hdr.font.bold = True
-    p_ui_hdr.font.color.rgb = ACCENT_MINT
+    p_ui_hdr.font.color.rgb = TEXT_WHITE
     p_ui_hdr.space_after = Pt(10)
     
     ui_bullets = [
-        "Real-Time Guidance Frame: An interactive oval boundary changing colors based on quality metrics (Red: Pose mismatch, Blue: Poor lighting, Green: Perfect).",
-        "Explainable Verdicts: Integrates real-time live telemetry cards showing dynamic confidence ratings for each modal sensor (texture, physiology, challenges).",
-        "Pre-verification Gateway: Users are trained with tips and guidelines prior to starting high-stakes interview challenge verification sessions."
+        "Quality Telemetry Guide: Interactive oval frame changing colors dynamically based on real-time quality parameters (Blur, Exposure, Pose).",
+        "Explainable Biometrics: Displays clear confidence breakdowns for texture, biological rPPG, and active challenge scores in real-time.",
+        "Secure Ingestion Gateway: Informs user of capture instructions prior to starting high-stakes verification flows."
     ]
     for bull in ui_bullets:
         p = tf_ui.add_paragraph()
         p.text = "• " + bull
         p.font.name = "Arial"
         p.font.size = Pt(13)
-        p.font.color.rgb = TEXT_WHITE
+        p.font.color.rgb = TEXT_MUTED
         p.space_after = Pt(8)
 
-    # Right card: Live Demo & Video Guide
-    demo_card = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
+    # Right card: Live Demo Sequence
+    demo_card = slide6.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.5))
     demo_card.fill.solid()
     demo_card.fill.fore_color.rgb = CARD_BG
-    demo_card.line.color.rgb = ACCENT_CYAN
-    demo_card.line.width = Pt(1.5)
+    demo_card.line.color.rgb = CARD_BORDER
+    demo_card.line.width = Pt(1.0)
     
     tf_demo = demo_card.text_frame
     tf_demo.word_wrap = True
@@ -421,26 +419,26 @@ def create_deck():
     tf_demo.margin_right = Inches(0.3)
     
     p_demo_hdr = tf_demo.paragraphs[0]
-    p_demo_hdr.text = "🎥 Interactive Live Demonstration"
+    p_demo_hdr.text = "🎥 Live Demonstration Protocol"
     p_demo_hdr.font.name = "Arial"
     p_demo_hdr.font.size = Pt(18)
     p_demo_hdr.font.bold = True
-    p_demo_hdr.font.color.rgb = ACCENT_CYAN
+    p_demo_hdr.font.color.rgb = ACCENT_BLUE
     p_demo_hdr.space_after = Pt(10)
     
     demo_text = (
-        "Our validation pipeline streams video frames from a Flutter client webcam to our FastAPI server over WebSockets:\n"
-        "1. Start verification: A target challenge is selected randomly (e.g., blink task).\n"
-        "2. Intercept Attack: We simulate printed photo attacks (rejected by rPPG and Texture). \n"
-        "3. Intercept Replay: We play digital replay loop (rejected by Active Challenge & Temporal validation).\n"
-        "4. Intercept Swap: A second user swaps with candidate mid-session (rejected by scale-invariant landmarks check).\n\n"
-        "The complete system workflow and testing suites are fully verified in the live code repository."
+        "Websocket-based real-time capture and verification pipeline:\n"
+        "1. Active Verification: Core session starts, requesting random user movements.\n"
+        "2. Print Spoof Defense: User presents photo print, system immediately blocks frame based on texture and heart-rate checks.\n"
+        "3. Replay Loop Defense: Dynamic challenge mismatch catches loop playbacks.\n"
+        "4. Identity Swap Defense: Mid-session candidate swap triggers geometric landmark signature mismatch, killing the connection instantly.\n\n"
+        "Execution logs and test coverage verify the robust integration."
     )
     p_demo_body = tf_demo.add_paragraph()
     p_demo_body.text = demo_text
     p_demo_body.font.name = "Arial"
     p_demo_body.font.size = Pt(12)
-    p_demo_body.font.color.rgb = TEXT_WHITE
+    p_demo_body.font.color.rgb = TEXT_MUTED
     p_demo_body.space_before = Pt(5)
 
     # Save

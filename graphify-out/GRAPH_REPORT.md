@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-04)
 
 ## Corpus Check
-- 100 files · ~46,542 words
+- 100 files · ~46,320 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 936 nodes · 1327 edges · 84 communities (72 shown, 12 thin omitted)
+- 936 nodes · 1327 edges · 83 communities (71 shown, 12 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 124 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dda8bb44`
+- Built from commit: `0b668fd1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -58,7 +58,6 @@
 - [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
 - [[_COMMUNITY_Community 44|Community 44]]
 - [[_COMMUNITY_Community 45|Community 45]]
 - [[_COMMUNITY_Community 46|Community 46]]
@@ -111,7 +110,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (84 total, 12 thin omitted)
+## Communities (83 total, 12 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.09
@@ -190,8 +189,8 @@ Cohesion: 0.12
 Nodes (11): SHIELD – Verification Session Manager  Manages active verification sessions, com, SHIELD – Temporal Validator  Validates that challenge responses are temporally c, Validate that the user's response time is humanly plausible.          :param cha, Clear the internal frame buffer., Lightweight temporal-consistency checker for liveness verification.      Maintai, Initialise the TemporalValidator.          :param min_response_time: Minimum cre, Compare the last two frames to detect jump-cuts or scene changes.          Uses, TemporalValidator (+3 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.33
-Nodes (4): FusionService, Specialized processing for challenge-mode frames.         Runs the full pipeline, Initializes all core AI models for orchestration., Runs the multi-modal pipeline on a single frame.         :param frame: OpenCV im
+Cohesion: 0.50
+Nodes (3): Pass 2 out of 3 challenges and verify the resulting score., Passing 2/3 challenges should yield score ≈ 0.6667., TestChallengePartialPass
 
 ### Community 20 - "Community 20"
 Cohesion: 0.13
@@ -219,7 +218,7 @@ Nodes (10): ndarray, Compile the combined verification result.          Merges t
 
 ### Community 26 - "Community 26"
 Cohesion: 0.14
-Nodes (13): 🛡️ SHIELD - CDAC Project Review Slide Deck, Slide 1: Title & Problem Statement, Slide 2: Project Objectives, Slide 3: System Architecture & Methodology, Slide 4: Results & Evaluation Matrix, Slide 5: Novelty & Custom Contributions, Slide 6: Interface Design & Live Demonstration, Slide Content (+5 more)
+Nodes (13): 🛡️ SHIELD - CDAC Project Review Slide Deck, Slide 1: Title & Problem Formulation, Slide 2: Project Objectives, Slide 3: System Architecture & Flow, Slide 4: Results & Evaluation Matrix, Slide 5: Novelty & Key Contributions, Slide 6: Interface Design & Live Demonstration, Slide Content (+5 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.18
@@ -230,8 +229,8 @@ Cohesion: 0.17
 Nodes (11): 1. Backend (Python/FastAPI), 2. Frontend (Flutter), 📊 Benchmark Scores, 🚀 Competitive Innovation, ✅ Completed (Current State), ⚙️ Installation & Setup, 🚀 Next Steps, 📋 Project Overview & Plan (+3 more)
 
 ### Community 29 - "Community 29"
-Cohesion: 0.21
-Nodes (6): WeightTuner, FusionEngine, Fuses multiple liveness scores into a single final score.         :param rppg_sc, Initializes the Fusion Engine with customizable weights.         :param weights:, test_fusion_engine(), test_weight_tuner()
+Cohesion: 0.16
+Nodes (9): FusionEngine, Fuses multiple liveness scores into a single final score.         :param rppg_sc, Initializes the Fusion Engine with customizable weights.         :param weights:, FusionService, Specialized processing for challenge-mode frames.         Runs the full pipeline, Initializes all core AI models for orchestration., Runs the multi-modal pipeline on a single frame.         :param frame: OpenCV im, test_fusion_engine() (+1 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.50
@@ -274,16 +273,12 @@ Cohesion: 0.14
 Nodes (18): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Server-side state machine that genera, Enumeration of supported liveness-challenge actions., _make_frame(), _make_noisy_frame(), ndarray, SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te (+10 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.32
-Nodes (3): AntispoofInference, Standardized inference wrapper for anti-spoof models.         Prioritizes loadin, Performs inference on a face crop.         :param face_crop: BGR image.
+Cohesion: 0.22
+Nodes (4): AntispoofInference, Standardized inference wrapper for anti-spoof models.         Prioritizes loadin, Performs inference on a face crop.         :param face_crop: BGR image., WeightTuner
 
 ### Community 42 - "Community 42"
 Cohesion: 0.17
 Nodes (6): DateTime?, ReportGenerator, FirebaseService, Logs verification metadata to Firestore., Uploads a verification snapshot to Firebase Storage., Initializes Firebase Admin SDK with placeholders.
-
-### Community 43 - "Community 43"
-Cohesion: 0.50
-Nodes (3): Verify that `is_timed_out()` fires correctly., Starting a challenge and sleeping past the timeout should flag it., TestChallengeTimeoutDetection
 
 ### Community 44 - "Community 44"
 Cohesion: 0.29
@@ -345,11 +340,11 @@ Nodes (7): AI/Inference Pipeline, 🔍 Audit Checklist, Backend (Python/FastAPI)
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ChallengeSession` connect `Community 20` to `Community 7`, `Community 40`, `Community 43`, `Community 18`, `Community 19`, `Community 51`, `Community 53`, `Community 22`, `Community 23`, `Community 54`, `Community 25`, `Community 56`, `Community 55`, `Community 29`, `Community 31`?**
+- **Why does `ChallengeSession` connect `Community 20` to `Community 7`, `Community 40`, `Community 18`, `Community 19`, `Community 51`, `Community 53`, `Community 22`, `Community 23`, `Community 54`, `Community 25`, `Community 56`, `Community 55`, `Community 29`, `Community 31`?**
   _High betweenness centrality (0.062) - this node is a cross-community bridge._
-- **Why does `SessionManager` connect `Community 22` to `Community 40`, `Community 10`, `Community 43`, `Community 18`, `Community 51`, `Community 20`, `Community 53`, `Community 54`, `Community 55`, `Community 56`, `Community 25`, `Community 31`?**
+- **Why does `SessionManager` connect `Community 22` to `Community 40`, `Community 10`, `Community 18`, `Community 19`, `Community 20`, `Community 53`, `Community 54`, `Community 55`, `Community 56`, `Community 25`, `Community 51`, `Community 31`?**
   _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `QualityScoreEngine` connect `Community 5` to `Community 19`, `Community 29`?**
+- **Why does `QualityScoreEngine` connect `Community 5` to `Community 29`?**
   _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **Are the 21 inferred relationships involving `ChallengeSession` (e.g. with `BenchmarkEngine` and `ChallengeBenchmark`) actually correct?**
   _`ChallengeSession` has 21 INFERRED edges - model-reasoned connections that need verification._
