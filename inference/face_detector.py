@@ -4,22 +4,21 @@ import os
 from ultralytics import YOLO
 
 class FaceDetector:
-    def __init__(self, model_path='models/yolov8n-face.pt'):
+    def __init__(self, model_path='models/l_version_1_300.pt'):
         """
         Initializes the YOLOv8 face detector.
         :param model_path: Path to the YOLOv8-Face model weights.
         """
-        # Search for models in models/ folder if not found
-        if not os.path.exists(model_path) and not os.path.isabs(model_path):
-            alt_path = os.path.join('models', os.path.basename(model_path))
-            if os.path.exists(alt_path):
-                model_path = alt_path
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        if not os.path.isabs(model_path):
+            model_path = os.path.join(project_root, model_path)
 
         try:
             self.model = YOLO(model_path)
         except Exception as e:
             print(f"Error loading model {model_path}: {e}")
-            fallback = 'models/yolov8n.pt'
+            fallback = os.path.join(project_root, 'models', 'yolov8n.pt')
             print(f"Falling back to {fallback}")
             self.model = YOLO(fallback)
 

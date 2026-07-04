@@ -83,7 +83,7 @@ class FusionService:
         rppg_score = self.rppg.update(frame)
 
         # 4. Challenge Score
-        challenge_score = 0.5  # Default neutral if no active session
+        challenge_score = 1.0 if challenge_session is None else 0.5
         challenge_info = None
 
         if challenge_session is not None:

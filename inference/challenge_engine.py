@@ -82,6 +82,11 @@ class ChallengeSession:
         self._passed: int = 0
         self._failed: int = 0
         self._completed: bool = False
+        
+        # Debouncing / temporal consistency
+        self._consecutive_frames: int = 0
+        self.frames_required: int = 3
+
 
     # ------------------------------------------------------------------
     # Public API
@@ -155,6 +160,7 @@ class ChallengeSession:
             else:
                 # Allow retry – restart the timer
                 self._challenge_start_time = time.time()
+                result["challenge_failed"] = True  # Notify frontend to retry
 
             result["session_complete"] = self._completed
             result["next_challenge"] = (
@@ -167,9 +173,14 @@ class ChallengeSession:
 
         # --- Normal frame evaluation ---
         if action_detected:
-            self._passed += 1
-            result["challenge_passed"] = True
-            self._advance()
+            self._consecutive_frames += 1
+            if self._consecutive_frames >= self.frames_required:
+                self._passed += 1
+                result["challenge_passed"] = True
+                self._advance()
+        else:
+            # Reset consecutive count if action is lost
+            self._consecutive_frames = 0
         # If not detected, we simply wait for the next frame (no action).
 
         result["session_complete"] = self._completed
@@ -233,6 +244,7 @@ class ChallengeSession:
         self._current_index += 1
         self._challenge_start_time = None
         self._retries_used = 0
+        self._consecutive_frames = 0
         if self._current_index >= len(self.challenges):
             self._completed = True
 

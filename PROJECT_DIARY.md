@@ -144,6 +144,14 @@
     - Relaxed overly strict Quality Gate logic by lowering `BlurDetector`'s Laplacian variance threshold to 20.0 and widening `IlluminationDetector` bounds to accept real-world webcam conditions.
 - **Differentiation:** Enhances practical deployment viability by balancing rigorous spoof-prevention with forgiving environmental tolerances, drastically improving user accessibility.
 
+### Milestone 15: Challenge Engine & UI State Synchronization (July 2026) - COMPLETED
+- **Objective:** Fix "Instant Pass" spoofing bugs and UI state blockages during active liveness challenges.
+- **Key Achievements:**
+    - Diagnosed and fixed a high-severity bug in `ChallengeEngine` where a single noisy frame triggered instantaneous challenge completion.
+    - Implemented a 3-frame debouncer (`_consecutive_frames`) requiring sustained action verification.
+    - Corrected a race condition in the Flutter frontend (`challenge_service.dart`) where the `ChallengeState.allPassed` UI state prematurely blocked the processing of the final backend `verdict` payload, resulting in a persistent "0.0%" score display.
+- **Differentiation:** Guarantees absolute temporal resilience in behavioral tracking, rejecting micro-flickers and mandating sustained physical action to complete verification.
+
 ---
 
 ## 🛡️ Unique Innovations (SHIELD vs. Competitors)

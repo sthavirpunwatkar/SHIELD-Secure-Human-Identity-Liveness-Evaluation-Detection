@@ -55,6 +55,7 @@ class _CameraScreenState extends State<CameraScreen> {
         enableAudio: false,
       );
 
+      await Future.delayed(const Duration(milliseconds: 2000)); // Wait for previous hardware lock
       await _controller!.initialize();
       if (mounted) {
         setState(() {

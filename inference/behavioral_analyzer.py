@@ -82,11 +82,11 @@ class BehavioralAnalyzer:
     # ============================================================
     # Configurable thresholds
     # ============================================================
-    EAR_BLINK_THRESHOLD = 0.21       # Below this = eye is closed / blink
-    MAR_MOUTH_OPEN_THRESHOLD = 0.6   # Above this = mouth is open
-    SMILE_RATIO_THRESHOLD = 1.8      # Corner distance / vertical > this = smile
-    YAW_TURN_THRESHOLD = 15.0        # Degrees; > this = head turned
-    PITCH_NOD_THRESHOLD = 10.0       # Degrees; > this = head nodding
+    EAR_BLINK_THRESHOLD = 0.28       # Below this = eye is closed / blink
+    MAR_MOUTH_OPEN_THRESHOLD = 0.35  # Above this = mouth is open
+    SMILE_RATIO_THRESHOLD = 1.3      # Corner distance / vertical > this = smile
+    YAW_TURN_THRESHOLD = 7.0         # Degrees; > this = head turned
+    PITCH_NOD_THRESHOLD = 5.0        # Degrees; > this = head nodding
 
     def __init__(self):
         """
@@ -336,10 +336,8 @@ class BehavioralAnalyzer:
 
         # Convert rotation vector to rotation matrix, then to Euler angles
         rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
-        pose_matrix = cv2.hconcat([rotation_matrix, translation_vector])
-        _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(
-            cv2.hconcat([pose_matrix, np.array([[0, 0, 0, 1]], dtype=np.float64)])
-        )
+        pose_matrix = cv2.hconcat([rotation_matrix.astype(np.float64), translation_vector.astype(np.float64)])
+        _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(pose_matrix)
 
         # euler_angles are in (pitch, yaw, roll) order from decomposeProjectionMatrix
         pitch = float(euler_angles[0][0])
@@ -418,17 +416,11 @@ class BehavioralAnalyzer:
                     "roll": round(pose["roll"], 2)
                 }
 
-                if challenge_type == "turn_left":
-                    result["action_detected"] = pose["yaw"] < -self.YAW_TURN_THRESHOLD
+                if challenge_type in ("turn_left", "turn_right"):
+                    result["action_detected"] = abs(pose["yaw"]) > self.YAW_TURN_THRESHOLD
                     result["confidence"] = min(1.0, abs(pose["yaw"]) / (self.YAW_TURN_THRESHOLD * 2))
-                elif challenge_type == "turn_right":
-                    result["action_detected"] = pose["yaw"] > self.YAW_TURN_THRESHOLD
-                    result["confidence"] = min(1.0, abs(pose["yaw"]) / (self.YAW_TURN_THRESHOLD * 2))
-                elif challenge_type == "nod_up":
-                    result["action_detected"] = pose["pitch"] < -self.PITCH_NOD_THRESHOLD
-                    result["confidence"] = min(1.0, abs(pose["pitch"]) / (self.PITCH_NOD_THRESHOLD * 2))
-                elif challenge_type == "nod_down":
-                    result["action_detected"] = pose["pitch"] > self.PITCH_NOD_THRESHOLD
+                elif challenge_type in ("nod_up", "nod_down"):
+                    result["action_detected"] = abs(pose["pitch"]) > self.PITCH_NOD_THRESHOLD
                     result["confidence"] = min(1.0, abs(pose["pitch"]) / (self.PITCH_NOD_THRESHOLD * 2))
 
             return result
