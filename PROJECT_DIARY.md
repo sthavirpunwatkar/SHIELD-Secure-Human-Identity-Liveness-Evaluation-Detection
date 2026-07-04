@@ -102,7 +102,9 @@
     - Added a `min_weight=0.10` constraint to prevent silencing any modal signal.
     - Evaluated 1,771 weight combinations on the dataset, finding the optimal configuration: 10% rPPG, 10% Blink, 15% Antispoof, and 65% Challenge.
     - Updated `inference/fusion_engine.py` default weights to apply the optimal combination.
-- **Differentiation:** Empirically calibrates the decision fusion module using dataset metrics instead of raw heuristics.
+    - Resolved a float precision logic bug in `tune_weights.py` where IEEE-754 precision issues skipped 20% of valid combinations.
+    - Added a unit test `test_weight_tuner` in `test_fusion.py` to verify tuner logic.
+- **Differentiation:** Empirically calibrates the decision fusion module using dataset metrics instead of raw heuristics, verified by robust unit tests.
 
 ---
 
