@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from inference.face_detector import FaceDetector
-from inference.liveness_classifier import LivenessClassifier
+from inference.antispoof import AntispoofInference
 from inference.behavioral_analyzer import BehavioralAnalyzer
 from inference.rppg_detector import RPPGDetector
 
@@ -10,7 +10,7 @@ def main():
     
     # Initialize models
     detector = FaceDetector()
-    classifier = LivenessClassifier()
+    antispoof = AntispoofInference()
     behavioral = BehavioralAnalyzer()
     rppg = RPPGDetector()
     
@@ -34,9 +34,9 @@ def main():
         bbox = face_info['bbox']
         crop = detector.crop_face(frame, bbox)
         
-        print("2. Testing Liveness Classification...")
-        verdict, confidence = classifier.predict(crop)
-        print(f"Verdict: {verdict}, Confidence: {confidence:.2f}")
+        print("2. Testing Antispoof Classification...")
+        as_score = antispoof.predict(crop)
+        print(f"Antispoof Score (Real=1.0): {as_score:.2f}")
         
         print("3. Testing Behavioral Analysis...")
         behavior = behavioral.analyze(frame, faces=faces)

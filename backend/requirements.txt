@@ -1,6 +1,5 @@
 ultralytics
 torch
-torchvision
 mediapipe
 opencv-python
 numpy
@@ -10,4 +9,3 @@ python-multipart
 firebase-admin
 websockets
 onnxruntime
-msgpack
