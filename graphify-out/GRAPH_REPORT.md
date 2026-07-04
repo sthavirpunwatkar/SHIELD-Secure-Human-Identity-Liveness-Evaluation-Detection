@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-04)
 
 ## Corpus Check
-- 100 files · ~46,793 words
+- 100 files · ~47,229 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 938 nodes · 1329 edges · 84 communities (71 shown, 13 thin omitted)
+- 938 nodes · 1330 edges · 84 communities (71 shown, 13 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 124 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0e396e58`
+- Built from commit: `85dc0526`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -218,8 +218,8 @@ Cohesion: 0.14
 Nodes (10): ndarray, Compile the combined verification result.          Merges the challenge score fr, A single end-to-end liveness-verification session.      Bundles a :class:`Challe, Look up a session by its ID.          :param session_id: UUID string of the desi, Check whether this session has exceeded its TTL.          :return: ``True`` when, Ingest a single video frame for verification.          Performs the following in, VerificationSession, Test duplicate-frame detection in a VerificationSession. (+2 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.12
-Nodes (15): 🛡️ SHIELD - CDAC Project Review Slide Deck, Slide 1: Title & Problem Formulation (Cover Slide), Slide 2: Project Objectives, Slide 3: System Architecture & Data Flow (Flowchart Slide), Slide 4: Multimodal Verification Pillars (Rounded Corner Cards), Slide 5: Results & Evaluation Matrix, Slide 6: Novelty & Key Contributions, Slide 7: Interface Design & Live Demonstration (Rounded Corner Cards) (+7 more)
+Cohesion: 0.13
+Nodes (15): 🛡️ SHIELD - CDAC Project Review Slide Deck, Slide 1: Title & Problem Formulation (Cover Slide), Slide 2: Project Objectives, Slide 3: System Architecture Pipeline (Flowchart Slide), Slide 4: Multimodal Verification Pillars (Rounded Corner Cards), Slide 5: Results & Evaluation Matrix, Slide 6: Novelty & Key Contributions, Slide 7: Interface Design & Live Demonstration (Rounded Corner Cards) (+7 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.10
@@ -334,7 +334,7 @@ Cohesion: 0.25
 Nodes (7): AI/Inference Pipeline, 🔍 Audit Checklist, Backend (Python/FastAPI), Frontend (Flutter/Dart), 🛡️ Overview Agent - Senior System Auditor, 🎯 Primary Directives, 🛠️ Tools & Workflow
 
 ## Knowledge Gaps
-- **282 isolated node(s):** `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script`, `UIApplication`, `Any` (+277 more)
+- **281 isolated node(s):** `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script`, `UIApplication`, `Any` (+276 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 

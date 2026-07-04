@@ -36,36 +36,21 @@ This document serves as a slide-by-slide text guide and backup for the generated
 
 ---
 
-## Slide 3: System Architecture & Data Flow (Flowchart Slide)
+## Slide 3: System Architecture Pipeline (Flowchart Slide)
 
 ### Slide Content
-*   **⚙️ PIPELINE EXECUTION FLOWCHART:**
-    ```
-                        [ STANDARD 2D WEBCAM VIDEO STREAM ]
-                                         │
-                                         ▼
-                      [ YOLOv8-FACE DETECTION ENGINE (ONNX) ] ➔ (No Face ➔ Abort)
-                                         │
-                                         ▼
-                     [ REAL-TIME IMAGE QUALITY FILTERING GATE ]
-                      (Rejects Blurry, Low Light, or Occluded frames)
-                                         │
-                                         ▼
-                   ┌─────────────────────┼─────────────────────┐
-                   ▼                     ▼                     ▼
-           [PASSIVE TEXTURE]      [PHYSIOLOGY CHECK]     [ACTIVE CHALLENGE]
-             (MiniFASNet)           (Remote rPPG)        (Blink, Smile, Turn)
-                   │                     │                     │
-                   └─────────────────────┼─────────────────────┘
-                                         │
-                                         ▼
-                      [ EXPLAINABLE WEIGHTED DECISION FUSION ]
-                     (Dynamic weight computation for live parameters)
-                                         │
-                                         ▼
-                             [ SECURE FUSION VERDICT ]
-                             (Bona Fide Live / Spoof Rejection)
-    ```
+*   **⚙️ PIPELINE DATA FLOWCHART:**
+    *   Visual architecture modeled as a neural block diagram, showing data routing through the processing steps:
+        1.  **Video Frames (BGR stream)** (Pink input card)
+        2.  ➔ *Connects to:* **YOLOv8-Face Detection** (Orange processing card)
+        3.  ➔ *Connects to:* **Signal Quality Filter Gate** (Yellow quality verification card)
+        4.  ➔ *Splits into Parallel Inference block (3x layer stack):*
+            *   **Passive Texture CNN** (Teal card)
+            *   **Physiological rPPG** (Teal card)
+            *   **Active Challenges** (Teal card)
+        5.  ➔ *Converges to:* **Weighted Decision Fusion** (Yellow fusion card)
+        6.  ➔ *Connects to:* **Linear Decision Threshold** (Purple linear classifier card)
+        7.  ➔ *Connects to:* **Output Verdict (Live/Spoof)** (Green softmax card)
 
 ---
 
