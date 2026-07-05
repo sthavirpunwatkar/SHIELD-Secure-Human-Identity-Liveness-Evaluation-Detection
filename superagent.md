@@ -35,12 +35,12 @@ Community 2:
 Backend:
 
 Community 7:
-- FirebaseService
+- DBService
 - verify_liveness()
 - websocket_verify()
 - realtime websocket endpoint
-- Firestore logging
-- Firebase storage
+- SQLite logging
+- Local storage
 
 Testing:
 
@@ -82,7 +82,7 @@ SupervisorAgent
 │   ├── BackendUpdater
 │   ├── FlutterUpdater
 │   ├── AIModelUpdater
-│   ├── FirebaseUpdater
+│   ├── DBUpdater
 │   └── TestUpdater
 │
 ├── TestValidationAgent
@@ -167,7 +167,7 @@ AI → AIModelUpdater
 
 Flutter UI → FlutterUpdater
 
-Firebase → FirebaseUpdater
+DB → DBUpdater
 
 Backend → BackendUpdater
 
@@ -227,7 +227,7 @@ backend
 
 frontend
 
-firebase
+database
 
 tests
 

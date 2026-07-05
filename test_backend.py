@@ -122,10 +122,10 @@ async def test_http_verify_endpoint():
         _, buffer = cv2.imencode(".jpg", frame)
         files = {'file': ('test.jpg', buffer.tobytes(), 'image/jpeg')}
         
-        # Note: This might fail if Firebase is not mocked correctly or credentials missing
+        # Note: This might fail if DB is not mocked correctly or credentials missing
         # but the API should handle it gracefully.
         response = await client.post(f"{BACKEND_URL}/verify", files=files)
-        assert response.status_code in [200, 500] # 500 if firebase fails but we want to see it handled
+        assert response.status_code in [200, 500] # 500 if DB fails but we want to see it handled
 
 @pytest.mark.asyncio
 async def test_websocket_challenge_session_cleanup():

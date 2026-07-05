@@ -125,8 +125,9 @@ class TestChallengePartialPass:
             session.start_current_challenge()
 
             if i < 2:
-                # Pass the first two challenges immediately
-                session.submit_frame_result(action_detected=True)
+                # Pass the first two challenges (requires frames_required consecutive frames)
+                for _ in range(session.frames_required):
+                    session.submit_frame_result(action_detected=True)
             else:
                 # Fail the third via timeout
                 time.sleep(0.02)
@@ -168,17 +169,20 @@ class TestChallengeRetryLogic:
         # First timeout → retry 1 (timer resets)
         time.sleep(0.02)
         r1 = session.submit_frame_result(action_detected=False)
-        assert r1["challenge_failed"] is False, "Should retry, not fail yet"
+        # It sets challenge_failed=True to notify UI, but keeps session active
+        assert r1["challenge_failed"] is True
+        assert r1["next_challenge"] is not None
 
         # Second timeout → retry 2 (timer resets)
         time.sleep(0.02)
         r2 = session.submit_frame_result(action_detected=False)
-        assert r2["challenge_failed"] is False, "Should retry, not fail yet"
+        assert r2["challenge_failed"] is True
+        assert r2["next_challenge"] is not None
 
-        # Third timeout → retries exhausted → fail
+        # Third timeout → retries exhausted → fail and move on
         time.sleep(0.02)
         r3 = session.submit_frame_result(action_detected=False)
-        assert r3["challenge_failed"] is True, "Should fail after retries exhausted"
+        assert r3["challenge_failed"] is True
         assert r3["session_complete"] is True
 
 

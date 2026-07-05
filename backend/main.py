@@ -238,7 +238,7 @@ async def verify_liveness(file: UploadFile = File(...)):
         # 2. Process frame through Fusion Service
         result = fusion_service.process_frame(frame)
 
-        # 3. Log to Firebase (Async/Fire-and-forget style)
+        # 3. Log to SQLite (Async/Fire-and-forget style)
         session_id = str(uuid.uuid4())
         log_data = {
             "session_id": session_id,
