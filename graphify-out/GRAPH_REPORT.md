@@ -1,7 +1,7 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-05)
 
 ## Corpus Check
-- 99 files · ~48,128 words
+- 99 files · ~48,140 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dff035ff`
+- Built from commit: `5951f2ba`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

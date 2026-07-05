@@ -44,8 +44,15 @@ class BenchmarkEngine:
             crop = frame[int(h*0.2):int(h*0.8), int(w*0.2):int(w*0.8)]
             
             # Get component scores
-            as_score = self.antispoof.predict(crop)
-            rppg_score = self.rppg.update(frame)
+            try:
+                as_score = self.antispoof.predict(crop)
+            except RuntimeError:
+                as_score = 0.0
+
+            try:
+                rppg_score = self.rppg.update(frame)
+            except RuntimeError:
+                rppg_score = 0.0
             behavior = self.behavioral.analyze(frame)
             blink_score = 1.0 if behavior["blink_detected"] else 0.0
             
