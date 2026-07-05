@@ -6,6 +6,5 @@ numpy
 fastapi
 uvicorn
 python-multipart
-firebase-admin
 websockets
 onnxruntime

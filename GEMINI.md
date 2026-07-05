@@ -61,7 +61,7 @@ Communication:
 - Protobuf/MessagePack (Efficient serialization)
 
 Database:
-- Firebase (Realtime DB + Firestore)
+- SQLite (Metadata) + Local File Storage (Images)
 
 Deployment:
 - Docker + NVIDIA Container Toolkit
