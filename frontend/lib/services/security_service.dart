@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'seb/seb_checker.dart' as seb_checker;
 
 class SecurityService {
   /// Checks for the presence of known virtual camera drivers at the OS level.
@@ -110,5 +111,10 @@ class SecurityService {
     }
     
     return false;
+  }
+
+  /// Checks if the application is running inside a Safe Exam Browser (SEB) kiosk environment.
+  static Future<bool> isSafeExamBrowserActive() async {
+    return seb_checker.isSafeExamBrowserActive();
   }
 }

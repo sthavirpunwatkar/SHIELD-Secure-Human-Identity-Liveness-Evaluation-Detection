@@ -221,3 +221,11 @@
     - Developed macOS `CoreMediaIO` plugin scanning to detect known DAL plugins (obs-mac-virtualcam, CamTwist, LogiCapture, etc.).
     - Integrated logic into `SecurityService` in the Flutter frontend, paving the way for OS-level anti-cheat enforcement.
 - **Differentiation:** Hardens the system against software-level camera feed injection, complementing visual anti-spoofing with system-level environment checks.
+
+### Milestone 20: Phase 2 Safe Exam Browser Integration (July 2026) - COMPLETED
+- **Objective:** Implement Safe Exam Browser (SEB) kiosk mode locks in the frontend to enforce a secure testing environment.
+- **Key Achievements:**
+    - Developed a cross-platform SEB detection module (`seb_checker`) using conditional imports for Web (`dart:html`) and Desktop/IO (`tasklist` and `ps`).
+    - Integrated `isSafeExamBrowserActive()` into `SecurityService`.
+    - Modified `PreVerificationScreen` to strictly enforce SEB. If the kiosk environment is not detected, it locks the UI and displays a "SECURITY LOCK" message, preventing exam entry.
+- **Differentiation:** Enforces OS-level lockdown and kiosk environments for remote assessment, ensuring the highest level of examination integrity.

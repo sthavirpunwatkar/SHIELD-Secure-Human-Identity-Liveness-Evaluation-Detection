@@ -1,11 +1,84 @@
 import 'package:flutter/material.dart';
 import 'challenge_screen.dart';
 
-class PreVerificationScreen extends StatelessWidget {
+import '../services/security_service.dart';
+
+class PreVerificationScreen extends StatefulWidget {
   const PreVerificationScreen({super.key});
 
   @override
+  State<PreVerificationScreen> createState() => _PreVerificationScreenState();
+}
+
+class _PreVerificationScreenState extends State<PreVerificationScreen> {
+  bool _isChecking = true;
+  bool _isSebActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSebStatus();
+  }
+
+  Future<void> _checkSebStatus() async {
+    final isActive = await SecurityService.isSafeExamBrowserActive();
+    // For local testing, you might want to bypass this by setting it to true manually.
+    // We'll enforce the strict check here as per requirements.
+    if (mounted) {
+      setState(() {
+        _isSebActive = isActive;
+        _isChecking = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isChecking) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0F172A),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (!_isSebActive) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF0F172A),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_person, color: Colors.redAccent, size: 80),
+                const SizedBox(height: 24),
+                const Text(
+                  'SECURITY LOCK',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'This verification must be completed inside the Safe Exam Browser (SEB) kiosk mode.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _checkSebStatus,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                  child: const Text('Re-check Status'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Slate 900
       body: SafeArea(
