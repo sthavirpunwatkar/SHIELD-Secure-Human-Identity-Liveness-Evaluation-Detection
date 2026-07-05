@@ -237,3 +237,19 @@
     - Integrated SEB header verification into FastAPI `Depends` for HTTP endpoints and directly into WebSocket connection handlers.
     - Updated `test_backend.py` to bypass cryptographic checks during tests using custom testing headers.
 - **Differentiation:** Guarantees backend security by ensuring that only valid, SEB-secured requests from trusted configurations are allowed to initiate liveness checks or challenge sessions.
+
+### Milestone 22: Silicone Mask Dataset Preparation (July 2026) - COMPLETED
+- **Objective:** Create a script to download and convert silicone mask datasets (e.g. CASIA-SURF or HKBU subset) into YOLOv8-seg polygon format.
+- **Key Achievements:**
+    - Wrote  to handle bounding box + mask labels and convert them to YOLOv8-seg polygon format.
+    - Handled classes  and .
+    - Built-in mock dataset generator () for immediate testing and training preparation without credential hurdles.
+- **Differentiation:** Simplifies the data pipeline for training state-of-the-art segmentation models (YOLOv8-seg) for accurate mask and occlusion detection.
+
+### Milestone 22: Silicone Mask Dataset Preparation (July 2026) - COMPLETED
+- **Objective:** Create a script to download and convert silicone mask datasets (e.g. CASIA-SURF or HKBU subset) into YOLOv8-seg polygon format.
+- **Key Achievements:**
+    - Wrote `training/prepare_silicone_mask.py` to handle bounding box + mask labels and convert them to YOLOv8-seg polygon format.
+    - Handled classes `0=face` and `1=mask`.
+    - Built-in mock dataset generator (`--mock`) for immediate testing and training preparation without credential hurdles.
+- **Differentiation:** Simplifies the data pipeline for training state-of-the-art segmentation models (YOLOv8-seg) for accurate mask and occlusion detection.
