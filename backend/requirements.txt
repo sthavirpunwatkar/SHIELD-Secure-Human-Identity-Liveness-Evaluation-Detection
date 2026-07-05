@@ -1,7 +1,7 @@
 ultralytics
 torch
 mediapipe
-opencv-python
+opencv-python-headless
 numpy
 fastapi
 uvicorn
