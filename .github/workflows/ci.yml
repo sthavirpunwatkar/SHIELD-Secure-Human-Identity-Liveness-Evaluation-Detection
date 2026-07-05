@@ -70,5 +70,5 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        push: false # Set to true to actually push to ghcr.io when ready
+        push: true
         tags: ghcr.io/${{ github.repository }}/shield-backend:latest

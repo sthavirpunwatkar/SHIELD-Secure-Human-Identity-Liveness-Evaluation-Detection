@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-05)
 
 ## Corpus Check
-- 116 files · ~55,152 words
+- 116 files · ~55,261 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1296 nodes · 1716 edges · 93 communities (76 shown, 17 thin omitted)
+- 1301 nodes · 1735 edges · 94 communities (77 shown, 17 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 125 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d7ed22ef`
+- Built from commit: `ab974eeb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -91,6 +91,7 @@
 - [[_COMMUNITY_Community 90|Community 90]]
 - [[_COMMUNITY_Community 91|Community 91]]
 - [[_COMMUNITY_Community 92|Community 92]]
+- [[_COMMUNITY_Community 93|Community 93]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `ChallengeSession` - 46 edges
@@ -119,7 +120,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (93 total, 17 thin omitted)
+## Communities (94 total, 17 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.07
@@ -139,7 +140,7 @@ Nodes (37): double?, int?, action, bbox, behavioralScore, blurScore, brightness,
 
 ### Community 4 - "Community 4"
 Cohesion: 0.06
-Nodes (30): Animation, AnimationController, Color, package:flutter/services.dart, build, _buildActiveCard, _buildContent, _buildIdleCard (+22 more)
+Nodes (34): Animation, AnimationController, CustomPainter, dart:math, package:flutter/services.dart, _FaceGuideOvalPainter, ChallengeState, build (+26 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.10
@@ -147,7 +148,7 @@ Nodes (17): BlurDetector, Detects if the face crop is blurry.         :param fac
 
 ### Community 6 - "Community 6"
 Cohesion: 0.07
-Nodes (29): ChallengeState, double get, int get, _challengeScore, ChallengeService, ChallengeState, _countdownTimer, _currentAction (+21 more)
+Nodes (29): bool?, ChallengeState, double get, int get, _challengeScore, ChallengeService, _countdownTimer, _currentAction (+21 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.11
@@ -162,12 +163,12 @@ Cohesion: 0.09
 Nodes (22): ChallengeService, ChallengeService get, ChallengeState get, LivenessResult get, LivenessResult, _challengeService, challengeState, _challengeUrl (+14 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.07
-Nodes (31): ChangeNotifier, dart:math, LivenessProvider, _startStreaming, bbox, build, _buildDynamicFaceGuide, _buildResultSummary (+23 more)
+Cohesion: 0.08
+Nodes (24): Color, bbox, build, _buildDynamicFaceGuide, _buildResultSummary, _cameras, _challengeSub, color (+16 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.10
-Nodes (20): CameraController?, List, package:camera/camera.dart, build, _cameras, _controller, createState, dispose (+12 more)
+Cohesion: 0.09
+Nodes (23): CameraController?, List, package:camera/camera.dart, build, _cameras, CameraScreen, _CameraScreenState, _controller (+15 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.09
@@ -175,7 +176,7 @@ Nodes (20): benchmarkData, COLORS, compHeaders, compRows, flowSteps, FONTS, obje
 
 ### Community 13 - "Community 13"
 Cohesion: 0.10
-Nodes (20): bool get, dart:async, dart:convert, dart:typed_data, ../models/liveness_result.dart, package:web_socket_channel/web_socket_channel.dart, _channel, connect (+12 more)
+Nodes (20): bool? get, dart:async, dart:convert, dart:typed_data, ../models/liveness_result.dart, package:web_socket_channel/web_socket_channel.dart, _channel, connect (+12 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.16
@@ -203,7 +204,7 @@ Nodes (19): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Se
 
 ### Community 20 - "Community 20"
 Cohesion: 0.06
-Nodes (32): 📈 Current Status & Next Steps, Milestone 0: Foundation & Infrastructure (Pre-May 2026), Milestone 10: Fusion Weights Optimization (July 2026) - COMPLETED, Milestone 11: Active Identity Consistency Check (July 2026) - COMPLETED, Milestone 12: CDAC Academic Review Presentation (July 2026) - COMPLETED, Milestone 13: Flutter Web Port Stability & Layout Hardening (July 2026) - COMPLETED, Milestone 14: Quality Gate Calibration & Live Tracking Integration (July 2026) - COMPLETED, Milestone 15: Challenge Engine & UI State Synchronization (July 2026) - COMPLETED (+24 more)
+Nodes (33): 📈 Current Status & Next Steps, Milestone 0: Foundation & Infrastructure (Pre-May 2026), Milestone 10: Fusion Weights Optimization (July 2026) - COMPLETED, Milestone 11: Active Identity Consistency Check (July 2026) - COMPLETED, Milestone 12: CDAC Academic Review Presentation (July 2026) - COMPLETED, Milestone 13: Flutter Web Port Stability & Layout Hardening (July 2026) - COMPLETED, Milestone 14: Quality Gate Calibration & Live Tracking Integration (July 2026) - COMPLETED, Milestone 15: Challenge Engine & UI State Synchronization (July 2026) - COMPLETED (+25 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.11
@@ -230,8 +231,8 @@ Cohesion: 0.14
 Nodes (9): BenchmarkEngine, FASMetrics, Calculates Anti-Spoofing Metrics.         :param y_true: List of true labels (1, ReportGenerator, FusionEngine, Fuses multiple liveness scores into a single final score.         Uses dynamic w, Initializes the Fusion Engine with customizable weights.         :param weights:, main() (+1 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.15
-Nodes (13): challenge_screen.dart, build, MaterialPageRoute, build, _buildPrepCard, _checkSebStatus, createState, initState (+5 more)
+Cohesion: 0.20
+Nodes (10): challenge_screen.dart, _buildPrepCard, _checkSebStatus, createState, initState, _isChecking, _isSebActive, PreVerificationScreen (+2 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.15
@@ -254,8 +255,8 @@ Cohesion: 0.17
 Nodes (11): 1. Backend (Python/FastAPI), 2. Frontend (Flutter), 📊 Benchmark Scores, 🚀 Competitive Innovation, ✅ Completed (Current State), ⚙️ Installation & Setup, 🚀 Next Steps, 📋 Project Overview & Plan (+3 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.09
-Nodes (22): createState, initState, main, ShieldApp, _urlController, package:flutter_localizations/flutter_localizations.dart, package:flutter/material.dart, package:flutter_test/flutter_test.dart (+14 more)
+Cohesion: 0.12
+Nodes (17): createState, initState, main, ShieldApp, _urlController, package:flutter_localizations/flutter_localizations.dart, package:flutter/material.dart, package:shield_app/l10n/app_localizations.dart (+9 more)
 
 ### Community 34 - "Community 34"
 Cohesion: 0.22
@@ -263,11 +264,11 @@ Nodes (5): ChallengeBenchmark, Run *num_trials* simulated challenge sessions and
 
 ### Community 35 - "Community 35"
 Cohesion: 0.03
-Nodes (72): app_localizations_en.dart, app_localizations_es.dart, app_localizations_fr.dart, actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth (+64 more)
+Nodes (73): app_localizations_en.dart, app_localizations_es.dart, app_localizations_fr.dart, class, actionBlink, actionNod, actionNodDown, actionNodUp (+65 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.03
-Nodes (59): app_localizations.dart, actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth, actionPerform, actionRaiseEyebrows (+51 more)
+Nodes (58): actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth, actionPerform, actionRaiseEyebrows, actionSmile (+50 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.50
@@ -303,7 +304,7 @@ Nodes (59): actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth,
 
 ### Community 45 - "Community 45"
 Cohesion: 0.03
-Nodes (58): actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth, actionPerform, actionRaiseEyebrows, actionSmile (+50 more)
+Nodes (59): app_localizations.dart, actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth, actionPerform, actionRaiseEyebrows (+51 more)
 
 ### Community 46 - "Community 46"
 Cohesion: 0.33
@@ -338,8 +339,8 @@ Cohesion: 0.29
 Nodes (6): convert_to_yolo(), download_mock_dataset(), extract_polygons_from_mask(), Since CASIA-SURF and HKBU require signed agreements and registration,     we cre, Extract polygons from a binary mask for YOLOv8-seg., Converts masks to YOLOv8-seg polygon format.     Classes: 0=face, 1=mask.
 
 ### Community 55 - "Community 55"
-Cohesion: 0.24
-Nodes (11): HomeScreen, _HomeScreenState, CameraScreen, _CameraScreenState, ChallengeScreen, _ChallengeScreenState, State, StatefulWidget (+3 more)
+Cohesion: 0.28
+Nodes (9): HomeScreen, _HomeScreenState, ChallengeScreen, _ChallengeScreenState, State, StatefulWidget, TickerProviderStateMixin, ChallengePrompt (+1 more)
 
 ### Community 56 - "Community 56"
 Cohesion: 0.24
@@ -354,11 +355,15 @@ Cohesion: 0.33
 Nodes (7): AppLocalizations, _AppLocalizationsDelegate, AppLocalizationsEn, AppLocalizationsEs, AppLocalizationsFr, of, LocalizationsDelegate
 
 ### Community 89 - "Community 89"
-Cohesion: 0.67
-Nodes (3): CustomPainter, _FaceGuideOvalPainter, _CountdownRingPainter
+Cohesion: 0.27
+Nodes (11): ChangeNotifier, build, LivenessProvider, MaterialPageRoute, LivenessProvider, _startStreaming, initState, _resetChallenge (+3 more)
+
+### Community 93 - "Community 93"
+Cohesion: 0.33
+Nodes (5): package:flutter_test/flutter_test.dart, package:provider/provider.dart, package:shield_app/main.dart, package:shield_app/providers/liveness_provider.dart, main
 
 ## Knowledge Gaps
-- **572 isolated node(s):** `Request`, `WebSocket`, `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script` (+567 more)
+- **572 isolated node(s):** `🎓 Project Overview`, `Milestone 0: Foundation & Infrastructure (Pre-May 2026)`, `Milestone 1: Signal Quality & Pre-processing (Sprint 1)`, `Milestone 2: Explainable Multimodal Fusion (Sprint 2)`, `Milestone 3: Physiological Verification - Deep rPPG (Sprint 3)` (+567 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -366,11 +371,11 @@ Nodes (3): CustomPainter, _FaceGuideOvalPainter, _CountdownRingPainter
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `SessionManager` connect `Community 8` to `Community 38`, `Community 40`, `Community 49`, `Community 18`, `Community 19`, `Community 51`, `Community 22`, `Community 24`, `Community 25`, `Community 29`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
-- **Why does `ChallengeSession` connect `Community 18` to `Community 34`, `Community 38`, `Community 8`, `Community 40`, `Community 16`, `Community 49`, `Community 19`, `Community 51`, `Community 22`, `Community 25`, `Community 26`, `Community 29`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Why does `QualityScoreEngine` connect `Community 5` to `Community 16`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `RPPGDetector` connect `Community 21` to `Community 34`, `Community 16`, `Community 17`, `Community 56`, `Community 25`, `Community 26`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Are the 21 inferred relationships involving `ChallengeSession` (e.g. with `BenchmarkEngine` and `ChallengeBenchmark`) actually correct?**
   _`ChallengeSession` has 21 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 18 inferred relationships involving `TemporalValidator` (e.g. with `ndarray` and `SessionManager`) actually correct?**
