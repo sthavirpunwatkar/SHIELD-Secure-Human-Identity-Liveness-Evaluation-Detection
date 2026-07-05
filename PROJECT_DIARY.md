@@ -203,3 +203,13 @@
     - Added automated `--pretrained` model fine-tuning support.
     - Successfully exported the resulting model to a highly compressed ONNX INT8 format for ultra-low latency edge inference.
 - **Differentiation:** Transforms a standard CNN into a highly robust, print/replay-resistant INT8 model that runs at a fraction of the computational cost while avoiding common ONNX quantization pitfalls.
+
+### Milestone 18: rPPG 1D CNN Training Upgrade (July 2026) - COMPLETED
+- **Objective:** Upgrade the rPPG training pipeline for 1D CNN with advanced optimizers, INT8 quantization, and PURE/UBFC compatibility.
+- **Key Achievements:**
+    - Updated `train_rppg_v2.py` to use `AdamW` and `CosineAnnealingLR` scheduler.
+    - Added compatibility for training from scratch using `PURE` and `UBFC` datasets.
+    - Implemented a custom `Linear` layer replacement in `rppg_cnn.py` to fix PyTorch 2.9 ONNX shape inference bugs.
+    - Successfully quantized the rPPG model to ONNX INT8 for edge-device deployment.
+    - Resolved AMP/autocast errors by explicitly moving `BCELoss` calculations out of the FP16 block.
+- **Differentiation:** Achieves edge-ready quantized inference of rPPG physiological signals, ensuring lightweight liveness detection capabilities independent of hardware constraints.
