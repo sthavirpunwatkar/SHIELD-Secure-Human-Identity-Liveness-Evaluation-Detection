@@ -46,7 +46,7 @@ class WeightTuner:
             rppg_score = self.rppg.update(frame)
             behavior = self.behavioral.analyze(frame)
             blink_score = 1.0 if behavior["blink_detected"] else 0.0
-            challenge_score = 0.5  # Neutral placeholder
+            challenge_score = 0.0  # Not testing active challenges here
             
             y_true = 1 if label == "live" else 0
             samples_data.append((y_true, rppg_score, blink_score, as_score, challenge_score))

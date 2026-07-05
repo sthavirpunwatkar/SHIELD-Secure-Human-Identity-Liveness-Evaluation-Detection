@@ -176,3 +176,10 @@
     - Removed `firebase-admin` dependency.
     - Replaced `firebase_service.py` with a lightweight `db_service.py` using SQLite and local file storage.
     - Resolved Firebase Mock Mode errors.
+
+### Sprint 8: ML Training & Model Refinement
+- **Goal:** Eradicate mock behaviors and train state-of-the-art weights.
+- **Outcome:**
+    - Removed dummy `0.5` scoring in `rppg_detector.py` and `antispoof/inference.py`.
+    - Trained new PyTorch and ONNX models for rPPG and EfficientNet-B0 backbone.
+    - Fusion engine thresholding optimized with dynamic weights and <100ms early-exit mechanisms.

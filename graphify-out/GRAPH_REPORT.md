@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-05)
 
 ## Corpus Check
-- 99 files · ~48,084 words
+- 99 files · ~48,128 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 952 nodes · 1344 edges · 81 communities (68 shown, 13 thin omitted)
+- 953 nodes · 1345 edges · 82 communities (69 shown, 13 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 124 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `545e3bf3`
+- Built from commit: `dff035ff`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -60,6 +60,7 @@
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
 - [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
 - [[_COMMUNITY_Community 46|Community 46]]
 - [[_COMMUNITY_Community 47|Community 47]]
 - [[_COMMUNITY_Community 48|Community 48]]
@@ -109,15 +110,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (81 total, 13 thin omitted)
+## Communities (82 total, 13 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.08
 Nodes (28): DataLoader, device, Tensor, FASAugmentation, FASDataset, PyTorch Dataset for Face Anti-Spoofing training.     Supports directory-based lo, Args:             root_dir: Path to dataset with train/test subdirs containing r, Standard augmentations for FAS training. (+20 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (42): DartProject, RegisterPlugins(), HWND, LPARAM, LRESULT, FlutterWindow(), UINT, WPARAM (+34 more)
+Cohesion: 0.09
+Nodes (34): RegisterPlugins(), HWND, LPARAM, LRESULT, UINT, wchar_t, WPARAM, PluginRegistry (+26 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.05
@@ -192,8 +193,8 @@ Cohesion: 0.14
 Nodes (15): _make_frame(), _make_noisy_frame(), ndarray, SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te, Test frame coherence detection., Two similar frames → coherent; one wildly different → incoherent., Test that suspiciously fast responses are flagged., A response faster than min_response_time should be invalid. (+7 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.09
-Nodes (22): 📈 Current Status & Next Steps, Milestone 0: Foundation & Infrastructure (Pre-May 2026), Milestone 10: Fusion Weights Optimization (July 2026) - COMPLETED, Milestone 11: Active Identity Consistency Check (July 2026) - COMPLETED, Milestone 12: CDAC Academic Review Presentation (July 2026) - COMPLETED, Milestone 13: Flutter Web Port Stability & Layout Hardening (July 2026) - COMPLETED, Milestone 14: Quality Gate Calibration & Live Tracking Integration (July 2026) - COMPLETED, Milestone 15: Challenge Engine & UI State Synchronization (July 2026) - COMPLETED (+14 more)
+Cohesion: 0.08
+Nodes (23): 📈 Current Status & Next Steps, Milestone 0: Foundation & Infrastructure (Pre-May 2026), Milestone 10: Fusion Weights Optimization (July 2026) - COMPLETED, Milestone 11: Active Identity Consistency Check (July 2026) - COMPLETED, Milestone 12: CDAC Academic Review Presentation (July 2026) - COMPLETED, Milestone 13: Flutter Web Port Stability & Layout Hardening (July 2026) - COMPLETED, Milestone 14: Quality Gate Calibration & Live Tracking Integration (July 2026) - COMPLETED, Milestone 15: Challenge Engine & UI State Synchronization (July 2026) - COMPLETED (+15 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.15
@@ -287,6 +288,10 @@ Nodes (3): RunnerTests, RunnerTests, XCTestCase
 Cohesion: 0.50
 Nodes (3): Verify that sequences are randomised across sessions., 10 independent sessions should NOT all produce the same order., TestChallengeSequenceRandomness
 
+### Community 45 - "Community 45"
+Cohesion: 0.22
+Nodes (8): DartProject, HWND, LPARAM, LRESULT, FlutterWindow(), UINT, WPARAM, MessageHandler()
+
 ### Community 46 - "Community 46"
 Cohesion: 0.33
 Nodes (5): handle_new_rx_page(), __lldb_init_module(), Intercept NOTIFY_DEBUGGER_ABOUT_RX_PAGES and touch the pages., SBDebugger, SBFrame
@@ -324,7 +329,7 @@ Cohesion: 0.50
 Nodes (3): Simulate passing every challenge and verify a perfect score., Passing all challenges should yield score == 1.0., TestChallengePassAll
 
 ## Knowledge Gaps
-- **303 isolated node(s):** `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script`, `UIApplication`, `Any` (+298 more)
+- **304 isolated node(s):** `SBFrame`, `SBDebugger`, `flutter_export_environment.sh script`, `UIApplication`, `Any` (+299 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 

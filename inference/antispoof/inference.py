@@ -81,11 +81,7 @@ class AntispoofInference:
             return 0.0
 
         if not self.weights_loaded:
-            # Fallback logic for when model isn't trained
-            h, w = face_crop.shape[:2]
-            if h > 80 and w > 80:
-                return 0.88 # fake high score
-            return 0.5
+            raise RuntimeError("Antispoof: weights not loaded. Mock fallback disabled.")
             
         # Preprocessing
         img = cv2.resize(face_crop, (self.input_size, self.input_size))

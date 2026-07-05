@@ -54,7 +54,8 @@ class BenchmarkEngine:
                 rppg_score=rppg_score,
                 blink_score=blink_score,
                 antispoof_score=as_score,
-                challenge_score=0.5 # Neutral placeholder
+                challenge_score=0.0, # Not testing active challenges here
+                is_challenge_active=False
             )
             
             y_true.append(1 if label == "live" else 0)
