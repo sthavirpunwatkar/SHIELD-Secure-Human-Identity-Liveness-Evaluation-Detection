@@ -74,13 +74,13 @@ async def test_health_check():
 
 @pytest.mark.asyncio
 async def test_websocket_connection():
-    async with websockets.connect(WS_URL) as websocket:
+    async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
         # Just connecting is enough to pass if no exception raised
         pass
 
 @pytest.mark.asyncio
 async def test_websocket_send_invalid_data():
-    async with websockets.connect(WS_URL) as websocket:
+    async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
         # Send random bytes that aren't an image
         await websocket.send(b"not an image")
         response = await websocket.recv()
@@ -89,7 +89,7 @@ async def test_websocket_send_invalid_data():
 
 @pytest.mark.asyncio
 async def test_websocket_send_valid_image():
-    async with websockets.connect(WS_URL) as websocket:
+    async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
         # Create a dummy image with a face-like shape
         frame = np.zeros((480, 640, 3), dtype=np.uint8)
         cv2.rectangle(frame, (200, 100), (400, 300), (255, 255, 255), -1)
@@ -105,7 +105,7 @@ async def test_websocket_send_valid_image():
 
 @pytest.mark.asyncio
 async def test_websocket_stress():
-    async with websockets.connect(WS_URL) as websocket:
+    async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
         frame = np.zeros((100, 100, 3), dtype=np.uint8)
         _, buffer = cv2.imencode(".jpg", frame)
         
@@ -124,7 +124,7 @@ async def test_http_verify_endpoint():
         
         # Note: This might fail if DB is not mocked correctly or credentials missing
         # but the API should handle it gracefully.
-        response = await client.post(f"{BACKEND_URL}/verify", files=files)
+        response = await client.post(f"{BACKEND_URL}/verify", files=files, headers={"X-Bypass-SEB": "1"})
         assert response.status_code in [200, 500] # 500 if DB fails but we want to see it handled
 
 @pytest.mark.asyncio
@@ -137,6 +137,7 @@ async def test_websocket_challenge_session_cleanup():
     mock_ws = AsyncMock(spec=WebSocket)
     mock_ws.client = MagicMock()
     mock_ws.client.host = "test_cleanup_host"
+    mock_ws.headers = {"x-bypass-seb": "1"}
     
     receive_call_count = 0
     async def mock_receive():
@@ -176,6 +177,7 @@ async def test_websocket_identity_mismatch():
     mock_ws = AsyncMock(spec=WebSocket)
     mock_ws.client = MagicMock()
     mock_ws.client.host = "test_identity_mismatch_host"
+    mock_ws.headers = {"x-bypass-seb": "1"}
     
     # Helper to generate mock landmarks
     def make_mock_landmarks(nose, leye, reye, chin, lmouth, rmouth):

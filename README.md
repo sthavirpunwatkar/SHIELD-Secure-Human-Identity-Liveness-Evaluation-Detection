@@ -66,6 +66,7 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 - [x] Edge Deployment: Compressed Anti-Spoofing and rPPG models to ONNX INT8 with advanced training augmentations and optimizers.
 - [x] OS Security & Anti-Cheat: Native OS-level virtual camera detection for Windows and macOS.
 - [x] OS Security & Anti-Cheat: Safe Exam Browser (SEB) kiosk mode locks.
+- [x] OS Security & Anti-Cheat: Backend cryptographic trust verification of SEB headers.
 
 ### 🚀 Next Steps
 - **Enhanced Anti-Masking:** Training the occlusion detector on a larger custom dataset of high-quality silicone masks.
