@@ -213,3 +213,11 @@
     - Successfully quantized the rPPG model to ONNX INT8 for edge-device deployment.
     - Resolved AMP/autocast errors by explicitly moving `BCELoss` calculations out of the FP16 block.
 - **Differentiation:** Achieves edge-ready quantized inference of rPPG physiological signals, ensuring lightweight liveness detection capabilities independent of hardware constraints.
+
+### Milestone 19: Phase 1 Virtual Camera Detection (July 2026) - COMPLETED
+- **Objective:** Implement native OS-level virtual camera detection for Windows and macOS to prevent OBS/SplitCam bypasses.
+- **Key Achievements:**
+    - Implemented Windows registry scanning (`reg query`) to detect DirectShow capture devices with suspicious names (obs-camera, splitcam, e2esoft, snap camera).
+    - Developed macOS `CoreMediaIO` plugin scanning to detect known DAL plugins (obs-mac-virtualcam, CamTwist, LogiCapture, etc.).
+    - Integrated logic into `SecurityService` in the Flutter frontend, paving the way for OS-level anti-cheat enforcement.
+- **Differentiation:** Hardens the system against software-level camera feed injection, complementing visual anti-spoofing with system-level environment checks.

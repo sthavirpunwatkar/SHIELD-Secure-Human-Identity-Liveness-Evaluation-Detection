@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
+import '../services/security_service.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -32,6 +33,16 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<void> _initializeCamera() async {
     try {
+      final isVirtual = await SecurityService.hasVirtualCamera();
+      if (isVirtual) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'SECURITY ALERT: Virtual Camera (OBS) detected. Please use real hardware camera.';
+          });
+        }
+        return;
+      }
+
       _cameras = await availableCameras();
       if (_cameras == null || _cameras!.isEmpty) {
         setState(() {
