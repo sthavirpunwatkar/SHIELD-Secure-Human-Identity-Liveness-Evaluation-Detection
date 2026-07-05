@@ -66,6 +66,26 @@ class FusionService:
 
         # 3. Multi-Modal Inference
         
+        # Cascade Step 1: Behavior Analysis (EAR/MAR/PnP)
+        behavior = self.behavioral.analyze(frame, faces=faces)
+        
+        # Fast early-exit if behavior check fails (no landmarks found)
+        if not behavior.get('landmarks_found', False):
+            return {
+                "type": "verdict",
+                "verdict": "Spoof",
+                "confidence": 0.0,
+                "status": "success",
+                "processing_time_ms": int((time.time() - start_time) * 1000),
+                "details": {"reason": "Failed behavior check (no landmarks). Early exit."},
+                "quality_metrics": quality_res["metrics"],
+                "bbox": bbox
+            }
+            
+        blink_score = 1.0 if behavior['blink_detected'] else 0.0
+        raw_landmarks = behavior.get("raw_landmarks")
+        
+        # Cascade Step 2: Anti-Spoofing
         # JPEG Compression Defense (clears adversarial noise)
         _, jpeg_buf = cv2.imencode('.jpg', crop, [cv2.IMWRITE_JPEG_QUALITY, 90])
         defended_crop = cv2.imdecode(jpeg_buf, cv2.IMREAD_COLOR)
@@ -87,12 +107,7 @@ class FusionService:
                 "bbox": bbox
             }
 
-        # Behavioral Score (Blink) — now uses real EAR-based detection
-        behavior = self.behavioral.analyze(frame, faces=faces)
-        blink_score = 1.0 if behavior['blink_detected'] else 0.0
-        raw_landmarks = behavior.get("raw_landmarks")
-
-        # Physiological Score (rPPG)
+        # Cascade Step 3: Physiological Score (rPPG)
         rppg_score = self.rppg.update(frame)
 
         # 4. Challenge Score

@@ -62,6 +62,7 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 - [x] Weighted Fusion Engine with explainable scoring.
 - [x] Immersive UI Overhaul with real-time feedback and dynamic spotlight.
 - [x] Automated benchmarking suite (ISO/IEC metrics).
+- [x] Cascade Fusion pipeline (Behavior -> Anti-Spoof -> rPPG) for sub-100ms early-rejection.
 
 ### 🚀 Next Steps
 - **Edge Deployment:** Optimizing ONNX models for mobile-side execution to reduce server bandwidth.

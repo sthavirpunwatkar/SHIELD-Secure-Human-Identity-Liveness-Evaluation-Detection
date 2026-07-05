@@ -158,6 +158,39 @@ class AdvancedFASAugmentation:
             img[y1:y2, x1:x2] = 0
         return img
 
+    @staticmethod
+    def _glare_moire(img: np.ndarray) -> np.ndarray:
+        if random.random() > 0.3:
+            return img
+        h, w = img.shape[:2]
+        
+        # Simulate Moire
+        if random.random() > 0.5:
+            x = np.arange(w)
+            y = np.arange(h)
+            X, Y = np.meshgrid(x, y)
+            freq = random.uniform(0.1, 0.5)
+            angle = random.uniform(0, np.pi)
+            moire = np.sin(X * freq * np.cos(angle) + Y * freq * np.sin(angle))
+            moire = (moire + 1) * 127.5
+            moire = moire.astype(np.uint8)
+            alpha = random.uniform(0.05, 0.2)
+            img = cv2.addWeighted(img, 1-alpha, cv2.cvtColor(moire, cv2.COLOR_GRAY2BGR), alpha, 0)
+        
+        # Simulate Glare
+        if random.random() > 0.5:
+            cx = random.randint(0, w)
+            cy = random.randint(0, h)
+            radius = random.randint(max(1, min(h,w)//10), max(2, min(h,w)//2))
+            X, Y = np.meshgrid(np.arange(w), np.arange(h))
+            dist = np.sqrt((X - cx)**2 + (Y - cy)**2)
+            glare = np.clip(1 - dist / radius, 0, 1)
+            intensity = random.uniform(50, 150)
+            glare_img = (np.stack([glare]*3, axis=-1) * intensity).astype(np.uint8)
+            img = cv2.add(img, glare_img)
+            
+        return img
+
     # ── tensor-space helper ─────────────────────────────────────────────────
 
     @staticmethod
@@ -201,6 +234,7 @@ class AdvancedFASAugmentation:
             img = self._gaussian_blur(img)
             img = self._jpeg_artifact(img)
             img = self._cutout(img)
+            img = self._glare_moire(img)
 
         # Resize → float [0,1] → RGB
         img = cv2.resize(img, (self.img_size, self.img_size))
@@ -326,6 +360,22 @@ def make_weighted_sampler(labels: list) -> WeightedRandomSampler:
         replacement=True,
     )
 
+def mixup_data(x, y, alpha=0.2):
+    """Returns mixed inputs, pairs of targets, and lambda"""
+    if alpha > 0:
+        lam = np.random.beta(alpha, alpha)
+    else:
+        lam = 1
+
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size).to(x.device)
+
+    mixed_x = lam * x + (1 - lam) * x[index, :]
+    y_a, y_b = y, y[index]
+    return mixed_x, y_a, y_b, lam
+
+def mixup_criterion(criterion, pred, y_a, y_b, lam):
+    return lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
 
 # ===========================================================================
 # ONNX export
@@ -345,7 +395,7 @@ def export_onnx(
             dummy,
             save_path,
             export_params=True,
-            opset_version=17,
+            opset_version=18,
             do_constant_folding=True,
             input_names=["face_crop"],
             output_names=["logits"],
@@ -356,6 +406,44 @@ def export_onnx(
         )
         size_mb = os.path.getsize(save_path) / 1e6
         print(f"  [ONNX] Exported → {save_path}  ({size_mb:.1f} MB)")
+        
+        # INT8 Quantization
+        try:
+            from onnxruntime.quantization import quantize_dynamic, QuantType
+            
+            quant_path = save_path.replace(".onnx", "_int8.onnx")
+            
+            # Export a static batch size version specifically for quantization
+            # because dynamic_axes causes Incomplete symbolic shape inference
+            static_save_path = save_path.replace(".onnx", "_static.onnx")
+            torch.onnx.export(
+                model,
+                dummy,
+                static_save_path,
+                export_params=True,
+                opset_version=18,
+                do_constant_folding=True,
+                input_names=["face_crop"],
+                output_names=["logits"],
+            )
+            
+            quantize_dynamic(
+                static_save_path, 
+                quant_path, 
+                weight_type=QuantType.QUInt8,
+                optimize_model=False
+            )
+            
+            if os.path.exists(static_save_path):
+                os.remove(static_save_path)
+                
+            size_mb_int8 = os.path.getsize(quant_path) / 1e6
+            print(f"  [ONNX] Quantized INT8 → {quant_path}  ({size_mb_int8:.1f} MB)")
+        except ImportError:
+            print("  [ONNX] INT8 Export skipped: onnxruntime not installed")
+        except Exception as e:
+            print(f"  [ONNX] INT8 Export failed: {e}")
+
     except Exception as exc:
         print(f"  [ONNX] Export failed: {exc}")
 
@@ -424,6 +512,11 @@ def train(args) -> float:
 
     # ── Model ────────────────────────────────────────────────────────────────
     model = build_model(args.model).to(device)
+    
+    if args.pretrained and os.path.exists(args.pretrained):
+        print(f"  Loading pre-trained weights from {args.pretrained}")
+        model.load_state_dict(torch.load(args.pretrained, map_location=device))
+        
     total_p = sum(p.numel() for p in model.parameters())
     train_p = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"\n  Params : {total_p:,} total | {train_p:,} trainable")
@@ -447,9 +540,9 @@ def train(args) -> float:
 
     optimizer = optim.AdamW(param_groups, lr=args.lr, weight_decay=1e-4)
 
-    # ── Scheduler: CosineAnnealingWarmRestarts ────────────────────────────────
-    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=10, T_mult=1, eta_min=1e-6
+    # ── Scheduler: CosineAnnealingLR ────────────────────────────────
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=args.epochs, eta_min=1e-6
     )
 
     # ── AMP scaler ────────────────────────────────────────────────────────────
@@ -498,11 +591,20 @@ def train(args) -> float:
 
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
+            
+            # Apply MixUp
+            use_mixup = (args.mixup_alpha > 0 and random.random() < 0.5)
+            if use_mixup:
+                inputs, targets_a, targets_b, lam = mixup_data(inputs, labels, args.mixup_alpha)
+                
             optimizer.zero_grad(set_to_none=True)
 
             with torch.cuda.amp.autocast(enabled=use_amp):
                 outputs = model(inputs)
-                loss = criterion(outputs, labels)
+                if use_mixup:
+                    loss = mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
+                else:
+                    loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
@@ -513,8 +615,8 @@ def train(args) -> float:
             running_loss += loss.item()
             n_batches += 1
 
-        # Step scheduler once per epoch (pass epoch-1 for warm-restart logic)
-        scheduler.step(epoch - 1)
+        # Step scheduler once per epoch
+        scheduler.step()
 
         train_loss = running_loss / max(n_batches, 1)
         vm = evaluate(model, val_loader, device, criterion, use_amp)
@@ -598,6 +700,8 @@ def parse_args():
     p.add_argument("--save-dir",    type=str,   default="models",     help="Directory for saved weights/ONNX")
     p.add_argument("--workers",     type=int,   default=4,            help="DataLoader worker threads")
     p.add_argument("--patience",    type=int,   default=15,           help="Early-stopping patience (epochs)")
+    p.add_argument("--pretrained",  type=str,   default="",           help="Path to pre-trained weights for fine-tuning")
+    p.add_argument("--mixup-alpha", type=float, default=0.2,          help="Alpha parameter for MixUp augmentation")
     p.add_argument("--no-amp",      action="store_true",              help="Disable automatic mixed precision")
     return p.parse_args()
 
