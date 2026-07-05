@@ -12,6 +12,7 @@ class AntispoofInference:
         if not model_path:
             candidates = [
                 'models/efficientnet_fas.onnx',
+                'models/minifas_antispoof_v2_int8.onnx',
                 'models/minifas_antispoof_v2.onnx',
                 'models/minifas_antispoof_v1.pt'
             ]
@@ -20,7 +21,7 @@ class AntispoofInference:
                     model_path = cand
                     break
             if not model_path:
-                model_path = 'models/minifas_antispoof_v2.onnx' # fallback string
+                model_path = 'models/minifas_antispoof_v2_int8.onnx' # fallback string
                 
         self.model_path = model_path
         self.is_onnx = model_path.endswith('.onnx')
