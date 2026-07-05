@@ -430,8 +430,7 @@ def export_onnx(
             quantize_dynamic(
                 static_save_path, 
                 quant_path, 
-                weight_type=QuantType.QUInt8,
-                optimize_model=False
+                weight_type=QuantType.QUInt8
             )
             
             if os.path.exists(static_save_path):
@@ -515,7 +514,14 @@ def train(args) -> float:
     
     if args.pretrained and os.path.exists(args.pretrained):
         print(f"  Loading pre-trained weights from {args.pretrained}")
-        model.load_state_dict(torch.load(args.pretrained, map_location=device))
+        state_dict = torch.load(args.pretrained, map_location=device)
+        model_dict = model.state_dict()
+        for k in list(state_dict.keys()):
+            if k in model_dict:
+                if state_dict[k].shape != model_dict[k].shape:
+                    if state_dict[k].dim() == 2 and model_dict[k].dim() == 4:
+                        state_dict[k] = state_dict[k].unsqueeze(-1).unsqueeze(-1)
+        model.load_state_dict(state_dict)
         
     total_p = sum(p.numel() for p in model.parameters())
     train_p = sum(p.numel() for p in model.parameters() if p.requires_grad)

@@ -193,3 +193,13 @@
     - Ensured robust loading of optimized ONNX models across both rPPG and Anti-Spoof paths.
     - Updated integration test `test_inference.py` to validate new cascade order.
 - **Differentiation:** Greatly improves runtime efficiency by discarding obvious spoof attempts (e.g., printed images lacking facial landmarks or behavioral signals) before executing expensive ML models.
+
+### Milestone 17: Anti-Spoof Training Upgrade (MiniFASNet INT8) (July 2026) - COMPLETED
+- **Objective:** Modernize and harden the Anti-Spoof (MiniFASNet) training pipeline with state-of-the-art techniques and INT8 edge optimization.
+- **Key Achievements:**
+    - Integrated advanced augmentations: MixUp, Random Erasing, Cutout, and simulated screen glare/moire patterns.
+    - Switched optimizer to AdamW combined with a CosineAnnealingLR scheduler.
+    - Refactored `SEBlock` architecture in MiniFASNetV2 to use `Conv2d` instead of `Linear` to mathematically avoid ONNX Runtime shape inference bugs during INT8 MatMul quantization.
+    - Added automated `--pretrained` model fine-tuning support.
+    - Successfully exported the resulting model to a highly compressed ONNX INT8 format for ultra-low latency edge inference.
+- **Differentiation:** Transforms a standard CNN into a highly robust, print/replay-resistant INT8 model that runs at a fraction of the computational cost while avoiding common ONNX quantization pitfalls.
