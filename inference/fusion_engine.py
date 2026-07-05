@@ -2,48 +2,63 @@ class FusionEngine:
     def __init__(self, weights=None):
         """
         Initializes the Fusion Engine with customizable weights.
-        :param weights: Dict containing weights for each component.
+        :param weights: Optional dict. If not provided, dynamic weights are used.
         """
-        if weights is None:
-            # Default weights as per gemini_next_update.md
-            self.weights = {
-                "rppg": 0.10,
-                "blink": 0.10,
-                "antispoof": 0.15,
-                "challenge": 0.65
-            }
-        else:
-            self.weights = weights
+        self.weights = weights
 
-    def fuse(self, rppg_score, blink_score, antispoof_score, challenge_score=0.5):
+    def fuse(self, rppg_score, blink_score, antispoof_score, challenge_score=0.0, is_challenge_active=False):
         """
         Fuses multiple liveness scores into a single final score.
-        :param rppg_score: Physiological score (0-1)
-        :param blink_score: Behavioral/Blink score (0-1)
-        :param antispoof_score: Deep learning anti-spoof score (0-1)
-        :param challenge_score: Active challenge response score (0-1)
-        :return: Dict with final_score and breakdown.
+        Uses dynamic weighting depending on whether a challenge is active.
         """
-        final_score = (
-            (self.weights["rppg"] * rppg_score) +
-            (self.weights["blink"] * blink_score) +
-            (self.weights["antispoof"] * antispoof_score) +
-            (self.weights["challenge"] * challenge_score)
-        )
+        if self.weights is not None:
+            active_weights = self.weights
+        elif is_challenge_active:
+            active_weights = {
+                "rppg": 0.10,
+                "blink": 0.10,
+                "antispoof": 0.40,
+                "challenge": 0.40
+            }
+        else:
+            active_weights = {
+                "rppg": 0.20,
+                "blink": 0.20,
+                "antispoof": 0.60,
+                "challenge": 0.0
+            }
 
-        verdict = "Live" if final_score > 0.5 else "Spoof"
-        
+        # Critical Explainable Thresholds
+        if antispoof_score < 0.25:
+            final_score = float(antispoof_score)
+            verdict = "Spoof"
+            reason = "Critically failed appearance anti-spoofing."
+        elif is_challenge_active and challenge_score < 0.30:
+            final_score = float(challenge_score)
+            verdict = "Spoof"
+            reason = "Critically failed active challenge."
+        else:
+            final_score = (
+                (active_weights["rppg"] * rppg_score) +
+                (active_weights["blink"] * blink_score) +
+                (active_weights["antispoof"] * antispoof_score) +
+                (active_weights.get("challenge", 0) * challenge_score)
+            )
+            verdict = "Live" if final_score > 0.5 else "Spoof"
+            reason = "Passed multi-modal checks." if final_score > 0.5 else "Multi-modal combined score below threshold."
+
         return {
             "final_score": round(final_score, 4),
             "verdict": verdict,
+            "reason": reason,
             "breakdown": {
-                "rppg": rppg_score,
-                "blink": blink_score,
-                "antispoof": antispoof_score,
-                "challenge": challenge_score,
+                "rppg": round(rppg_score, 4),
+                "blink": round(blink_score, 4),
+                "antispoof": round(antispoof_score, 4),
+                "challenge": round(challenge_score, 4) if is_challenge_active else None,
                 "combined": round(final_score, 4)
             },
-            "weights": self.weights
+            "weights": active_weights
         }
 
 if __name__ == "__main__":

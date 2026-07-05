@@ -74,6 +74,19 @@ class FusionService:
 
         as_score = self.antispoof.predict(crop)
 
+        # Fast early-exit to keep latency <100ms for obvious spoofs
+        if as_score < 0.25:
+            return {
+                "type": "verdict",
+                "verdict": "Spoof",
+                "confidence": float(as_score),
+                "status": "success",
+                "processing_time_ms": int((time.time() - start_time) * 1000),
+                "details": {"reason": "Critically failed appearance anti-spoofing early exit"},
+                "quality_metrics": quality_res["metrics"],
+                "bbox": bbox
+            }
+
         # Behavioral Score (Blink) — now uses real EAR-based detection
         behavior = self.behavioral.analyze(frame, faces=faces)
         blink_score = 1.0 if behavior['blink_detected'] else 0.0
@@ -83,7 +96,8 @@ class FusionService:
         rppg_score = self.rppg.update(frame)
 
         # 4. Challenge Score
-        challenge_score = 1.0 if challenge_session is None else 0.5
+        is_challenge_active = challenge_session is not None
+        challenge_score = 0.0
         challenge_info = None
 
         if challenge_session is not None:
@@ -114,7 +128,8 @@ class FusionService:
             rppg_score=rppg_score,
             blink_score=blink_score,
             antispoof_score=as_score,
-            challenge_score=challenge_score
+            challenge_score=challenge_score,
+            is_challenge_active=is_challenge_active
         )
 
         processing_time = time.time() - start_time
@@ -127,7 +142,10 @@ class FusionService:
             "status": "success",
             "processing_time_ms": int(processing_time * 1000),
             "frame_size": [w, h],
-            "details": fusion_res["breakdown"],
+            "details": {
+                **fusion_res["breakdown"],
+                "reason": fusion_res.get("reason", "")
+            },
             "quality_metrics": quality_res["metrics"],
             "bbox": bbox
         }

@@ -1,7 +1,7 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-05)
 
 ## Corpus Check
-- 99 files · ~47,974 words
+- 99 files · ~48,084 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3e3a18a6`
+- Built from commit: `545e3bf3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -229,7 +229,7 @@ Nodes (12): Architecture, Datasets, graphify, Metrics, Models, Objective, Projec
 
 ### Community 29 - "Community 29"
 Cohesion: 0.21
-Nodes (6): WeightTuner, FusionEngine, Fuses multiple liveness scores into a single final score.         :param rppg_sc, Initializes the Fusion Engine with customizable weights.         :param weights:, test_fusion_engine(), test_weight_tuner()
+Nodes (6): WeightTuner, FusionEngine, Fuses multiple liveness scores into a single final score.         Uses dynamic w, Initializes the Fusion Engine with customizable weights.         :param weights:, test_fusion_engine(), test_weight_tuner()
 
 ### Community 30 - "Community 30"
 Cohesion: 0.23
