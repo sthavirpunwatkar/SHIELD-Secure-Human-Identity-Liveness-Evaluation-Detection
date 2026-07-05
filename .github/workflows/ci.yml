@@ -71,4 +71,4 @@ jobs:
       with:
         context: ./backend
         push: true
-        tags: ghcr.io/${{ github.repository }}/shield-backend:latest
+        tags: ghcr.io/sthavirpunwatkar/shield-secure-human-identity-liveness-evaluation-detection/shield-backend:latest
