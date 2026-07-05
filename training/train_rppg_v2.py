@@ -163,8 +163,8 @@ def load_video_data(data_root: str, window_size: int):
     for video_file in data_path.rglob("*"):
         if video_file.suffix.lower() not in video_ext:
             continue
-        # Infer label from path: paths with 'live' or 'real' → 1.0, else 0.0
-        label = 1.0 if any(k in str(video_file).lower() for k in ["live", "real", "client"]) else 0.0
+        # Infer label from path: paths with 'live' or 'real' or 'ubfc' or 'pure' → 1.0, else 0.0
+        label = 1.0 if any(k in str(video_file).lower() for k in ["live", "real", "client", "ubfc", "pure"]) else 0.0
         windows = extract_roi_signal_from_video(str(video_file), window_size)
         for w in windows:
             X.append(w)
@@ -189,9 +189,9 @@ def evaluate(model, dataloader, device, criterion, use_amp=False):
             inputs, labels = inputs.to(device), labels.to(device)
             with torch.amp.autocast("cuda", enabled=use_amp):
                 outputs = model(inputs).squeeze(-1)
-                loss = criterion(outputs, labels)
+            loss = criterion(outputs.float(), labels.float())
             total_loss += loss.item() * inputs.size(0)
-            preds = (torch.sigmoid(outputs) > 0.5).float()
+            preds = (outputs > 0.5).float()
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
 
@@ -216,11 +216,24 @@ def export_onnx(model, window_size, save_path, device):
             model, dummy, save_path,
             input_names=["rppg_signal"],
             output_names=["liveness_prob"],
-            dynamic_axes={"rppg_signal": {0: "batch_size"}, "liveness_prob": {0: "batch_size"}},
             opset_version=17,
             do_constant_folding=True,
         )
-        print(f"  [ONNX] Exported to {save_path}")
+        print(f"  [ONNX] Exported FP32 to {save_path}")
+        
+        try:
+            from onnxruntime.quantization import quantize_dynamic, QuantType
+            int8_path = save_path.replace(".onnx", "_int8.onnx")
+            
+            # Quantize directly (no pre-process needed if no dynamic axes)
+            quantize_dynamic(save_path, int8_path, weight_type=QuantType.QUInt8)
+            print(f"  [ONNX] Exported INT8 to {int8_path}")
+            
+        except ImportError:
+            print("  [ONNX] onnxruntime not installed, skipping quantization.")
+        except Exception as e:
+            print(f"  [ONNX] Quantization failed: {e}")
+
     except Exception as e:
         print(f"  [ONNX] Export failed: {e}")
 
@@ -290,8 +303,8 @@ def train(args):
     total_p = sum(p.numel() for p in model.parameters())
     print(f"RPPGCNNv2: {total_p:,} parameters")
 
-    criterion = nn.BCEWithLogitsLoss()  # safe with AMP; handles sigmoid internally
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
+    criterion = nn.BCELoss()  # Model already includes Sigmoid
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
@@ -317,7 +330,7 @@ def train(args):
 
             with torch.amp.autocast("cuda", enabled=use_amp):
                 outputs = model(inputs).squeeze(-1)
-                loss = criterion(outputs, labels)
+            loss = criterion(outputs.float(), labels.float())
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)

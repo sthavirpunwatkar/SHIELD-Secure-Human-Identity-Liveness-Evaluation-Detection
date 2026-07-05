@@ -183,3 +183,13 @@
     - Removed dummy `0.5` scoring in `rppg_detector.py` and `antispoof/inference.py`.
     - Trained new PyTorch and ONNX models for rPPG and EfficientNet-B0 backbone.
     - Fusion engine thresholding optimized with dynamic weights and <100ms early-exit mechanisms.
+
+### Milestone 16: Inference Engine Cascade Fusion Logic (July 2026) - COMPLETED
+- **Objective:** Optimize latency and inference flow by implementing a cascade fusion pipeline.
+- **Key Achievements:**
+    - Reordered inference in `fusion_service.py` to Cascade Fusion (Behavior -> Anti-Spoof -> rPPG).
+    - Utilized MediaPipe heuristics (EAR/MAR/PnP) for behavior tracking.
+    - Implemented early-rejection for behavior failures (missing landmarks) to save compute.
+    - Ensured robust loading of optimized ONNX models across both rPPG and Anti-Spoof paths.
+    - Updated integration test `test_inference.py` to validate new cascade order.
+- **Differentiation:** Greatly improves runtime efficiency by discarding obvious spoof attempts (e.g., printed images lacking facial landmarks or behavioral signals) before executing expensive ML models.

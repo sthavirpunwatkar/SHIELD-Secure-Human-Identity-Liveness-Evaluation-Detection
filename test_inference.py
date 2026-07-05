@@ -34,13 +34,13 @@ def main():
         bbox = face_info['bbox']
         crop = detector.crop_face(frame, bbox)
         
-        print("2. Testing Antispoof Classification...")
-        as_score = antispoof.predict(crop)
-        print(f"Antispoof Score (Real=1.0): {as_score:.2f}")
-        
-        print("3. Testing Behavioral Analysis...")
+        print("2. Testing Behavioral Analysis...")
         behavior = behavioral.analyze(frame, faces=faces)
         print(f"Blink Detected: {behavior['blink_detected']}, Landmarks Found: {behavior['landmarks_found']}")
+        
+        print("3. Testing Antispoof Classification...")
+        as_score = antispoof.predict(crop)
+        print(f"Antispoof Score (Real=1.0): {as_score:.2f}")
         
         print("4. Testing rPPG Analysis...")
         rppg_score = rppg.update(frame)
