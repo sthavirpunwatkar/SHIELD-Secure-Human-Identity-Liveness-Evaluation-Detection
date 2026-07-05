@@ -261,3 +261,12 @@
     - Created `inference/yolo_detector.py` to handle both bounding box extraction for faces and semantic mask detection for silicone/physical spoof masks.
     - Upgraded `backend/services/fusion_service.py` to immediately reject a frame (latency < 50ms) if a mask class is detected with high confidence by YOLOv8-seg.
 - **Differentiation:** Directly tackles the most difficult presentation attacks (high-quality 3D silicone masks and physical disguises) by combining texture segmentation with early-exit logic, saving compute and improving security.
+
+### Phase 14: Global Accessibility & Multilingual UI
+- **Objective:** Add Multilingual UI (localization) to the Flutter frontend for global deployment.
+- **Key Achievements:**
+  - Integrated `flutter_localizations` and `intl` packages.
+  - Setup `l10n.yaml` and `.arb` files for English (en), Spanish (es), and French (fr).
+  - Refactored `main.dart`, screens, and widgets to dynamically consume localized strings.
+  - Resolved `flutter gen-l10n` build tooling dependencies and validated localization build targets.
+- **Differentiation:** Enhances the accessibility of the liveness check by ensuring global users can natively understand the active challenge prompts, thereby significantly reducing user-error driven failures (BPCER).

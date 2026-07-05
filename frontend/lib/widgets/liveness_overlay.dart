@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 class LivenessOverlay extends StatelessWidget {
   const LivenessOverlay({super.key});
@@ -9,6 +10,7 @@ class LivenessOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LivenessProvider>(
       builder: (context, provider, child) {
+        final l10n = AppLocalizations.of(context)!;
         final result = provider.currentResult;
         final isLive = result.verdict == 'Live';
         final isSpoof = result.verdict == 'Spoof';
@@ -54,7 +56,7 @@ class LivenessOverlay extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Verdict: ${result.verdict}',
+                            l10n.verdict(result.verdict),
                             style: TextStyle(
                               color: color,
                               fontSize: 24,
@@ -72,19 +74,19 @@ class LivenessOverlay extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Confidence: ${(result.confidence * 100).toStringAsFixed(1)}%',
+                                l10n.confidence((result.confidence * 100).toStringAsFixed(1)),
                                 style: const TextStyle(color: Colors.white),
                               ),
                               Text(
-                                'Latency: ${result.processingTimeMs}ms',
+                                l10n.latency(result.processingTimeMs.toString()),
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ],
                           ),
                           const Divider(color: Colors.white24),
-                          _buildDetailRow('Primary Liveness', result.details.primaryLiveness),
-                          _buildDetailRow('Behavioral Score', result.details.behavioralScore),
-                          _buildDetailRow('rPPG Score', result.details.rppgScore),
+                          _buildDetailRow(l10n.primaryLiveness, result.details.primaryLiveness),
+                          _buildDetailRow(l10n.behavioralScore, result.details.behavioralScore),
+                          _buildDetailRow(l10n.rppgScore, result.details.rppgScore),
                         ],
                       ),
                     ),
@@ -102,7 +104,7 @@ class LivenessOverlay extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      provider.isConnected ? 'Connected' : 'Disconnected',
+                      provider.isConnected ? l10n.connected : l10n.disconnected,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),

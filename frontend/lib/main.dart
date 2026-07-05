@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 import 'providers/liveness_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/challenge_screen.dart';
@@ -25,6 +27,17 @@ class ShieldApp extends StatelessWidget {
     return MaterialApp(
       title: 'SHIELD - Liveness Detection',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('es'),
+        Locale('fr'),
+      ],
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
@@ -55,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<LivenessProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Container(
@@ -73,26 +87,26 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const Icon(Icons.shield_rounded, size: 100, color: Colors.blue),
               const SizedBox(height: 24),
-              const Text(
-                'SHIELD',
+              Text(
+                l10n.shieldTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 4,
                   color: Colors.white,
                 ),
               ),
-              const Text(
-                'Secure Human Identity & Liveness Evaluation Detection',
+              Text(
+                l10n.shieldSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
               const SizedBox(height: 60),
               TextField(
                 controller: _urlController,
                 decoration: InputDecoration(
-                  labelText: 'Server WebSocket URL',
+                  labelText: l10n.serverUrlLabel,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.link),
                 ),
@@ -115,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         } else {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to connect to backend'))
+                              SnackBar(content: Text(l10n.failedConnect))
                             );
                           }
                         }
@@ -126,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: provider.isConnected ? Colors.blue : Colors.blueGrey,
                 ),
                 child: Text(
-                  provider.isConnected ? 'Passive Liveness Check' : 'Connect (Passive)',
+                  provider.isConnected ? l10n.passiveCheck : l10n.connectPassive,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -147,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         } else {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to connect to backend'))
+                              SnackBar(content: Text(l10n.failedConnect))
                             );
                           }
                         }
@@ -158,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: provider.isConnected ? Colors.green : Colors.blueGrey,
                 ),
                 child: Text(
-                  provider.isConnected ? 'Active Challenge Verification' : 'Connect (Active Challenge)',
+                  provider.isConnected ? l10n.activeCheck : l10n.connectActive,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

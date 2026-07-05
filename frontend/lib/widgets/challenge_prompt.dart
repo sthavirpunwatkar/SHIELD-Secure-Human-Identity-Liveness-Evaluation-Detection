@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/challenge_service.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 /// Animated overlay that displays the current challenge instruction,
 /// countdown timer, and progress dots during the challenge-response flow.
@@ -100,31 +101,32 @@ class _ChallengePromptState extends State<ChallengePrompt>
   }
 
   Widget _buildContent() {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.state) {
       case ChallengeState.idle:
       case ChallengeState.connecting:
-        return _buildIdleCard();
+        return _buildIdleCard(l10n);
       case ChallengeState.challengeActive:
-        return _buildActiveCard();
+        return _buildActiveCard(l10n);
       case ChallengeState.waiting:
-        return _buildWaitingCard();
+        return _buildWaitingCard(l10n);
       case ChallengeState.allPassed:
         return _buildResultIcon(
           icon: Icons.check_circle,
           color: Colors.greenAccent,
-          label: 'All Challenges Passed!',
+          label: l10n.allChallengesPassed,
         );
       case ChallengeState.failed:
         return _buildResultIcon(
           icon: Icons.cancel,
           color: Colors.redAccent,
-          label: 'Challenge Failed',
+          label: l10n.challengeFailed,
         );
       case ChallengeState.error:
         return _buildResultIcon(
           icon: Icons.error_outline,
           color: Colors.orangeAccent,
-          label: 'An error occurred',
+          label: l10n.anErrorOccurred,
         );
     }
   }
@@ -133,7 +135,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
   // Card builders
   // ---------------------------------------------------------------------------
 
-  Widget _buildIdleCard() {
+  Widget _buildIdleCard(AppLocalizations l10n) {
     return _glassCard(
       key: const ValueKey('idle'),
       child: Column(
@@ -143,8 +145,8 @@ class _ChallengePromptState extends State<ChallengePrompt>
           const SizedBox(height: 12),
           Text(
             widget.state == ChallengeState.connecting
-                ? 'Connecting…'
-                : 'Ready to start',
+                ? l10n.connecting
+                : l10n.readyToStart,
             style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
         ],
@@ -152,9 +154,9 @@ class _ChallengePromptState extends State<ChallengePrompt>
     );
   }
 
-  Widget _buildActiveCard() {
+  Widget _buildActiveCard(AppLocalizations l10n) {
     final icon = ChallengeService.getActionIcon(widget.currentAction);
-    final text = ChallengeService.getActionDisplayText(widget.currentAction);
+    final text = ChallengeService.getActionDisplayText(widget.currentAction, l10n);
 
     return _glassCard(
       key: const ValueKey('active'),
@@ -211,7 +213,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
     );
   }
 
-  Widget _buildWaitingCard() {
+  Widget _buildWaitingCard(AppLocalizations l10n) {
     return _glassCard(
       key: const ValueKey('waiting'),
       child: Column(
@@ -223,9 +225,9 @@ class _ChallengePromptState extends State<ChallengePrompt>
             child: CircularProgressIndicator(strokeWidth: 3, color: Colors.blueAccent),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Processing…',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
+          Text(
+            l10n.processing,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
           ),
           const SizedBox(height: 12),
           _buildProgressDots(),

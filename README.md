@@ -83,9 +83,10 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 - [x] OS Security & Anti-Cheat: Safe Exam Browser (SEB) kiosk mode locks.
 - [x] OS Security & Anti-Cheat: Backend cryptographic trust verification of SEB headers.
 - [x] Enhanced Anti-Masking: Trained YOLOv8-seg on custom face+mask dataset to detect and reject silicone/physical spoof masks.
+- [x] Multilingual UI: Added localized instructional guidance for global deployment (English, Spanish, French).
 
 ### 🚀 Next Steps
-- **Multilingual UI:** Adding localized instructional guidance for global deployment.
+- **Production CI/CD:** Establish automated deployment pipelines for the containerized backend.
 
 ---
 

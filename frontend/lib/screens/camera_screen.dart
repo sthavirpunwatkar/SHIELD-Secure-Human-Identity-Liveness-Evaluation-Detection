@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
 import '../services/security_service.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -37,7 +38,7 @@ class _CameraScreenState extends State<CameraScreen> {
       if (isVirtual) {
         if (mounted) {
           setState(() {
-            _errorMessage = 'SECURITY ALERT: Virtual Camera (OBS) detected. Please use real hardware camera.';
+            _errorMessage = AppLocalizations.of(context)!.virtualCameraAlert;
           });
         }
         return;
@@ -46,7 +47,7 @@ class _CameraScreenState extends State<CameraScreen> {
       _cameras = await availableCameras();
       if (_cameras == null || _cameras!.isEmpty) {
         setState(() {
-          _errorMessage = 'No cameras found on this device.';
+          _errorMessage = AppLocalizations.of(context)!.noCameras;
         });
         return;
       }
@@ -78,7 +79,7 @@ class _CameraScreenState extends State<CameraScreen> {
       print('Camera initialization error: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to initialize camera: $e';
+          _errorMessage = AppLocalizations.of(context)!.cameraInitError(e.toString());
         });
       }
     }
@@ -112,7 +113,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     if (!provider.isConnected) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not connected to server')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.notConnected)),
       );
       return;
     }
@@ -170,7 +171,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _initializeCamera,
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),
@@ -180,14 +181,14 @@ class _CameraScreenState extends State<CameraScreen> {
     }
 
     if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Initializing Camera...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.initCamera),
             ],
           ),
         ),
@@ -196,7 +197,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SHIELD Liveness'),
+        title: Text(AppLocalizations.of(context)!.passiveCheck),
         actions: [
           IconButton(
             icon: Icon(_isStreaming ? Icons.stop : Icons.play_arrow),

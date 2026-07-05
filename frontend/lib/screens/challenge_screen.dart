@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../services/challenge_service.dart';
 import '../widgets/challenge_prompt.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 /// Screen that combines a live camera preview with the active
 /// challenge-response verification flow managed by [ChallengeService].
@@ -48,7 +49,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     try {
       _cameras = await availableCameras();
       if (_cameras == null || _cameras!.isEmpty) {
-        setState(() => _errorMessage = 'No cameras found on this device.');
+        setState(() => _errorMessage = AppLocalizations.of(context)!.noCameras);
         return;
       }
 
@@ -76,7 +77,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     } catch (e) {
       print('Camera initialization error: $e');
       if (mounted) {
-        setState(() => _errorMessage = 'Failed to initialize camera: $e');
+        setState(() => _errorMessage = AppLocalizations.of(context)!.cameraInitError(e.toString()));
       }
     }
   }
@@ -91,7 +92,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     if (!provider.isConnected) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not connected to server')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.notConnected)),
       );
       return;
     }
@@ -161,7 +162,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     // Error state
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('SHIELD Challenge Verification')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.challengeVerification)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -174,7 +175,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _initializeCamera,
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),
@@ -186,14 +187,14 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     // Loading state
     if (_controller == null || !_controller!.value.isInitialized) {
       return Scaffold(
-        appBar: AppBar(title: const Text('SHIELD Challenge Verification')),
-        body: const Center(
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.challengeVerification)),
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Initializing Camera...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(AppLocalizations.of(context)!.initCamera),
             ],
           ),
         ),
@@ -209,7 +210,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('SHIELD Challenge Verification'),
+            title: Text(AppLocalizations.of(context)!.challengeVerification),
             actions: [
               if (_isStreaming)
                 IconButton(
@@ -277,7 +278,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                               ? _startChallenge
                               : null,
                           icon: const Icon(Icons.play_arrow),
-                          label: const Text('Start Verification'),
+                          label: Text(AppLocalizations.of(context)!.startVerification),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -291,7 +292,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _resetChallenge,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Try Again'),
+                          label: Text(AppLocalizations.of(context)!.tryAgain),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -377,6 +378,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget _buildResultSummary(ChallengeService cs) {
     final allPassed = cs.state == ChallengeState.allPassed;
     final color = allPassed ? Colors.greenAccent : Colors.redAccent;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -390,7 +392,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            allPassed ? 'Verification Passed' : 'Verification Failed',
+            allPassed ? l10n.verificationPassed : l10n.verificationFailed,
             style: TextStyle(
               color: color,
               fontSize: 20,
@@ -402,7 +404,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Score: ${(cs.challengeScore * 100).toStringAsFixed(1)}%',
+                l10n.score((cs.challengeScore * 100).toStringAsFixed(1)),
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
               if (cs.temporalValid != null) ...[
@@ -415,7 +417,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                     border: Border.all(color: cs.temporalValid! ? Colors.green : Colors.red, width: 0.5),
                   ),
                   child: Text(
-                    cs.temporalValid! ? 'Temporal OK' : 'Temporal Failed',
+                    cs.temporalValid! ? l10n.temporalOk : l10n.temporalFailed,
                     style: TextStyle(
                       color: cs.temporalValid! ? Colors.greenAccent : Colors.redAccent,
                       fontSize: 10,
@@ -441,7 +443,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      ChallengeService.getActionDisplayText(r.action),
+                      ChallengeService.getActionDisplayText(r.action, l10n),
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),

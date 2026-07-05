@@ -1,0 +1,81 @@
+{
+  "@@locale": "en",
+  "shieldTitle": "SHIELD",
+  "shieldSubtitle": "Secure Human Identity & Liveness Evaluation Detection",
+  "serverUrlLabel": "Server WebSocket URL",
+  "failedConnect": "Failed to connect to backend",
+  "passiveCheck": "Passive Liveness Check",
+  "connectPassive": "Connect (Passive)",
+  "activeCheck": "Active Challenge Verification",
+  "connectActive": "Connect (Active Challenge)",
+  "notConnected": "Not connected to server",
+  "retry": "Retry",
+  "initCamera": "Initializing Camera...",
+  "challengeVerification": "SHIELD Challenge Verification",
+  "startVerification": "Start Verification",
+  "tryAgain": "Try Again",
+  "reCheckStatus": "Re-check Status",
+  "actionBlink": "Please blink your eyes",
+  "actionSmile": "Please smile",
+  "actionTurnLeft": "Turn your head left",
+  "actionTurnRight": "Turn your head right",
+  "actionNodUp": "Nod your head up",
+  "actionNodDown": "Nod your head down",
+  "actionNod": "Nod your head up and down",
+  "actionOpenMouth": "Open your mouth wide",
+  "actionRaiseEyebrows": "Raise your eyebrows",
+  "actionPerform": "Perform: {action}",
+  "@actionPerform": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "noCameras": "No cameras found on this device.",
+  "cameraInitError": "Failed to initialize camera: {error}",
+  "@cameraInitError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "virtualCameraAlert": "SECURITY ALERT: Virtual Camera (OBS) detected. Please use real hardware camera.",
+  "securityLock": "SECURITY LOCK",
+  "sebRequired": "This verification must be completed inside the Safe Exam Browser (SEB) kiosk mode.",
+  "identityVerification": "Identity Verification",
+  "prepSubtitle": "Follow these simple steps for a fast and secure liveness check.",
+  "goodLighting": "Good Lighting",
+  "goodLightingDesc": "Ensure your face is evenly lit without harsh shadows.",
+  "clearView": "Clear View",
+  "clearViewDesc": "Remove any glasses, masks, or hats that obscure your face.",
+  "positioning": "Positioning",
+  "positioningDesc": "Hold your device at eye level and stay within the guide.",
+  "imReady": "I'm Ready",
+  "verificationPassed": "Verification Passed",
+  "verificationFailed": "Verification Failed",
+  "score": "Score: {score}%",
+  "@score": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "temporalOk": "Temporal OK",
+  "temporalFailed": "Temporal Failed",
+  "connecting": "Connecting…",
+  "readyToStart": "Ready to start",
+  "allChallengesPassed": "All Challenges Passed!",
+  "challengeFailed": "Challenge Failed",
+  "anErrorOccurred": "An error occurred",
+  "processing": "Processing…",
+  "verdict": "Verdict: {verdict}",
+  "@verdict": { "placeholders": { "verdict": { "type": "String" } } },
+  "confidence": "Confidence: {confidence}%",
+  "@confidence": { "placeholders": { "confidence": { "type": "String" } } },
+  "latency": "Latency: {latency}ms",
+  "@latency": { "placeholders": { "latency": { "type": "String" } } },
+  "primaryLiveness": "Primary Liveness",
+  "behavioralScore": "Behavioral Score",
+  "rppgScore": "rPPG Score",
+  "connected": "Connected",
+  "disconnected": "Disconnected"
+}

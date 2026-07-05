@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/liveness_result.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 /// Possible states for the active challenge-response flow.
 enum ChallengeState {
@@ -201,28 +202,28 @@ class ChallengeService {
   // ---------------------------------------------------------------------------
 
   /// Returns a user-friendly instruction string for the given [action].
-  static String getActionDisplayText(String action) {
+  static String getActionDisplayText(String action, AppLocalizations l10n) {
     switch (action.toLowerCase()) {
       case 'blink':
-        return 'Please blink your eyes';
+        return l10n.actionBlink;
       case 'smile':
-        return 'Please smile';
+        return l10n.actionSmile;
       case 'turn_left':
-        return 'Turn your head left';
+        return l10n.actionTurnLeft;
       case 'turn_right':
-        return 'Turn your head right';
+        return l10n.actionTurnRight;
       case 'nod_up':
-        return 'Nod your head up';
+        return l10n.actionNodUp;
       case 'nod_down':
-        return 'Nod your head down';
+        return l10n.actionNodDown;
       case 'nod':
-        return 'Nod your head up and down';
+        return l10n.actionNod;
       case 'open_mouth':
-        return 'Open your mouth wide';
+        return l10n.actionOpenMouth;
       case 'raise_eyebrows':
-        return 'Raise your eyebrows';
+        return l10n.actionRaiseEyebrows;
       default:
-        return 'Perform: $action';
+        return l10n.actionPerform(action);
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'challenge_screen.dart';
 
 import '../services/security_service.dart';
+import 'package:shield_app/l10n/app_localizations.dart';
 
 class PreVerificationScreen extends StatefulWidget {
   const PreVerificationScreen({super.key});
@@ -50,27 +51,27 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_person, color: Colors.redAccent, size: 80),
+                Icon(Icons.lock_person, color: Colors.redAccent, size: 80),
                 const SizedBox(height: 24),
-                const Text(
-                  'SECURITY LOCK',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.securityLock,
+                  style: const TextStyle(
                     color: Colors.redAccent,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'This verification must be completed inside the Safe Exam Browser (SEB) kiosk mode.',
+                Text(
+                  AppLocalizations.of(context)!.sebRequired,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: _checkSebStatus,
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                  child: const Text('Re-check Status'),
+                  child: Text(AppLocalizations.of(context)!.reCheckStatus),
                 ),
               ],
             ),
@@ -87,24 +88,24 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
           children: [
             const Spacer(),
             // Header
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Identity Verification',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.identityVerification,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Follow these simple steps for a fast and secure liveness check.',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.prepSubtitle,
+                    style: const TextStyle(
                       color: Color(0xFF94A3B8), // Slate 400
                       fontSize: 16,
                     ),
@@ -117,18 +118,18 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
             // Preparation Cards
             _buildPrepCard(
               icon: Icons.lightbulb_outline,
-              title: 'Good Lighting',
-              subtitle: 'Ensure your face is evenly lit without harsh shadows.',
+              title: AppLocalizations.of(context)!.goodLighting,
+              subtitle: AppLocalizations.of(context)!.goodLightingDesc,
             ),
             _buildPrepCard(
               icon: Icons.face_retouching_natural,
-              title: 'Clear View',
-              subtitle: 'Remove any glasses, masks, or hats that obscure your face.',
+              title: AppLocalizations.of(context)!.clearView,
+              subtitle: AppLocalizations.of(context)!.clearViewDesc,
             ),
             _buildPrepCard(
               icon: Icons.center_focus_strong_outlined,
-              title: 'Positioning',
-              subtitle: 'Hold your device at eye level and stay within the guide.',
+              title: AppLocalizations.of(context)!.positioning,
+              subtitle: AppLocalizations.of(context)!.positioningDesc,
             ),
 
             const Spacer(flex: 2),
@@ -151,15 +152,15 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'I\'m Ready',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      AppLocalizations.of(context)!.imReady,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward),
                   ],
                 ),
               ),
