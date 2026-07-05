@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
@@ -19,6 +19,7 @@ if project_root not in sys.path:
 
 from services.fusion_service import fusion_service
 from services.db_service import db_service
+from services.seb_service import verify_seb_headers_http, verify_seb_headers_ws
 
 app = FastAPI(title="SHIELD API", version="1.0.0")
 
@@ -50,6 +51,13 @@ async def websocket_challenge(websocket: WebSocket):
     Receives text messages (commands) and binary image data.
     """
     await websocket.accept()
+    
+    # SEB Cryptographic Trust Verification
+    if not await verify_seb_headers_ws(websocket):
+        await websocket.send_json({"type": "error", "message": "SEB Trust Verification Failed"})
+        await websocket.close(code=1008)
+        return
+        
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Challenge WebSocket: {client_host}")
     
@@ -185,6 +193,13 @@ async def websocket_verify_passive(websocket: WebSocket):
     Receives binary image frames and returns a fusion verdict per frame.
     """
     await websocket.accept()
+    
+    # SEB Cryptographic Trust Verification
+    if not await verify_seb_headers_ws(websocket):
+        await websocket.send_json({"error": "SEB Trust Verification Failed"})
+        await websocket.close(code=1008)
+        return
+        
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Passive Verify WebSocket: {client_host}")
 
@@ -219,7 +234,7 @@ async def websocket_verify_passive(websocket: WebSocket):
 
 
 @app.post("/verify")
-async def verify_liveness(file: UploadFile = File(...)):
+async def verify_liveness(file: UploadFile = File(...), _ = Depends(verify_seb_headers_http)):
     """
     Receives an image frame and runs the SHIELD liveness detection pipeline.
     """

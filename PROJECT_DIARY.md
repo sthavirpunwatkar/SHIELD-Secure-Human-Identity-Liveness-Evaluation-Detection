@@ -229,3 +229,11 @@
     - Integrated `isSafeExamBrowserActive()` into `SecurityService`.
     - Modified `PreVerificationScreen` to strictly enforce SEB. If the kiosk environment is not detected, it locks the UI and displays a "SECURITY LOCK" message, preventing exam entry.
 - **Differentiation:** Enforces OS-level lockdown and kiosk environments for remote assessment, ensuring the highest level of examination integrity.
+
+### Milestone 21: Phase 3 Backend Cryptographic Trust / SEB Verification (July 2026) - COMPLETED
+- **Objective:** Build backend logic to cryptographically verify the trust from Safe Exam Browser (e.g., verifying config/exam keys or SEB headers).
+- **Key Achievements:**
+    - Implemented a `seb_service.py` to cryptographically verify `X-SafeExamBrowser-RequestHash` and `X-SafeExamBrowser-ConfigKeyHash`.
+    - Integrated SEB header verification into FastAPI `Depends` for HTTP endpoints and directly into WebSocket connection handlers.
+    - Updated `test_backend.py` to bypass cryptographic checks during tests using custom testing headers.
+- **Differentiation:** Guarantees backend security by ensuring that only valid, SEB-secured requests from trusted configurations are allowed to initiate liveness checks or challenge sessions.
