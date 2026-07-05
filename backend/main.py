@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
 import numpy as np
@@ -17,7 +18,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from services.fusion_service import fusion_service
-from services.firebase_service import firebase_service
+from services.db_service import db_service
 
 app = FastAPI(title="SHIELD API", version="1.0.0")
 
@@ -28,6 +29,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ensure local storage exists for serving
+os.makedirs("local_storage/snapshots", exist_ok=True)
+app.mount("/snapshots", StaticFiles(directory="local_storage/snapshots"), name="snapshots")
 
 @app.get("/health")
 async def health_check():
@@ -247,11 +252,11 @@ async def verify_liveness(file: UploadFile = File(...)):
             filename = f"{session_id}.jpg"
             # Re-encode to JPEG for storage
             _, buffer = cv2.imencode(".jpg", frame)
-            image_url = firebase_service.upload_snapshot(buffer.tobytes(), filename)
+            image_url = db_service.upload_snapshot(buffer.tobytes(), filename)
             log_data["image_url"] = image_url
 
-        # Persist metadata to Firestore
-        firebase_service.log_verification(log_data)
+        # Persist metadata to SQLite
+        db_service.log_verification(log_data)
 
         return {
             "session_id": session_id,

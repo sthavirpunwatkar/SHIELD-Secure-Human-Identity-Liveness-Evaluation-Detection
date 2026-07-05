@@ -169,3 +169,10 @@
     - Fine-tuning fusion weights based on final benchmark results.
     - Optimizing ONNX inference for edge devices.
     - Finalizing the Comprehensive Research Report.
+
+### Sprint 7: Database Migration
+- **Goal:** Replace Firebase with a local SQLite database.
+- **Outcome:** 
+    - Removed `firebase-admin` dependency.
+    - Replaced `firebase_service.py` with a lightweight `db_service.py` using SQLite and local file storage.
+    - Resolved Firebase Mock Mode errors.
