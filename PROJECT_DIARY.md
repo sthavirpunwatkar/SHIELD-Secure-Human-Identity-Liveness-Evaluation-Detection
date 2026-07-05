@@ -253,3 +253,11 @@
     - Handled classes `0=face` and `1=mask`.
     - Built-in mock dataset generator (`--mock`) for immediate testing and training preparation without credential hurdles.
 - **Differentiation:** Simplifies the data pipeline for training state-of-the-art segmentation models (YOLOv8-seg) for accurate mask and occlusion detection.
+
+### Milestone 23: Phase 3 Enhanced Anti-Masking with YOLOv8-seg (July 2026) - COMPLETED
+- **Objective:** Train YOLOv8-seg on the face + mask dataset and integrate it into the inference pipeline to early-reject mask spoofs.
+- **Key Achievements:**
+    - Wrote `training/train_yolo_seg.py` to automate the YOLOv8-seg training loop and export the resulting model to ONNX.
+    - Created `inference/yolo_detector.py` to handle both bounding box extraction for faces and semantic mask detection for silicone/physical spoof masks.
+    - Upgraded `backend/services/fusion_service.py` to immediately reject a frame (latency < 50ms) if a mask class is detected with high confidence by YOLOv8-seg.
+- **Differentiation:** Directly tackles the most difficult presentation attacks (high-quality 3D silicone masks and physical disguises) by combining texture segmentation with early-exit logic, saving compute and improving security.

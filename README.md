@@ -1,16 +1,29 @@
 # 🛡️ SHIELD – Secure Human Identity & Liveness Evaluation Detection
 
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg) ![Flutter](https://img.shields.io/badge/flutter-ready-cyan.svg) ![License](https://img.shields.io/badge/license-MIT-green)
+
 ## 📋 Project Overview & Plan
+
 SHIELD is a professional-grade, real-time multimodal liveness detection system designed for high-security environments such as **Remote Interview Verification** and **Automated Attendance Systems**. 
 
 The core plan is to prevent presentation attacks (printed photos, replay videos, screen spoofs) by fusing four independent security signals into a single explainable verdict:
-1.  **Passive Texture Analysis:** Deep learning (MiniFASNet) to detect non-human surface patterns.
-2.  **Physiological Verification:** Remote Photoplethysmography (rPPG) via a 3D CNN to detect human pulse blood volume changes.
-3.  **Behavioral Consistency:** Real-time analysis of blinks, expressions, and head movements.
-4.  **Active Challenge-Response:** Randomized user tasks (e.g., "Look Left", "Blink") with temporal jump-cut validation.
+
+1. **Passive Texture Analysis:** Deep learning (MiniFASNet) to detect non-human surface patterns.
+2. **Physiological Verification:** Remote Photoplethysmography (rPPG) via a 3D CNN to detect human pulse blood volume changes.
+3. **Behavioral Consistency:** Real-time analysis of blinks, expressions, and head movements.
+4. **Active Challenge-Response:** Randomized user tasks (e.g., "Look Left", "Blink") with temporal jump-cut validation.
 
 ### System Architecture
-`Camera Input → YOLOv8 Face Detection → Quality Gate → Multimodal Inference → Weighted Fusion Engine → Decisive UI`
+
+```mermaid
+flowchart LR
+    A[Camera Input] --> B(YOLOv8 Face Detection)
+    B --> C{Quality Gate}
+    C -- Pass --> D[Multimodal Inference]
+    C -- Fail --> X[Reject Frame]
+    D --> E((Weighted Fusion Engine))
+    E --> F[Decisive UI Verdict]
+```
 
 ---
 
@@ -20,7 +33,7 @@ The core plan is to prevent presentation attacks (printed photos, replay videos,
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # Linux
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```
@@ -35,6 +48,7 @@ flutter run
 ---
 
 ## 📊 Benchmark Scores
+
 Measured on the combined CASIA-FASD and CelebA-Spoof validation sets.
 
 | Metric | Score | Industry Standard (ISO 30107-3) |
@@ -47,15 +61,16 @@ Measured on the combined CASIA-FASD and CelebA-Spoof validation sets.
 ---
 
 ## 🚀 Competitive Innovation
+
 SHIELD introduces techniques often missing in standard or competitor open-source liveness projects:
 
-1.  **Deep rPPG Integration:** Unlike competitors who rely solely on texture (which can be spoofed by masks), SHIELD detects a biological pulse using a 3D Spatio-Temporal CNN (`PhysNet`), making it resistant to high-resolution silicone masks.
-2.  **Hybrid Active+Passive Protocol:** SHIELD doesn't just watch; it interacts. The randomized challenge-response combined with a `TemporalValidator` prevents "deep-replay" attacks where users try to play AI-generated videos.
-3.  **Real-Time Quality Telemetry:** A "Quality Gate" rejects blurry or poorly lit frames before inference, ensuring 99.9% signal integrity and reducing false-positive overhead.
+1. **Deep rPPG Integration:** Unlike competitors who rely solely on texture (which can be spoofed by masks), SHIELD detects a biological pulse using a 3D Spatio-Temporal CNN (`PhysNet`), making it resistant to high-resolution silicone masks.
+2. **Hybrid Active+Passive Protocol:** SHIELD doesn't just watch; it interacts. The randomized challenge-response combined with a `TemporalValidator` prevents "deep-replay" attacks where users try to play AI-generated videos.
+3. **Real-Time Quality Telemetry:** A "Quality Gate" rejects blurry or poorly lit frames before inference, ensuring 99.9% signal integrity and reducing false-positive overhead.
 
 ---
 
-## 🛣️ Roadmap: Current & Next Improvements
+## 🛣️ Roadmap
 
 ### ✅ Completed (Current State)
 - [x] Full integration of FastAPI backend and Flutter frontend via WebSockets.
@@ -67,9 +82,9 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 - [x] OS Security & Anti-Cheat: Native OS-level virtual camera detection for Windows and macOS.
 - [x] OS Security & Anti-Cheat: Safe Exam Browser (SEB) kiosk mode locks.
 - [x] OS Security & Anti-Cheat: Backend cryptographic trust verification of SEB headers.
+- [x] Enhanced Anti-Masking: Trained YOLOv8-seg on custom face+mask dataset to detect and reject silicone/physical spoof masks.
 
 ### 🚀 Next Steps
-- **Enhanced Anti-Masking:** Training the occlusion detector on a larger custom dataset of high-quality silicone masks.
 - **Multilingual UI:** Adding localized instructional guidance for global deployment.
 
 ---

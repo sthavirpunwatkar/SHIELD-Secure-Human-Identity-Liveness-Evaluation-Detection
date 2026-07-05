@@ -7,7 +7,7 @@ import os
 # Add root to path to allow sibling imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from inference.face_detector import FaceDetector
+from inference.yolo_detector import YoloSegDetector
 from inference.antispoof import AntispoofInference
 from inference.behavioral_analyzer import BehavioralAnalyzer
 from inference.rppg_detector import RPPGDetector
@@ -21,7 +21,7 @@ class FusionService:
         """
         Initializes all core AI models for orchestration.
         """
-        self.detector = FaceDetector()
+        self.detector = YoloSegDetector()
         self.quality_engine = QualityScoreEngine()
         self.antispoof = AntispoofInference()
         self.behavioral = BehavioralAnalyzer()
@@ -49,6 +49,19 @@ class FusionService:
             }
 
         face_info = faces[0]
+        
+        # 1.5 Mask Spoof Check (YOLOv8-seg mask class detected)
+        if face_info.get('is_mask_spoof'):
+            return {
+                "type": "verdict",
+                "verdict": "Spoof",
+                "confidence": 0.0,
+                "status": "success",
+                "processing_time_ms": int((time.time() - start_time) * 1000),
+                "details": {"reason": "Mask spoof detected by YOLO segmentation"},
+                "bbox": face_info['bbox']
+            }
+            
         bbox = face_info['bbox']
         crop = self.detector.crop_face(frame, bbox)
 
