@@ -134,8 +134,8 @@ class RPPGDetector:
             except Exception as exc:
                 print(f"RPPGDetector: Failed to load {path} as {variant}: {exc}")
 
-        # Fallback — uninitialised v2 model, mock mode
-        print("RPPGDetector: No weights loaded. Running in mock-fallback mode (score=0.5).")
+        # No weights loaded - raise exception instead of mock fallback
+        raise RuntimeError("RPPGDetector: No valid weights found. Cannot run without real models.")
 
     def _build_model(self, variant: str) -> nn.Module:
         """Return the architecture matching *variant*."""
@@ -180,7 +180,7 @@ class RPPGDetector:
             return 0.5   # not enough data yet
 
         if not self.weights_loaded:
-            return 0.5   # mock-fallback mode
+            raise RuntimeError("RPPGDetector: weights not loaded.")
 
         # Normalise & run inference
         sig = np.array(self.signal_buffer, dtype=np.float32)
