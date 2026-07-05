@@ -9,7 +9,7 @@ Model priority
 2. models/rppg_1dcnn_v2.pt  (upgraded dual-branch architecture)
 3. models/rppg_1dcnn_v1.pt  (legacy simple CNN — backward compatible)
 
-If no file exists the detector runs in mock-fallback mode (returns 0.5).
+If no file exists the detector will raise a RuntimeError on update().
 """
 
 from __future__ import annotations
@@ -134,8 +134,9 @@ class RPPGDetector:
             except Exception as exc:
                 print(f"RPPGDetector: Failed to load {path} as {variant}: {exc}")
 
-        # No weights loaded - raise exception instead of mock fallback
-        raise RuntimeError("RPPGDetector: No valid weights found. Cannot run without real models.")
+        # No weights loaded - print warning and rely on update() to raise exception
+        print("RPPGDetector: No valid weights found. Weights not loaded.")
+        return
 
     def _build_model(self, variant: str) -> nn.Module:
         """Return the architecture matching *variant*."""

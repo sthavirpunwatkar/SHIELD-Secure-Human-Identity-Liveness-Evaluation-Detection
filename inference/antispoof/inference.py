@@ -35,7 +35,7 @@ class AntispoofInference:
 
     def _load_model(self):
         if not os.path.exists(self.model_path):
-            print(f"Antispoof: {self.model_path} not found. Running with dummy fallback.")
+            print(f"Antispoof: {self.model_path} not found. Weights not loaded.")
             return
 
         try:
