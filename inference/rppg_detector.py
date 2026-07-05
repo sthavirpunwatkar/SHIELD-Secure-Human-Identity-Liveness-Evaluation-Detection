@@ -65,6 +65,7 @@ class RPPGDetector:
     """
 
     # model variant constants
+    _V2_INT8 = "models/rppg_1dcnn_v2_int8.onnx"
     _V2_ONNX = "models/rppg_1dcnn_v2.onnx"
     _V2_DEFAULT = "models/rppg_1dcnn_v2.pt"
     _V1_DEFAULT = "models/rppg_1dcnn_v1.pt"
@@ -93,6 +94,7 @@ class RPPGDetector:
                 paths_to_try = [(model_path, "v2"), (model_path, "v1")]
         else:
             paths_to_try = [
+                (self._V2_INT8, "v2_onnx"),
                 (self._V2_ONNX, "v2_onnx"),
                 (self._V2_DEFAULT, "v2"),
                 (self._V1_DEFAULT, "v1"),

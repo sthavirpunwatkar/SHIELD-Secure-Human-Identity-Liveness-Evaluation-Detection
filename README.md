@@ -63,7 +63,7 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 - [x] Immersive UI Overhaul with real-time feedback and dynamic spotlight.
 - [x] Automated benchmarking suite (ISO/IEC metrics).
 - [x] Cascade Fusion pipeline (Behavior -> Anti-Spoof -> rPPG) for sub-100ms early-rejection.
-- [x] Edge Deployment: Compressed Anti-Spoofing models to ONNX INT8 with advanced training augmentations.
+- [x] Edge Deployment: Compressed Anti-Spoofing and rPPG models to ONNX INT8 with advanced training augmentations and optimizers.
 
 ### 🚀 Next Steps
 - **Enhanced Anti-Masking:** Training the occlusion detector on a larger custom dataset of high-quality silicone masks.

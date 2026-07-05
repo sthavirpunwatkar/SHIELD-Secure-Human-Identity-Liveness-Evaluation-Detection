@@ -28,6 +28,8 @@ class TestAuditIntegrity(unittest.TestCase):
         orig_crop = fusion_service.detector.crop_face
         orig_evaluate = fusion_service.quality_engine.evaluate
         orig_verify = fusion_service.behavioral.verify_challenge
+        orig_antispoof = fusion_service.antispoof.predict
+        orig_rppg = fusion_service.rppg.update
 
         try:
             # Mock them
@@ -39,6 +41,8 @@ class TestAuditIntegrity(unittest.TestCase):
                 "confidence": 0.98,
                 "details": {}
             })
+            fusion_service.antispoof.predict = MagicMock(return_value=0.99)
+            fusion_service.rppg.update = MagicMock(return_value=0.99)
 
             cs = ChallengeSession(num_challenges=1)
             frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -53,6 +57,8 @@ class TestAuditIntegrity(unittest.TestCase):
             fusion_service.detector.crop_face = orig_crop
             fusion_service.quality_engine.evaluate = orig_evaluate
             fusion_service.behavioral.verify_challenge = orig_verify
+            fusion_service.antispoof.predict = orig_antispoof
+            fusion_service.rppg.update = orig_rppg
 
     def test_rppg_detector_state(self):
         """Proof that RPPGDetector is available in FusionService."""
