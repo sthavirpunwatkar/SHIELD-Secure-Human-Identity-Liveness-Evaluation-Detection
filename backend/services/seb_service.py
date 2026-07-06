@@ -60,16 +60,21 @@ async def verify_seb_headers_ws(websocket: WebSocket) -> bool:
     """
     Verifies SEB headers for WebSocket connections.
     """
-    if websocket.headers.get("x-bypass-seb") == "1":
+    if websocket.headers.get("x-bypass-seb") == "1" or websocket.query_params.get("x-bypass-seb") == "1":
         return True
         
-    request_hash = websocket.headers.get("x-safeexambrowser-requesthash")
-    config_key_hash = websocket.headers.get("x-safeexambrowser-configkeyhash")
+    request_hash = websocket.headers.get("x-safeexambrowser-requesthash") or websocket.query_params.get("seb_requesthash")
+    config_key_hash = websocket.headers.get("x-safeexambrowser-configkeyhash") or websocket.query_params.get("seb_configkeyhash")
     
     if not request_hash and not config_key_hash:
         return False
         
-    full_url = str(websocket.url)
+    import urllib.parse
+    parsed = urllib.parse.urlparse(str(websocket.url))
+    qsl = urllib.parse.parse_qsl(parsed.query)
+    qsl = [q for q in qsl if not q[0].startswith("seb_")]
+    new_query = urllib.parse.urlencode(qsl)
+    full_url = urllib.parse.urlunparse(parsed._replace(query=new_query))
     
     if request_hash and not verify_seb_request_hash(full_url, request_hash):
         return False

@@ -63,7 +63,7 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context)!.sebRequired,
+                  "Please enter into safe browser hence closing any other apps.",
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white70, fontSize: 16),
                 ),

@@ -90,4 +90,4 @@ SHIELD introduces techniques often missing in standard or competitor open-source
 
 ---
 
-> For detailed development history, refer to `PROJECT_DIARY.md`.
+> For detailed development history, refer to `docs/PROJECT_DIARY.md`.

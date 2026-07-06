@@ -4,7 +4,7 @@ import os
 from ultralytics import YOLO
 
 class YoloSegDetector:
-    def __init__(self, model_path='models/yolov8n-seg.pt'):
+    def __init__(self, model_path='models/yolov8n-face.pt'):
         """
         Initializes the YOLOv8-seg face and mask detector.
         :param model_path: Path to the YOLOv8-seg model weights.
@@ -18,7 +18,7 @@ class YoloSegDetector:
             self.model = YOLO(model_path)
         except Exception as e:
             print(f"Error loading model {model_path}: {e}")
-            fallback = os.path.join(project_root, 'models', 'yolov8n-seg.pt')
+            fallback = os.path.join(project_root, 'models', 'yolov8n-face.pt')
             print(f"Falling back to {fallback}")
             self.model = YOLO(fallback)
 

@@ -48,7 +48,19 @@ class LocalDBService:
             verdict = data.get("verdict", "")
             confidence = data.get("confidence", 0.0)
             import json
-            details = json.dumps(data.get("details", {}))
+            import numpy as np
+            
+            class NpEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    if isinstance(obj, np.floating):
+                        return float(obj)
+                    if isinstance(obj, np.integer):
+                        return int(obj)
+                    if isinstance(obj, np.ndarray):
+                        return obj.tolist()
+                    return super(NpEncoder, self).default(obj)
+                    
+            details = json.dumps(data.get("details", {}), cls=NpEncoder)
             image_url = data.get("image_url", "")
             
             conn = sqlite3.connect(self.db_path)

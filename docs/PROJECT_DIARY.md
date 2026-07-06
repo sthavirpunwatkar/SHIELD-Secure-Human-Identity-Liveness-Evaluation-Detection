@@ -270,3 +270,13 @@
   - Refactored `main.dart`, screens, and widgets to dynamically consume localized strings.
   - Resolved `flutter gen-l10n` build tooling dependencies and validated localization build targets.
 - **Differentiation:** Enhances the accessibility of the liveness check by ensuring global users can natively understand the active challenge prompts, thereby significantly reducing user-error driven failures (BPCER).
+
+### Milestone 24: UI/UX Refinements & Codebase Organization (July 2026) - COMPLETED
+- **Objective:** Improve frontend passive/active challenge visuals and restructure the repository for better maintainability.
+- **Key Achievements:**
+  - Added a strict Safe Exam Browser warning message in `PreVerificationScreen` ("Please enter into safe browser hence closing any other apps.").
+  - Limited the challenge failure "Try Again" loop to a maximum of 3 tries, displaying "Max tries reached" thereafter.
+  - Enhanced active challenge UX by rendering a green checkmark `Icon(Icons.check_circle)` for passed challenges.
+  - Added a real-time numerical confidence score overlay above the bounding box during passive liveness tracking.
+  - Cleaned and organized the project root: moved tests to `tests/`, presentations to `docs/presentation/`, markdown files to `docs/`, and deleted redundant scratch scripts and Node.js artifacts.
+- **Differentiation:** Increases polish, restricts bypass attempts by bounding retries, and maintains a clean, maintainable monorepo architecture.

@@ -26,6 +26,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Timer? _frameTimer;
   final int _throttleMs = 500;
   String? _errorMessage;
+  int _tryCount = 0;
 
   StreamSubscription<ChallengeState>? _challengeSub;
 
@@ -136,6 +137,8 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   }
 
   void _resetChallenge() {
+    if (_tryCount >= 3) return;
+    setState(() => _tryCount++);
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     provider.resetChallenge();
     _stopStreaming();
@@ -287,7 +290,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                           ),
                         ),
                       ),
-                    if (isFinished)
+                    if (isFinished && _tryCount < 3)
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _resetChallenge,
@@ -299,6 +302,14 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                                 borderRadius: BorderRadius.circular(12)),
                             backgroundColor: Colors.blueGrey,
                           ),
+                        ),
+                      ),
+                    if (isFinished && _tryCount >= 3)
+                      Expanded(
+                        child: Text(
+                          "Max tries reached",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                   ],

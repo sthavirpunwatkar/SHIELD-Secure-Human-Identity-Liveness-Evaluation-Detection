@@ -273,26 +273,33 @@ class _ChallengePromptState extends State<ChallengePrompt>
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(widget.totalChallenges, (i) {
         Color dotColor;
+        Widget dot;
         if (i < widget.currentIndex) {
           dotColor = Colors.greenAccent; // Completed
-        } else if (i == widget.currentIndex) {
-          dotColor = Colors.blueAccent; // Active
+          dot = const Icon(Icons.check_circle, color: Colors.greenAccent, size: 16);
         } else {
-          dotColor = Colors.white24; // Upcoming
+          if (i == widget.currentIndex) {
+            dotColor = Colors.blueAccent; // Active
+          } else {
+            dotColor = Colors.white24; // Upcoming
+          }
+          dot = AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: i == widget.currentIndex ? 14 : 10,
+            height: i == widget.currentIndex ? 14 : 10,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+              boxShadow: i == widget.currentIndex
+                  ? [BoxShadow(color: dotColor.withOpacity(0.6), blurRadius: 8)]
+                  : null,
+            ),
+          );
         }
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: i == widget.currentIndex ? 14 : 10,
-          height: i == widget.currentIndex ? 14 : 10,
-          decoration: BoxDecoration(
-            color: dotColor,
-            shape: BoxShape.circle,
-            boxShadow: i == widget.currentIndex
-                ? [BoxShadow(color: dotColor.withOpacity(0.6), blurRadius: 8)]
-                : null,
-          ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: dot,
         );
       }),
     );

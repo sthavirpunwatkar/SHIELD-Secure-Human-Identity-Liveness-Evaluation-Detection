@@ -42,6 +42,15 @@ class LivenessOverlay extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (result.bbox != null && result.bbox!.length == 4)
+                  Positioned(
+                    left: result.bbox![0] * scaleX,
+                    top: (result.bbox![1] * scaleY) - 20,
+                    child: Text(
+                      'Score: ${(result.confidence * 100).toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
 
                 // Status Panel
                 Positioned(

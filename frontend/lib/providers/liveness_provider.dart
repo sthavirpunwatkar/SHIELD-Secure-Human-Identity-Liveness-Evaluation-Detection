@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import '../models/liveness_result.dart';
 import '../services/liveness_service.dart';
 import '../services/challenge_service.dart';
+import '../services/seb/seb_signer.dart';
 
 class LivenessProvider with ChangeNotifier {
   final LivenessService _service = LivenessService();
   final ChallengeService _challengeService = ChallengeService();
   LivenessResult _currentResult = LivenessResult.empty();
   bool _isProcessing = false;
-  String _serverUrl = 'ws://localhost:8000/ws/verify'; // Default URL
-  String _challengeUrl = 'ws://localhost:8000/ws/challenge';
+  String _serverUrl = 'ws://127.0.0.1:8000/ws/verify'; // Default URL
+  String _challengeUrl = 'ws://127.0.0.1:8000/ws/challenge';
 
   LivenessResult get currentResult => _currentResult;
   bool get isProcessing => _isProcessing;
@@ -48,11 +49,14 @@ class LivenessProvider with ChangeNotifier {
   }
 
   Future<void> connect({bool isChallenge = false}) async {
-    final url = isChallenge ? _challengeUrl : _serverUrl;
+    final rawUrl = isChallenge ? _challengeUrl : _serverUrl;
+    // Sign the URL with SEB hashes for WebSocket connection
+    final signedUrl = SebSigner.signUrl(rawUrl);
+
     if (isChallenge) {
       _challengeService.setConnecting();
     }
-    await _service.connect(url);
+    await _service.connect(signedUrl);
     if (isChallenge && _service.isConnected) {
       _challengeService.reset();
     }
