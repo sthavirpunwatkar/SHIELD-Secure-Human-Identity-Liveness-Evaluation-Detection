@@ -48,6 +48,8 @@ from inference.session_manager import SessionManager
 # Global Session Manager
 session_manager = SessionManager()
 
+from services.video_decoder import WebCodecsDecoder
+
 @app.websocket("/ws/challenge")
 async def websocket_challenge(websocket: WebSocket):
     """
@@ -64,6 +66,8 @@ async def websocket_challenge(websocket: WebSocket):
         
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Challenge WebSocket: {client_host}")
+    
+    decoder = WebCodecsDecoder()
     
     try:
         session = session_manager.create_session(client_id=client_host)
@@ -96,27 +100,27 @@ async def websocket_challenge(websocket: WebSocket):
 
             if "bytes" in message:
                 data = message["bytes"]
-                # Decode frame
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                
-                if frame is None:
-                    await websocket.send_json({"type": "error", "message": "Invalid image data"})
+                # Decode H.264 chunk
+                try:
+                    frames = decoder.decode_chunk(data)
+                except Exception as e:
+                    await websocket.send_json({"type": "error", "message": f"Decode error: {e}"})
                     continue
 
-                # Process through Fusion Service with challenge session
-                result = fusion_service.process_challenge_frame(frame, challenge_session)
-                raw_landmarks = result.pop("_raw_landmarks", None)
-                # Add frame to session manager (validates temporal consistency and identity)
-                frame_res = session.add_frame(frame, landmarks=raw_landmarks)
-                if not frame_res["accepted"]:
-                    if frame_res.get("expired"):
-                        await websocket.send_json({"type": "error", "message": "Session expired"})
-                        break
-                    if frame_res.get("reason") == "identity_swap_detected":
-                        await websocket.send_json({"type": "error", "message": "Identity mismatch detected"})
-                        break
-                    continue
+                for frame in frames:
+                    # Process through Fusion Service with challenge session
+                    result = fusion_service.process_challenge_frame(frame, challenge_session)
+                    raw_landmarks = result.pop("_raw_landmarks", None)
+                    # Add frame to session manager (validates temporal consistency and identity)
+                    frame_res = session.add_frame(frame, landmarks=raw_landmarks)
+                    if not frame_res["accepted"]:
+                        if frame_res.get("expired"):
+                            await websocket.send_json({"type": "error", "message": "Session expired"})
+                            break
+                        if frame_res.get("reason") == "identity_swap_detected":
+                            await websocket.send_json({"type": "error", "message": "Identity mismatch detected"})
+                            break
+                        continue
                 
                 # Check challenge updates
                 if "challenge_info" in result and "session_update" in result["challenge_info"]:
@@ -179,6 +183,7 @@ async def websocket_challenge(websocket: WebSocket):
     except Exception as e:
         print(f"Challenge WS Error: {e}")
     finally:
+        decoder.close()
         # Cleanup the session to prevent memory leak and session limit issues
         if "session" in locals() and session.session_id in session_manager._sessions:
             try:
@@ -206,6 +211,8 @@ async def websocket_verify_passive(websocket: WebSocket):
         
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Passive Verify WebSocket: {client_host}")
+    
+    decoder = WebCodecsDecoder()
 
     try:
         while True:
@@ -213,14 +220,16 @@ async def websocket_verify_passive(websocket: WebSocket):
 
             if "bytes" in message:
                 data = message["bytes"]
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                if frame is None:
-                    await websocket.send_json({"error": "Invalid image data"})
+                try:
+                    frames = decoder.decode_chunk(data)
+                except Exception as e:
+                    await websocket.send_json({"error": f"Decode error: {e}"})
                     continue
-                result = fusion_service.process_frame(frame)
-                result.pop("_raw_landmarks", None)
-                await websocket.send_json(result)
+                    
+                for frame in frames:
+                    result = fusion_service.process_frame(frame)
+                    result.pop("_raw_landmarks", None)
+                    await websocket.send_json(result)
 
             elif "text" in message:
                 # Ignore text messages in passive mode
@@ -231,6 +240,7 @@ async def websocket_verify_passive(websocket: WebSocket):
     except Exception as e:
         print(f"Passive WS Error: {e}")
     finally:
+        decoder.close()
         try:
             await websocket.close()
         except:

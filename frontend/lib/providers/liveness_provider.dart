@@ -4,10 +4,13 @@ import '../models/liveness_result.dart';
 import '../services/liveness_service.dart';
 import '../services/challenge_service.dart';
 import '../services/seb/seb_signer.dart';
+import '../services/webcodecs_service.dart';
 
 class LivenessProvider with ChangeNotifier {
   final LivenessService _service = LivenessService();
   final ChallengeService _challengeService = ChallengeService();
+  final WebCodecsService _webCodecsService = WebCodecsService();
+  
   LivenessResult _currentResult = LivenessResult.empty();
   bool _isProcessing = false;
   String _serverUrl = 'ws://127.0.0.1:8000/ws/verify'; // Default URL
@@ -35,6 +38,13 @@ class LivenessProvider with ChangeNotifier {
 
     _challengeService.stateStream.listen((state) {
       notifyListeners();
+    });
+
+    // Initialize WebCodecs to send H.264 chunks over the WebSocket
+    _webCodecsService.initialize((chunkData) {
+      if (_service.isConnected) {
+        _service.sendFrame(chunkData);
+      }
     });
   }
 
@@ -66,7 +76,7 @@ class LivenessProvider with ChangeNotifier {
   void sendFrame(Uint8List frameData) {
     if (_service.isConnected) {
       _isProcessing = true;
-      _service.sendFrame(frameData);
+      _webCodecsService.encodeFrame(frameData);
       notifyListeners();
     }
   }

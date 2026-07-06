@@ -43,7 +43,12 @@ class LivenessService {
 
   void sendFrame(Uint8List frameData) {
     if (_isConnected && _channel != null) {
-      _channel!.sink.add(frameData);
+      try {
+        _channel!.sink.add(frameData);
+      } catch (e) {
+        print('Error sending frame: $e');
+        _isConnected = false;
+      }
     }
   }
 

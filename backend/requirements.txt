@@ -8,3 +8,4 @@ uvicorn
 python-multipart
 websockets
 onnxruntime
+av>=12.0.0
