@@ -111,7 +111,7 @@ class VerificationSession:
                     self._base_identity_signature = signature
                 else:
                     distance = np.linalg.norm(self._base_identity_signature - signature)
-                    if distance > 0.20:
+                    if distance > 0.50:
                         result["reason"] = "identity_swap_detected"
                         return result
 

@@ -35,6 +35,10 @@ app.add_middleware(
 os.makedirs("local_storage/snapshots", exist_ok=True)
 app.mount("/snapshots", StaticFiles(directory="local_storage/snapshots"), name="snapshots")
 
+# Serve Flutter frontend
+frontend_dir = os.path.abspath(os.path.join(project_root, "frontend/build/web"))
+os.makedirs(frontend_dir, exist_ok=True) # Ensure it exists so FastAPI doesn't crash on startup
+app.mount("/app", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "SHIELD"}

@@ -115,6 +115,15 @@ class SecurityService {
 
   /// Checks if the application is running inside a Safe Exam Browser (SEB) kiosk environment.
   static Future<bool> isSafeExamBrowserActive() async {
+    // For E2E testing in release mode, allow bypass via compile-time flag
+    const bool bypassSeb = bool.fromEnvironment('BYPASS_SEB', defaultValue: false);
+    
+    // Bypass in debug mode for local development, or if the bypass flag is set
+    if (bypassSeb || kDebugMode) {
+      debugPrint('SECURITY WARNING: SEB check bypassed due to BYPASS_SEB flag or Debug Mode.');
+      return true;
+    }
+    
     return seb_checker.isSafeExamBrowserActive();
   }
 }

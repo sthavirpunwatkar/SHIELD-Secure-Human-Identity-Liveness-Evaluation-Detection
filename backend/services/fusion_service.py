@@ -95,7 +95,8 @@ class FusionService:
                 "bbox": bbox
             }
             
-        blink_score = 1.0 if behavior['blink_detected'] else 0.0
+        # Use blink_count so the score persists after the first blink, rather than just the 1 frame it occurs
+        blink_score = 1.0 if behavior.get('blink_count', 0) > 0 else 0.0
         raw_landmarks = behavior.get("raw_landmarks")
         
         # Cascade Step 2: Anti-Spoofing

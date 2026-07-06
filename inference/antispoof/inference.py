@@ -11,6 +11,7 @@ class AntispoofInference:
         # Try best models first if no path provided
         if not model_path:
             candidates = [
+                'models/efficientnet_fas_int8.onnx',
                 'models/efficientnet_fas.onnx',
                 'models/minifas_antispoof_v2_int8.onnx',
                 'models/minifas_antispoof_v2.onnx',
@@ -84,7 +85,7 @@ class AntispoofInference:
         if not self.weights_loaded:
             raise RuntimeError("Antispoof: weights not loaded. Mock fallback disabled.")
             
-        # Preprocessing
+        # Preprocessing: Models were trained on raw OpenCV BGR crops
         img = cv2.resize(face_crop, (self.input_size, self.input_size))
         img = img.astype(np.float32) / 255.0
         
@@ -98,7 +99,7 @@ class AntispoofInference:
             # Softmax
             exp_preds = np.exp(outputs[0] - np.max(outputs[0]))
             probs = exp_preds / np.sum(exp_preds)
-            return float(probs[1]) # Index 1 is Real
+            return float(probs[0]) # Index 0 is Real for these ONNX models
             
         # PyTorch Inference
         import torch

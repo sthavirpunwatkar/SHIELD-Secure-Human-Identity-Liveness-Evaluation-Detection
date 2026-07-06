@@ -21,22 +21,26 @@ class FusionEngine:
                 "challenge": 0.40
             }
         else:
-            active_weights = {
-                "rppg": 0.20,
-                "blink": 0.20,
-                "antispoof": 0.60,
-                "challenge": 0.0
-            }
+            if blink_score == 0.0:
+                active_weights = {
+                    "rppg": 0.20,
+                    "blink": 0.0,
+                    "antispoof": 0.80,
+                    "challenge": 0.0
+                }
+            else:
+                active_weights = {
+                    "rppg": 0.20,
+                    "blink": 0.20,
+                    "antispoof": 0.60,
+                    "challenge": 0.0
+                }
 
         # Critical Explainable Thresholds
         if antispoof_score < 0.25:
             final_score = float(antispoof_score)
             verdict = "Spoof"
             reason = "Critically failed appearance anti-spoofing."
-        elif is_challenge_active and challenge_score < 0.30:
-            final_score = float(challenge_score)
-            verdict = "Spoof"
-            reason = "Critically failed active challenge."
         else:
             final_score = (
                 (active_weights["rppg"] * rppg_score) +
