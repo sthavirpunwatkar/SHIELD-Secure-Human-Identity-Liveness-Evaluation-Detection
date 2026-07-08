@@ -154,26 +154,53 @@ class RPPGDetector:
 
     # ── signal extraction ─────────────────────────────────────────────────
 
-    def extract_roi_signal(self, frame: np.ndarray, landmarks=None) -> float:
+    def extract_roi_signal(self, frame: np.ndarray, landmarks=None, bbox=None) -> float:
         """
-        Extract the average green-channel value from the centre-10% crop of
-        *frame* (a proxy for the facial skin ROI).
+        Extract the average green-channel value from the facial skin ROI.
+        If a face bounding box is provided, dynamically computes the forehead 
+        and upper cheek region to avoid eyes, mouth, and background.
         """
-        h, w = frame.shape[:2]
-        y0, y1 = int(h * 0.45), int(h * 0.55)
-        x0, x1 = int(w * 0.45), int(w * 0.55)
-        roi = frame[y0:y1, x0:x1]
+        if bbox is not None and len(bbox) == 4:
+            x1, y1, x2, y2 = bbox
+            h, w = frame.shape[:2]
+            
+            # Constrain to frame boundaries
+            x1, y1 = max(0, int(x1)), max(0, int(y1))
+            x2, y2 = min(w, int(x2)), min(h, int(y2))
+            
+            box_h = y2 - y1
+            box_w = x2 - x1
+            
+            # Dynamically compute forehead and upper cheeks region
+            # Y: 15% to 40% avoids hair (top) and eyes/mouth (bottom)
+            # X: 20% to 80% avoids background and ears
+            if box_h > 0 and box_w > 0:
+                roi_y1 = y1 + int(box_h * 0.15)
+                roi_y2 = y1 + int(box_h * 0.40)
+                roi_x1 = x1 + int(box_w * 0.20)
+                roi_x2 = x1 + int(box_w * 0.80)
+                roi = frame[roi_y1:roi_y2, roi_x1:roi_x2]
+            else:
+                roi = np.array([])
+        else:
+            # Fallback for backward compatibility if no bbox is provided
+            h, w = frame.shape[:2]
+            y0, y1 = int(h * 0.45), int(h * 0.55)
+            x0, x1 = int(w * 0.45), int(w * 0.55)
+            roi = frame[y0:y1, x0:x1]
+            
         if roi.size == 0:
             return 0.0
+            
         return float(np.mean(roi[:, :, 1]))
 
     # ── frame update ──────────────────────────────────────────────────────
 
-    def update(self, frame: np.ndarray) -> float:
+    def update(self, frame: np.ndarray, bbox=None) -> float:
         """
         Ingest one frame and return a liveness probability.
         """
-        self.signal_buffer.append(self.extract_roi_signal(frame))
+        self.signal_buffer.append(self.extract_roi_signal(frame, bbox=bbox))
 
         # Rolling window — drop oldest sample when over-full
         if len(self.signal_buffer) > self.window_size:
@@ -187,6 +214,21 @@ class RPPGDetector:
 
         # Normalise & run inference
         sig = np.array(self.signal_buffer, dtype=np.float32)
+        
+        # Training-inference parity: Apply bandpass filter before standard normalization
+        try:
+            from scipy.signal import butter, filtfilt
+            fps = 30.0
+            nyq = 0.5 * fps
+            low = 0.7 / nyq
+            high = 4.0 / nyq
+            b, a = butter(2, [low, high], btype='band')
+            sig = filtfilt(b, a, sig)
+        except ImportError:
+            # Match training fallback
+            sig = sig - sig.mean()
+            
+        sig = sig.astype(np.float32)
         sig = (sig - sig.mean()) / (sig.std() + 1e-6)
 
         if self.is_onnx:

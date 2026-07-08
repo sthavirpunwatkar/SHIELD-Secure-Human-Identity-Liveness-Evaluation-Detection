@@ -1,0 +1,307 @@
+diff --git a/frontend/lib/screens/camera_screen.dart b/frontend/lib/screens/camera_screen.dart
+index e9490dc..4f6a6a5 100644
+--- a/frontend/lib/screens/camera_screen.dart
++++ b/frontend/lib/screens/camera_screen.dart
+@@ -1,5 +1,5 @@
+ import 'dart:async';
+-import 'dart:io' show Platform;
++import 'dart:io' show Platform, ProcessInfo;
+ import 'package:camera/camera.dart';
+ import 'package:flutter/foundation.dart' show kIsWeb;
+ import 'package:flutter/material.dart';
+@@ -26,6 +26,18 @@ class _CameraScreenState extends State<CameraScreen> {
+   Timer? _timer;
+   String? _errorMessage;
+ 
++  // Metrics for continuous capture PR
++  int _frameCount = 0;
++  DateTime? _startTime;
++  double _currentFps = 0.0;
++  double _avgFps = 0.0;
++  double _minFps = double.maxFinite;
++  double _maxFps = 0.0;
++  String _resolution = "";
++  DateTime? _frameTimestamp;
++  bool _isImageStreaming = false;
++  double _memoryUsageMB = 0.0;
++
+   @override
+   void initState() {
+     super.initState();
+@@ -95,8 +107,10 @@ class _CameraScreenState extends State<CameraScreen> {
+ 
+   void _stopStreaming() {
+     try {
+-      // Check if streaming is actually active before stopping
+-      // This is safely handled by the camera package usually, but let's be careful
++      if (_isImageStreaming) {
++        _controller?.stopImageStream();
++        _isImageStreaming = false;
++      }
+     } catch (e) {
+       print('Error stopping stream: $e');
+     }
+@@ -122,29 +136,57 @@ class _CameraScreenState extends State<CameraScreen> {
+       _isStreaming = true;
+     });
+ 
+-    // Use the robust timer fallback to capture and encode frames as JPEGs cross-platform
+-    _useTimerFallback(provider);
++    // Replace takePicture with continuous capture stream for PR verification
++    _startContinuousCapture(provider);
+   }
+ 
+-  void _useTimerFallback(LivenessProvider provider) {
+-    _timer?.cancel();
+-    _isCapturing = false;
+-    _timer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
+-      if (!_isStreaming || !mounted) {
+-        timer.cancel();
+-        return;
++  void _startContinuousCapture(LivenessProvider provider) {
++    if (_isImageStreaming) return;
++    _isImageStreaming = true;
++    
++    _frameCount = 0;
++    _startTime = DateTime.now();
++    _lastFrameTime = _startTime;
++    _minFps = double.maxFinite;
++    _maxFps = 0;
++
++    _controller!.startImageStream((CameraImage image) {
++      if (!mounted) return;
++      final now = DateTime.now();
++      _frameTimestamp = now;
++      _frameCount++;
++      _resolution = '${image.width}x${image.height}';
++      
++      if (_lastFrameTime != null) {
++        final ms = now.difference(_lastFrameTime!).inMilliseconds;
++        if (ms > 0) {
++          _currentFps = 1000 / ms;
++          // Ignore first few frames for min FPS calculation to avoid initialization spikes
++          if (_currentFps < _minFps && _frameCount > 10) _minFps = _currentFps;
++          if (_currentFps > _maxFps) _maxFps = _currentFps;
++        }
++      }
++      _lastFrameTime = now;
++      
++      if (_startTime != null) {
++        final totalMs = now.difference(_startTime!).inMilliseconds;
++        if (totalMs > 0) {
++          _avgFps = _frameCount / (totalMs / 1000.0);
++        }
+       }
+-      if (_isCapturing) return; // Skip frame if previous capture is still in progress
+-      _isCapturing = true;
+-      try {
+-        final XFile file = await _controller!.takePicture();
+-        final bytes = await file.readAsBytes();
+-        provider.sendFrame(bytes);
+-      } catch (e) {
+-        print('Error in fallback streaming: $e');
+-      } finally {
+-        _isCapturing = false;
++      
++      _memoryUsageMB = ProcessInfo.currentRss / (1024 * 1024);
++
++      // Only update UI every 10 frames to avoid bogging down the main thread
++      if (_frameCount % 10 == 0) {
++        setState(() {});
+       }
++
++      // DO NOT continue into streaming to backend in this PR
++      // provider.sendFrame(...) is intentionally omitted.
++    }).catchError((e) {
++      print('Error starting image stream: $e');
++      _isImageStreaming = false;
+     });
+   }
+ 
+@@ -213,10 +255,35 @@ class _CameraScreenState extends State<CameraScreen> {
+             children: [
+               CameraPreview(_controller!),
+               const LivenessOverlay(),
++              if (_isStreaming) _buildMetricsOverlay(),
+             ],
+           ),
+         ),
+       ),
+     );
+   }
++
++  Widget _buildMetricsOverlay() {
++    return Positioned(
++      top: 10,
++      left: 10,
++      child: Container(
++        padding: const EdgeInsets.all(8),
++        color: Colors.black54,
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Text('Current FPS: ${_currentFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Average FPS: ${_avgFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Min FPS: ${_minFps == double.maxFinite ? 0 : _minFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Max FPS: ${_maxFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Resolution: $_resolution', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Timestamp: ${_frameTimestamp?.toIso8601String() ?? ""}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Memory: ${_memoryUsageMB.toStringAsFixed(1)} MB', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('CPU: N/A (Dart limited)', style: const TextStyle(color: Colors.white, fontSize: 12)),
++          ],
++        ),
++      ),
++    );
++  }
+ }
+diff --git a/frontend/lib/screens/challenge_screen.dart b/frontend/lib/screens/challenge_screen.dart
+index a070e77..e941c17 100644
+--- a/frontend/lib/screens/challenge_screen.dart
++++ b/frontend/lib/screens/challenge_screen.dart
+@@ -1,5 +1,6 @@
+ import 'dart:async';
+ import 'dart:convert';
++import 'dart:io' show Platform, ProcessInfo;
+ import 'dart:math';
+ import 'package:camera/camera.dart';
+ import 'package:flutter/material.dart';
+@@ -28,6 +29,19 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
+   String? _errorMessage;
+   int _tryCount = 0;
+ 
++  // Metrics for continuous capture PR
++  int _frameCount = 0;
++  DateTime? _startTime;
++  DateTime? _lastFrameTime;
++  double _currentFps = 0.0;
++  double _avgFps = 0.0;
++  double _minFps = double.maxFinite;
++  double _maxFps = 0.0;
++  String _resolution = "";
++  DateTime? _frameTimestamp;
++  bool _isImageStreaming = false;
++  double _memoryUsageMB = 0.0;
++
+   StreamSubscription<ChallengeState>? _challengeSub;
+ 
+   @override
+@@ -100,28 +114,64 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
+ 
+     setState(() => _isStreaming = true);
+ 
+-    _frameTimer?.cancel();
+-    _isCapturing = false;
+-    _frameTimer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
+-      if (!_isStreaming || !mounted) {
+-        timer.cancel();
+-        return;
++    _startContinuousCapture();
++  }
++
++  void _startContinuousCapture() {
++    if (_isImageStreaming) return;
++    _isImageStreaming = true;
++    
++    _frameCount = 0;
++    _startTime = DateTime.now();
++    _lastFrameTime = _startTime;
++    _minFps = double.maxFinite;
++    _maxFps = 0;
++
++    _controller!.startImageStream((CameraImage image) {
++      if (!mounted) return;
++      final now = DateTime.now();
++      _frameTimestamp = now;
++      _frameCount++;
++      _resolution = '${image.width}x${image.height}';
++      
++      if (_lastFrameTime != null) {
++        final ms = now.difference(_lastFrameTime!).inMilliseconds;
++        if (ms > 0) {
++          _currentFps = 1000 / ms;
++          if (_currentFps < _minFps && _frameCount > 10) _minFps = _currentFps;
++          if (_currentFps > _maxFps) _maxFps = _currentFps;
++        }
+       }
+-      if (_isCapturing) return; // Skip frame if previous capture is still in progress
+-      _isCapturing = true;
+-      try {
+-        final XFile file = await _controller!.takePicture();
+-        final bytes = await file.readAsBytes();
+-        provider.sendFrame(bytes);
+-      } catch (e) {
+-        print('Error in challenge streaming: $e');
+-      } finally {
+-        _isCapturing = false;
++      _lastFrameTime = now;
++      
++      if (_startTime != null) {
++        final totalMs = now.difference(_startTime!).inMilliseconds;
++        if (totalMs > 0) {
++          _avgFps = _frameCount / (totalMs / 1000.0);
++        }
+       }
++      
++      _memoryUsageMB = ProcessInfo.currentRss / (1024 * 1024);
++
++      if (_frameCount % 10 == 0) {
++        setState(() {});
++      }
++      // DO NOT continue into streaming to backend in this PR
++    }).catchError((e) {
++      print('Error starting image stream: $e');
++      _isImageStreaming = false;
+     });
+   }
+ 
+   void _stopStreaming() {
++    try {
++      if (_isImageStreaming) {
++        _controller?.stopImageStream();
++        _isImageStreaming = false;
++      }
++    } catch (e) {
++      print('Error stopping stream: $e');
++    }
+     _frameTimer?.cancel();
+     setState(() => _isStreaming = false);
+   }
+@@ -259,6 +309,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
+                             ),
+                           ),
+                         ),
++                        if (_isStreaming) _buildMetricsOverlay(),
+                       ],
+                     ),
+                   ),
+@@ -322,6 +373,30 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
+     );
+   }
+ 
++  Widget _buildMetricsOverlay() {
++    return Positioned(
++      top: 50,
++      left: 10,
++      child: Container(
++        padding: const EdgeInsets.all(8),
++        color: Colors.black54,
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Text('Current FPS: ${_currentFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Average FPS: ${_avgFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Min FPS: ${_minFps == double.maxFinite ? 0 : _minFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Max FPS: ${_maxFps.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Resolution: $_resolution', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Timestamp: ${_frameTimestamp?.toIso8601String() ?? ""}', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('Memory: ${_memoryUsageMB.toStringAsFixed(1)} MB', style: const TextStyle(color: Colors.white, fontSize: 12)),
++            Text('CPU: N/A (Dart limited)', style: const TextStyle(color: Colors.white, fontSize: 12)),
++          ],
++        ),
++      ),
++    );
++  }
++
+   // ---------------------------------------------------------------------------
+   // Dynamic Face Guide and Spotlight
+   // ---------------------------------------------------------------------------

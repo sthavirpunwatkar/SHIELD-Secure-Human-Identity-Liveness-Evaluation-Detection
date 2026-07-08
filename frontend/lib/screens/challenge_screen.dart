@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../services/challenge_service.dart';
 import '../widgets/challenge_prompt.dart';
+import '../services/camera_capture_service.dart';
+import '../models/camera_frame.dart';
+import '../models/camera_state.dart';
 import 'package:shield_app/l10n/app_localizations.dart';
 
 /// Screen that combines a live camera preview with the active
@@ -19,12 +20,9 @@ class ChallengeScreen extends StatefulWidget {
 }
 
 class _ChallengeScreenState extends State<ChallengeScreen> {
-  CameraController? _controller;
-  List<CameraDescription>? _cameras;
+  late CameraCaptureService _cameraService;
+  StreamSubscription<CameraFrame>? _frameSub;
   bool _isStreaming = false;
-  bool _isCapturing = false;
-  Timer? _frameTimer;
-  final int _throttleMs = 500;
   String? _errorMessage;
   int _tryCount = 0;
 
@@ -33,6 +31,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   @override
   void initState() {
     super.initState();
+    _cameraService = Provider.of<CameraCaptureService>(context, listen: false);
     _initializeCamera();
 
     // Subscribe to challenge state changes so the UI rebuilds
@@ -48,29 +47,23 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   Future<void> _initializeCamera() async {
     try {
-      _cameras = await availableCameras();
-      if (_cameras == null || _cameras!.isEmpty) {
-        setState(() => _errorMessage = AppLocalizations.of(context)!.noCameras);
+      final state = await _cameraService.initialize();
+
+      if (state == CameraState.errorNoCamera) {
+        if (mounted) setState(() => _errorMessage = AppLocalizations.of(context)!.noCameras);
+        return;
+      } else if (state == CameraState.errorPermission) {
+        if (mounted) setState(() => _errorMessage = "Camera permission denied.");
+        return;
+      } else if (state != CameraState.ready) {
+        if (mounted) setState(() => _errorMessage = "Camera initialization failed.");
         return;
       }
 
-      CameraDescription? selectedCamera;
-      for (var camera in _cameras!) {
-        if (camera.lensDirection == CameraLensDirection.front) {
-          selectedCamera = camera;
-          break;
-        }
-      }
-      selectedCamera ??= _cameras![0];
+      _frameSub = _cameraService.frameStream.listen((CameraFrame frame) {
+        // Continuous capture only, no backend streaming yet.
+      });
 
-      _controller = CameraController(
-        selectedCamera,
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
-
-      await Future.delayed(const Duration(milliseconds: 2000)); // Release hardware lock from previous screen
-      await _controller!.initialize();
       if (mounted) {
         setState(() => _errorMessage = null);
         _startChallenge();
@@ -88,7 +81,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   // ---------------------------------------------------------------------------
 
   void _startStreaming() {
-    if (_controller == null || !_controller!.value.isInitialized) return;
+    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) return;
 
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     if (!provider.isConnected) {
@@ -99,30 +92,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
 
     setState(() => _isStreaming = true);
-
-    _frameTimer?.cancel();
-    _isCapturing = false;
-    _frameTimer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
-      if (!_isStreaming || !mounted) {
-        timer.cancel();
-        return;
-      }
-      if (_isCapturing) return; // Skip frame if previous capture is still in progress
-      _isCapturing = true;
-      try {
-        final XFile file = await _controller!.takePicture();
-        final bytes = await file.readAsBytes();
-        provider.sendFrame(bytes);
-      } catch (e) {
-        print('Error in challenge streaming: $e');
-      } finally {
-        _isCapturing = false;
-      }
-    });
+    _cameraService.startStreaming();
   }
 
   void _stopStreaming() {
-    _frameTimer?.cancel();
+    _cameraService.stopStreaming();
     setState(() => _isStreaming = false);
   }
 
@@ -150,9 +124,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   void dispose() {
-    _frameTimer?.cancel();
+    _frameSub?.cancel();
     _challengeSub?.cancel();
-    _controller?.dispose();
+    _cameraService.stopStreaming();
     super.dispose();
   }
 
@@ -188,7 +162,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
 
     // Loading state
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.challengeVerification)),
         body: Center(
@@ -228,11 +202,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               Expanded(
                 child: Center(
                   child: AspectRatio(
-                    aspectRatio: _controller!.value.aspectRatio,
+                    aspectRatio: _cameraService.controller!.value.aspectRatio,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        CameraPreview(_controller!),
+                        CameraPreview(_cameraService.controller!),
                         
                         // Face guide oval with dynamic feedback
                         _buildDynamicFaceGuide(provider, cs, challengeState),

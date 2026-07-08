@@ -6,6 +6,7 @@ import 'providers/liveness_provider.dart';
 import 'screens/camera_screen.dart';
 import 'screens/challenge_screen.dart';
 import 'screens/pre_verification_screen.dart';
+import 'services/camera_capture_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,10 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LivenessProvider()),
+        Provider<CameraCaptureService>(
+          create: (_) => CameraCaptureService(),
+          dispose: (_, service) => service.dispose(),
+        ),
       ],
       child: const ShieldApp(),
     ),

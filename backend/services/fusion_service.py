@@ -122,7 +122,7 @@ class FusionService:
             }
 
         # Cascade Step 3: Physiological Score (rPPG)
-        rppg_score = self.rppg.update(frame)
+        rppg_score = self.rppg.update(frame, bbox=bbox)
 
         # 4. Challenge Score
         is_challenge_active = challenge_session is not None

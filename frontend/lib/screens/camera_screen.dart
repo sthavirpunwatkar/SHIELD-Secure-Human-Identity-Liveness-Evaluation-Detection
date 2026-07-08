@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
 import '../services/security_service.dart';
+import '../services/camera_capture_service.dart';
+import '../models/camera_frame.dart';
+import '../models/camera_state.dart';
 import 'package:shield_app/l10n/app_localizations.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -17,18 +18,15 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  CameraController? _controller;
-  List<CameraDescription>? _cameras;
+  late CameraCaptureService _cameraService;
+  StreamSubscription<CameraFrame>? _frameSub;
   bool _isStreaming = false;
-  bool _isCapturing = false;
-  DateTime? _lastFrameTime;
-  final int _throttleMs = 500; // Slower for desktop fallback
-  Timer? _timer;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _cameraService = Provider.of<CameraCaptureService>(context, listen: false);
     _initializeCamera();
   }
 
@@ -44,31 +42,23 @@ class _CameraScreenState extends State<CameraScreen> {
         return;
       }
 
-      _cameras = await availableCameras();
-      if (_cameras == null || _cameras!.isEmpty) {
-        setState(() {
-          _errorMessage = AppLocalizations.of(context)!.noCameras;
-        });
+      final state = await _cameraService.initialize();
+      
+      if (state == CameraState.errorNoCamera) {
+        if (mounted) setState(() => _errorMessage = AppLocalizations.of(context)!.noCameras);
+        return;
+      } else if (state == CameraState.errorPermission) {
+        if (mounted) setState(() => _errorMessage = "Camera permission denied.");
+        return;
+      } else if (state != CameraState.ready) {
+        if (mounted) setState(() => _errorMessage = "Camera initialization failed.");
         return;
       }
 
-      CameraDescription? selectedCamera;
-      for (var camera in _cameras!) {
-        if (camera.lensDirection == CameraLensDirection.front) {
-          selectedCamera = camera;
-          break;
-        }
-      }
-      selectedCamera ??= _cameras![0];
+      _frameSub = _cameraService.frameStream.listen((CameraFrame frame) {
+        // Continuous capture only, no backend streaming yet.
+      });
 
-      _controller = CameraController(
-        selectedCamera,
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
-
-      await Future.delayed(const Duration(milliseconds: 2000)); // Wait for previous hardware lock
-      await _controller!.initialize();
       if (mounted) {
         setState(() {
           _errorMessage = null;
@@ -94,21 +84,14 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   void _stopStreaming() {
-    try {
-      // Check if streaming is actually active before stopping
-      // This is safely handled by the camera package usually, but let's be careful
-    } catch (e) {
-      print('Error stopping stream: $e');
-    }
-    
-    _timer?.cancel();
+    _cameraService.stopStreaming();
     setState(() {
       _isStreaming = false;
     });
   }
 
   void _startStreaming() {
-    if (_controller == null || !_controller!.value.isInitialized) return;
+    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) return;
 
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     if (!provider.isConnected) {
@@ -122,36 +105,13 @@ class _CameraScreenState extends State<CameraScreen> {
       _isStreaming = true;
     });
 
-    // Use the robust timer fallback to capture and encode frames as JPEGs cross-platform
-    _useTimerFallback(provider);
-  }
-
-  void _useTimerFallback(LivenessProvider provider) {
-    _timer?.cancel();
-    _isCapturing = false;
-    _timer = Timer.periodic(Duration(milliseconds: _throttleMs), (timer) async {
-      if (!_isStreaming || !mounted) {
-        timer.cancel();
-        return;
-      }
-      if (_isCapturing) return; // Skip frame if previous capture is still in progress
-      _isCapturing = true;
-      try {
-        final XFile file = await _controller!.takePicture();
-        final bytes = await file.readAsBytes();
-        provider.sendFrame(bytes);
-      } catch (e) {
-        print('Error in fallback streaming: $e');
-      } finally {
-        _isCapturing = false;
-      }
-    });
+    _cameraService.startStreaming();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _controller?.dispose();
+    _frameSub?.cancel();
+    _cameraService.stopStreaming();
     super.dispose();
   }
 
@@ -180,7 +140,7 @@ class _CameraScreenState extends State<CameraScreen> {
       );
     }
 
-    if (_controller == null || !_controller!.value.isInitialized) {
+    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -207,11 +167,11 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
       body: Center(
         child: AspectRatio(
-          aspectRatio: _controller!.value.aspectRatio,
+          aspectRatio: _cameraService.controller!.value.aspectRatio,
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CameraPreview(_controller!),
+              CameraPreview(_cameraService.controller!),
               const LivenessOverlay(),
             ],
           ),

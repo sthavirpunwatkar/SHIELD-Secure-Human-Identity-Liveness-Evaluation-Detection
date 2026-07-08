@@ -1,0 +1,9 @@
+# SHIELD Bug Tracker
+
+| Bug ID | Title | Description | Root Cause | Affected Files | Severity | Priority | Status | Dependencies | Estimated Effort | Verified | Suggested Milestone |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **BUG-001** | WebSocket Timeout / Drop | Multiple concurrent users cause the backend WebSocket to sever connections. | Synchronous SQLite database writes block the FastAPI `asyncio` event loop. | `backend/services/db_service.py`, `backend/main.py` | Critical | High | Open | None | 2 Days | Yes | V2-M1 |
+| **BUG-002** | Identity Signature False Rejects | Valid identities are rejected if the user turns their head during liveness. | Distance metric is strictly 2D geometric; ignores 3D affine pose transformations (Yaw > 10°). | `inference/session_manager.py` | High | High | Open | None | 3 Days | Yes | V2-M2 |
+| **BUG-003** | rPPG Temporal Aliasing | Neural network cannot detect heartbeat, producing random/aliased noise scores. | Frontend throttles frame capture to 2 FPS. Maximum Nyquist frequency is 1 Hz, destroying 60-120 BPM physiological signals. | `inference/rppg_detector.py` | Critical | High | Open | BUG-004 | 4 Days | Yes | V2-M3 |
+| **BUG-004** | Frontend Camera Stutter | Video stream is choppy and stalls every half second. | Flutter uses static `takePicture()` inside a 500ms `Timer` rather than tapping the native video buffer. | `frontend/lib/screens/camera_screen.dart` | Critical | High | Open | None | 3 Days | Yes | V2-M4 |
+| **BUG-005** | Fusion Logic Miscalibration | Pipeline rejects live users despite passing MiniFASNet. | `fusion_service.py` applies hardcoded arbitrary weights across modalities rather than dynamic confidence bounds. | `backend/services/fusion_service.py` | Medium | Medium | Open | BUG-003 | 1 Day | Yes | V2-M3 |
