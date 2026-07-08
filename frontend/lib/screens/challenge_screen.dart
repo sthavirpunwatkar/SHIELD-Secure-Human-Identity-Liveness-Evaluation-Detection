@@ -32,6 +32,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   void initState() {
     super.initState();
     _cameraService = Provider.of<CameraCaptureService>(context, listen: false);
+    _cameraService.addListener(_onServiceUpdated);
     _initializeCamera();
 
     // Subscribe to challenge state changes so the UI rebuilds
@@ -39,6 +40,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     _challengeSub = provider.challengeService.stateStream.listen((_) {
       if (mounted) setState(() {});
     });
+  }
+
+  void _onServiceUpdated() {
+    if (mounted) setState(() {});
   }
 
   // ---------------------------------------------------------------------------
@@ -69,7 +74,6 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         _startChallenge();
       }
     } catch (e) {
-      print('Camera initialization error: $e');
       if (mounted) {
         setState(() => _errorMessage = AppLocalizations.of(context)!.cameraInitError(e.toString()));
       }
@@ -124,9 +128,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   void dispose() {
+    _cameraService.removeListener(_onServiceUpdated);
     _frameSub?.cancel();
     _challengeSub?.cancel();
-    _cameraService.stopStreaming();
     super.dispose();
   }
 

@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:flutter/widgets.dart';
 import '../models/camera_frame.dart';
 import '../models/camera_state.dart';
 
-class CameraCaptureService {
+class CameraCaptureService extends ChangeNotifier with WidgetsBindingObserver {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   
@@ -16,6 +17,11 @@ class CameraCaptureService {
   CameraState get state => _state;
 
   bool get isStreaming => _state == CameraState.streaming;
+  int _frameCount = 0;
+
+  CameraCaptureService() {
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   Future<CameraState> initialize() async {
     if (_controller != null && _controller!.value.isInitialized) {
@@ -48,6 +54,7 @@ class CameraCaptureService {
 
     await _controller!.initialize();
     _state = CameraState.ready;
+    notifyListeners();
     return _state;
   } catch (e) {
       if (e is CameraException && e.code == 'CameraAccessDenied') {
@@ -55,6 +62,7 @@ class CameraCaptureService {
       } else {
         _state = CameraState.errorUnknown;
       }
+      notifyListeners();
       return _state;
     }
   }
@@ -64,14 +72,19 @@ class CameraCaptureService {
     if (isStreaming) return;
 
     _state = CameraState.streaming;
-    _controller!.startImageStream((CameraImage image) {
-      if (!_frameController.isClosed) {
-        _frameController.add(CameraFrame(image: image, timestamp: DateTime.now()));
-      }
-    }).catchError((e) {
-      print('Error starting image stream: $e');
+    _frameCount = 0;
+    notifyListeners();
+    
+    try {
+      _controller!.startImageStream((CameraImage image) {
+        if (!_frameController.isClosed) {
+          _frameController.add(CameraFrame(image: image, timestamp: DateTime.now(), frameNumber: _frameCount++));
+        }
+      });
+    } catch (e) {
       _state = CameraState.ready;
-    });
+      notifyListeners();
+    }
   }
 
   void stopStreaming() {
@@ -79,16 +92,33 @@ class CameraCaptureService {
     try {
       _controller?.stopImageStream();
     } catch (e) {
-      print('Error stopping stream: $e');
+      // Ignored gracefully
     }
     _state = CameraState.ready;
+    notifyListeners();
   }
 
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     stopStreaming();
     _frameController.close();
     _controller?.dispose();
     _controller = null;
     _state = CameraState.initial;
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      stopStreaming();
+      _controller?.dispose();
+      _controller = null;
+      _state = CameraState.initial;
+      notifyListeners();
+    } else if (state == AppLifecycleState.resumed) {
+      initialize();
+    }
   }
 }

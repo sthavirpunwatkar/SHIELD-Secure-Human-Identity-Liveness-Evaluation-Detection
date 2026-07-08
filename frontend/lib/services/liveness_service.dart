@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:developer' as developer;
 import '../models/liveness_result.dart';
 
 class LivenessService {
@@ -27,16 +28,16 @@ class LivenessService {
           _resultController.add(result);
         },
         onError: (error) {
-          print('WebSocket Error: $error');
+          developer.log('WebSocket Error: $error');
           _isConnected = false;
         },
         onDone: () {
-          print('WebSocket Connection Closed');
+          developer.log('WebSocket Connection Closed');
           _isConnected = false;
         },
       );
     } catch (e) {
-      print('Connection Error: $e');
+      developer.log('Connection Error: $e');
       _isConnected = false;
     }
   }
@@ -46,7 +47,7 @@ class LivenessService {
       try {
         _channel!.sink.add(frameData);
       } catch (e) {
-        print('Error sending frame: $e');
+        developer.log('Error sending frame: $e');
         _isConnected = false;
       }
     }

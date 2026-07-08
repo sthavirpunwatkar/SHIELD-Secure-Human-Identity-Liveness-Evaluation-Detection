@@ -27,7 +27,12 @@ class _CameraScreenState extends State<CameraScreen> {
   void initState() {
     super.initState();
     _cameraService = Provider.of<CameraCaptureService>(context, listen: false);
+    _cameraService.addListener(_onServiceUpdated);
     _initializeCamera();
+  }
+
+  void _onServiceUpdated() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _initializeCamera() async {
@@ -66,7 +71,6 @@ class _CameraScreenState extends State<CameraScreen> {
         _startStreaming();
       }
     } catch (e) {
-      print('Camera initialization error: $e');
       if (mounted) {
         setState(() {
           _errorMessage = AppLocalizations.of(context)!.cameraInitError(e.toString());
@@ -110,6 +114,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   void dispose() {
+    _cameraService.removeListener(_onServiceUpdated);
     _frameSub?.cancel();
     _cameraService.stopStreaming();
     super.dispose();

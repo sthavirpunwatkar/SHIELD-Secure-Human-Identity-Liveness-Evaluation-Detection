@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shield_app/l10n/app_localizations.dart';
 import 'providers/liveness_provider.dart';
 import 'screens/camera_screen.dart';
-import 'screens/challenge_screen.dart';
+
 import 'screens/pre_verification_screen.dart';
 import 'services/camera_capture_service.dart';
 
@@ -14,9 +14,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LivenessProvider()),
-        Provider<CameraCaptureService>(
+        ChangeNotifierProvider<CameraCaptureService>(
           create: (_) => CameraCaptureService(),
-          dispose: (_, service) => service.dispose(),
         ),
       ],
       child: const ShieldApp(),
@@ -125,18 +124,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : () async {
                         await provider.connect(isChallenge: false);
+                        if (!context.mounted) return;
                         if (provider.isConnected) {
-                          if (mounted) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const CameraScreen())
-                            );
-                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const CameraScreen())
+                          );
                         } else {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.failedConnect))
-                            );
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.failedConnect))
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
@@ -157,18 +153,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : () async {
                         await provider.connect(isChallenge: true);
+                        if (!context.mounted) return;
                         if (provider.isConnected) {
-                          if (mounted) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const PreVerificationScreen())
-                            );
-                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const PreVerificationScreen())
+                          );
                         } else {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.failedConnect))
-                            );
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.failedConnect))
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
