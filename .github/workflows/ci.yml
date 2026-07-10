@@ -29,6 +29,13 @@ jobs:
         pip install -r backend/requirements.txt
         pip install pytest httpx onnx onnxscript pytest-asyncio
         
+    - name: Download Model Weights
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        mkdir -p models
+        gh release download v2.0.0 -D models/ -p "*"
+
     - name: Run Pytest
       run: |
         pytest tests/
