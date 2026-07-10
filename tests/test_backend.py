@@ -9,9 +9,29 @@ import subprocess
 import sys
 import socket
 import time
+import io
+import av
 
 BACKEND_URL = "http://localhost:8000"
 WS_URL = "ws://localhost:8000/ws/verify"
+
+def create_h264_chunk(frame: np.ndarray, first: bool = True) -> bytes:
+    output = io.BytesIO()
+    container = av.open(output, 'w', format='h264')
+    stream = container.add_stream('h264', rate=30, options={'tune': 'zerolatency', 'profile': 'baseline'})
+    stream.width = frame.shape[1]
+    stream.height = frame.shape[0]
+    stream.pix_fmt = 'yuv420p'
+    
+    av_frame = av.VideoFrame.from_ndarray(frame, format='bgr24')
+    for packet in stream.encode(av_frame):
+        container.mux(packet)
+    
+    # We must flush to get the frame immediately
+    for packet in stream.encode():
+        container.mux(packet)
+    container.close()
+    return output.getvalue()
 
 def is_backend_running(port=8000):
     import httpx
@@ -81,23 +101,32 @@ async def test_websocket_connection():
 @pytest.mark.asyncio
 async def test_websocket_send_invalid_data():
     async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
-        # Send invalid H.264 data (a JPEG) to trigger a decode error instead of silent drop
-        frame = np.zeros((10, 10, 3), dtype=np.uint8)
-        _, buffer = cv2.imencode(".jpg", frame)
-        await websocket.send(buffer.tobytes())
-        response = await websocket.recv()
-        data = json.loads(response)
-        assert "error" in data or data["verdict"] == "No Face Detected"
+        # Send metadata WITHOUT frameNumber (invalid metadata), then send binary garbage
+        await websocket.send('{"resolution": "640x480"}')
+        await websocket.send(b"garbage")
+        
+        # Since it's dropped silently, we expect no response.
+        try:
+            await asyncio.wait_for(websocket.recv(), timeout=1.0)
+            pytest.fail("Expected timeout but received a response.")
+        except asyncio.TimeoutError:
+            pass # Success
 
 @pytest.mark.asyncio
 async def test_websocket_send_valid_image():
     async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
-        # Create a dummy image with a face-like shape
         frame = np.zeros((480, 640, 3), dtype=np.uint8)
         cv2.rectangle(frame, (200, 100), (400, 300), (255, 255, 255), -1)
-        _, buffer = cv2.imencode(".jpg", frame)
+        chunk = create_h264_chunk(frame)
         
-        await websocket.send(buffer.tobytes())
+        # Wait, the decoder requires priming (2 chunks) to yield a frame because of PyAV parsing logic.
+        # Send chunk 1
+        await websocket.send('{"frameNumber": 1}')
+        await websocket.send(chunk)
+        # Send chunk 2
+        await websocket.send('{"frameNumber": 2}')
+        await websocket.send(chunk)
+        
         response = await websocket.recv()
         data = json.loads(response)
         
@@ -109,25 +138,17 @@ async def test_websocket_send_valid_image():
 async def test_websocket_stress():
     async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
         frame = np.zeros((100, 100, 3), dtype=np.uint8)
-        _, buffer = cv2.imencode(".jpg", frame)
+        chunk = create_h264_chunk(frame)
         
-        for _ in range(10):
-            await websocket.send(buffer.tobytes())
+        for i in range(1, 6):
+            await websocket.send(json.dumps({"frameNumber": i}))
+            await websocket.send(chunk)
+            
+        # Should receive multiple responses for the chunks (minus possibly the first which primes the decoder)
+        for i in range(4):
             response = await websocket.recv()
             data = json.loads(response)
             assert data["status"] in ["success", "fail"]
-
-@pytest.mark.asyncio
-async def test_http_verify_endpoint():
-    async with httpx.AsyncClient() as client:
-        frame = np.zeros((480, 640, 3), dtype=np.uint8)
-        _, buffer = cv2.imencode(".jpg", frame)
-        files = {'file': ('test.jpg', buffer.tobytes(), 'image/jpeg')}
-        
-        # Note: This might fail if DB is not mocked correctly or credentials missing
-        # but the API should handle it gracefully.
-        response = await client.post(f"{BACKEND_URL}/verify", files=files, headers={"X-Bypass-SEB": "1"})
-        assert response.status_code in [200, 500] # 500 if DB fails but we want to see it handled
 
 @pytest.mark.asyncio
 async def test_websocket_challenge_session_cleanup():
@@ -208,8 +229,12 @@ async def test_websocket_identity_mismatch():
         if receive_call_count == 1:
             return {"text": '{"type": "start_challenge"}'}
         elif receive_call_count == 2:
-            return {"bytes": b"fake_frame_data_1"}
+            return {"text": '{"frameNumber": 1}'}
         elif receive_call_count == 3:
+            return {"bytes": b"fake_frame_data_1"}
+        elif receive_call_count == 4:
+            return {"text": '{"frameNumber": 2}'}
+        elif receive_call_count == 5:
             return {"bytes": b"fake_frame_data_2"}
         else:
             from fastapi import WebSocketDisconnect
@@ -220,13 +245,17 @@ async def test_websocket_identity_mismatch():
     mock_ws.send_json = AsyncMock()
     mock_ws.close = AsyncMock()
     
-    # Mock WebCodecsDecoder and process_challenge_frame
-    with patch('services.video_decoder.WebCodecsDecoder.decode_chunk') as mock_decode, \
+    # Mock StreamingDecoder and process_challenge_frame
+    from backend.services.video_decoder import DecodedFrame
+    with patch('services.video_decoder.StreamingDecoder.decode_chunk') as mock_decode, \
          patch.object(fusion_service, 'process_challenge_frame') as mock_process:
         
+        frame1 = DecodedFrame(image=np.zeros((480, 640, 3), dtype=np.uint8), capture_timestamp="", arrival_timestamp=1.0, frame_number=1, sequence_number=1, resolution="", metadata={})
+        frame2 = DecodedFrame(image=np.ones((480, 640, 3), dtype=np.uint8), capture_timestamp="", arrival_timestamp=1.0, frame_number=2, sequence_number=2, resolution="", metadata={})
+        
         mock_decode.side_effect = [
-            [np.zeros((480, 640, 3), dtype=np.uint8)],
-            [np.ones((480, 640, 3), dtype=np.uint8)]
+            [frame1],
+            [frame2]
         ]
         
         # Frame 1: Valid frame with landmarks_1

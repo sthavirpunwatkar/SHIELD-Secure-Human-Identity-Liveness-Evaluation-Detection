@@ -48,7 +48,7 @@ from inference.session_manager import SessionManager
 # Global Session Manager
 session_manager = SessionManager()
 
-from services.video_decoder import WebCodecsDecoder
+from services.video_decoder import StreamingDecoder
 
 @app.websocket("/ws/challenge")
 async def websocket_challenge(websocket: WebSocket):
@@ -67,7 +67,7 @@ async def websocket_challenge(websocket: WebSocket):
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Challenge WebSocket: {client_host}")
     
-    decoder = WebCodecsDecoder()
+    decoder = StreamingDecoder()
     
     try:
         session = session_manager.create_session(client_id=client_host)
@@ -76,6 +76,8 @@ async def websocket_challenge(websocket: WebSocket):
         await websocket.send_json({"type": "error", "message": str(e)})
         await websocket.close()
         return
+
+    last_metadata = None
 
     try:
         while True:
@@ -94,6 +96,10 @@ async def websocket_challenge(websocket: WebSocket):
                             "index": challenge_session._current_index + 1,
                             "total": challenge_session.num_challenges
                         })
+                        continue
+                    
+                    if "frameNumber" in data:
+                        last_metadata = data
                 except json.JSONDecodeError:
                     pass
                 continue
@@ -102,17 +108,18 @@ async def websocket_challenge(websocket: WebSocket):
                 data = message["bytes"]
                 # Decode H.264 chunk
                 try:
-                    frames = decoder.decode_chunk(data)
+                    frames = decoder.decode_chunk(data, metadata=last_metadata)
+                    last_metadata = None
                 except Exception as e:
                     await websocket.send_json({"type": "error", "message": f"Decode error: {e}"})
                     continue
 
-                for frame in frames:
+                for decoded_frame in frames:
                     # Process through Fusion Service with challenge session
-                    result = fusion_service.process_challenge_frame(frame, challenge_session)
+                    result = fusion_service.process_challenge_frame(decoded_frame.image, challenge_session)
                     raw_landmarks = result.pop("_raw_landmarks", None)
                     # Add frame to session manager (validates temporal consistency and identity)
-                    frame_res = session.add_frame(frame, landmarks=raw_landmarks)
+                    frame_res = session.add_frame(decoded_frame.image, landmarks=raw_landmarks)
                     if not frame_res["accepted"]:
                         if frame_res.get("expired"):
                             await websocket.send_json({"type": "error", "message": "Session expired"})
@@ -212,28 +219,36 @@ async def websocket_verify_passive(websocket: WebSocket):
     client_host = websocket.client.host if websocket.client else "unknown"
     print(f"Client connected to Passive Verify WebSocket: {client_host}")
     
-    decoder = WebCodecsDecoder()
+    decoder = StreamingDecoder()
+
+    last_metadata = None
 
     try:
         while True:
             message = await websocket.receive()
 
+            if "text" in message:
+                try:
+                    data = json.loads(message["text"])
+                    if "frameNumber" in data:
+                        last_metadata = data
+                except json.JSONDecodeError:
+                    pass
+                continue
+
             if "bytes" in message:
                 data = message["bytes"]
                 try:
-                    frames = decoder.decode_chunk(data)
+                    frames = decoder.decode_chunk(data, metadata=last_metadata)
+                    last_metadata = None
                 except Exception as e:
                     await websocket.send_json({"error": f"Decode error: {e}"})
                     continue
                     
-                for frame in frames:
-                    result = fusion_service.process_frame(frame)
+                for decoded_frame in frames:
+                    result = fusion_service.process_frame(decoded_frame.image)
                     result.pop("_raw_landmarks", None)
                     await websocket.send_json(result)
-
-            elif "text" in message:
-                # Ignore text messages in passive mode
-                pass
 
     except WebSocketDisconnect:
         print(f"Client disconnected from Passive WS: {client_host}")
@@ -246,55 +261,6 @@ async def websocket_verify_passive(websocket: WebSocket):
         except:
             pass
 
-
-@app.post("/verify")
-async def verify_liveness(file: UploadFile = File(...), _ = Depends(verify_seb_headers_http)):
-    """
-    Receives an image frame and runs the SHIELD liveness detection pipeline.
-    """
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload an image.")
-
-    try:
-        # 1. Read image from upload
-        contents = await file.read()
-        nparr = np.frombuffer(contents, np.uint8)
-        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-        if frame is None:
-            raise HTTPException(status_code=400, detail="Could not decode image.")
-
-        # 2. Process frame through Fusion Service
-        result = fusion_service.process_frame(frame)
-
-        # 3. Log to SQLite (Async/Fire-and-forget style)
-        session_id = str(uuid.uuid4())
-        log_data = {
-            "session_id": session_id,
-            "verdict": result["verdict"],
-            "confidence": result["confidence"],
-            "details": result["details"]
-        }
-        
-        # Upload snapshot if live or spoof (optional threshold)
-        if result["status"] == "success":
-            filename = f"{session_id}.jpg"
-            # Re-encode to JPEG for storage
-            _, buffer = cv2.imencode(".jpg", frame)
-            image_url = db_service.upload_snapshot(buffer.tobytes(), filename)
-            log_data["image_url"] = image_url
-
-        # Persist metadata to SQLite
-        db_service.log_verification(log_data)
-
-        return {
-            "session_id": session_id,
-            "result": result
-        }
-
-    except Exception as e:
-        print(f"Server Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
