@@ -109,6 +109,9 @@ class BehavioralAnalyzer:
         self._blink_counter = 0
         self._ear_history = []       # Last N EAR values for smoothing
         self._ear_window_size = 5
+        self._last_frame_id = None
+        self._last_landmarks = None
+        self._last_timestamp_ms = 0
 
         if self.has_mediapipe:
             if not self.use_tasks_api:
@@ -129,12 +132,13 @@ class BehavioralAnalyzer:
                     base_options = python.BaseOptions(model_asset_path='models/face_landmarker.task')
                     options = vision.FaceLandmarkerOptions(
                         base_options=base_options,
+                        running_mode=vision.RunningMode.VIDEO,
                         output_face_blendshapes=False,
                         output_facial_transformation_matrixes=False,
                         num_faces=1
                     )
                     self.landmarker = vision.FaceLandmarker.create_from_options(options)
-                    print("BehavioralAnalyzer: MediaPipe FaceLandmarker (Tasks API) initialized.")
+                    print("BehavioralAnalyzer: MediaPipe FaceLandmarker (Tasks API) initialized in VIDEO mode.")
                 except Exception as e:
                     print(f"BehavioralAnalyzer: Tasks FaceLandmarker init failed: {e}. Using fallback.")
                     self.has_mediapipe = False
@@ -370,19 +374,30 @@ class BehavioralAnalyzer:
             return result
 
         try:
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            face_landmarks = None
-            
-            if not self.use_tasks_api and self.face_mesh:
-                processed = self.face_mesh.process(rgb_frame)
-                if processed.multi_face_landmarks:
-                    face_landmarks = processed.multi_face_landmarks[0].landmark
-            elif self.use_tasks_api and self.landmarker:
-                import mediapipe as mp
-                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-                processed = self.landmarker.detect(mp_image)
-                if processed.face_landmarks:
-                    face_landmarks = processed.face_landmarks[0]
+            if id(frame) == self._last_frame_id and self._last_landmarks is not None:
+                face_landmarks = self._last_landmarks
+            else:
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                face_landmarks = None
+                
+                if not self.use_tasks_api and self.face_mesh:
+                    processed = self.face_mesh.process(rgb_frame)
+                    if processed.multi_face_landmarks:
+                        face_landmarks = processed.multi_face_landmarks[0].landmark
+                elif self.use_tasks_api and self.landmarker:
+                    import mediapipe as mp
+                    import time
+                    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+                    ts = int(time.time() * 1000)
+                    if ts <= self._last_timestamp_ms:
+                        ts = self._last_timestamp_ms + 1
+                    self._last_timestamp_ms = ts
+                    processed = self.landmarker.detect_for_video(mp_image, ts)
+                    if processed.face_landmarks:
+                        face_landmarks = processed.face_landmarks[0]
+                
+                self._last_frame_id = id(frame)
+                self._last_landmarks = face_landmarks
                     
             if face_landmarks is None:
                 return result
@@ -440,6 +455,14 @@ class BehavioralAnalyzer:
 
         Now uses real EAR-based blink detection and solvePnP head pose
         instead of placeholder logic.
+
+        # IMPORTANT:
+        # Cache is intentionally write-only in analyze() and read-only in
+        # verify_challenge(). We never read the cache from analyze() because
+        # CPython may reuse object IDs after garbage collection.
+        #
+        # Cache lifetime is exactly one synchronous analyze() ->
+        # verify_challenge() pair.
         """
         results = {
             "blink_detected": False,
@@ -461,11 +484,19 @@ class BehavioralAnalyzer:
                         face_landmarks = processed.multi_face_landmarks[0].landmark
                 elif self.use_tasks_api and self.landmarker:
                     import mediapipe as mp
+                    import time
                     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-                    processed = self.landmarker.detect(mp_image)
+                    ts = int(time.time() * 1000)
+                    if ts <= self._last_timestamp_ms:
+                        ts = self._last_timestamp_ms + 1
+                    self._last_timestamp_ms = ts
+                    processed = self.landmarker.detect_for_video(mp_image, ts)
                     if processed.face_landmarks:
                         face_landmarks = processed.face_landmarks[0]
-                        
+                
+                self._last_frame_id = id(frame)
+                self._last_landmarks = face_landmarks
+                    
                 if face_landmarks is not None:
                     results["landmarks_found"] = True
                     img_h, img_w = frame.shape[:2]
