@@ -29,7 +29,15 @@ flowchart LR
 
 ## ⚙️ Installation & Setup
 
-### 1. Backend (Python/FastAPI)
+### 1. Model Weights
+Before starting the backend, you must download the pre-trained model weights (due to GitHub size limits, they are not tracked in git).
+Download the following files from the [Latest GitHub Release](https://github.com/sthavirpunwatkar/SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection/releases) and place them in the `models/` directory:
+- `yolov8n-face.pt`
+- `efficientnet_fas.onnx`
+- `efficientnet_fas.onnx.data`
+- `rppg_1dcnn_v2_int8.onnx`
+
+### 2. Backend (Python/FastAPI)
 ```bash
 cd backend
 python -m venv venv
