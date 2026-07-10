@@ -175,9 +175,9 @@ class RPPGDetector:
             # Y: 15% to 40% avoids hair (top) and eyes/mouth (bottom)
             # X: 20% to 80% avoids background and ears
             if box_h > 0 and box_w > 0:
-                roi_y1 = y1 + int(box_h * 0.15)
-                roi_y2 = y1 + int(box_h * 0.40)
-                roi_x1 = x1 + int(box_w * 0.20)
+                roi_y1 = y1 + int(box_h * 0.50)
+                roi_y2 = y1 + int(box_h * 0.75)
+                roi_x1 = x1 + int(box_w * 0.60)
                 roi_x2 = x1 + int(box_w * 0.80)
                 roi = frame[roi_y1:roi_y2, roi_x1:roi_x2]
             else:
