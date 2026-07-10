@@ -137,3 +137,10 @@ SHIELD_CDAC_Project_Review.pdf
 
 # Databases
 shield_local.db
+
+# Media and Archives
+*.mp4
+*.avi
+*.mov
+*.zip
+*.7z
