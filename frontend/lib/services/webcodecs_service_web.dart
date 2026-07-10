@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 import 'dart:typed_data';
+import '../transport/frame_encoder.dart';
 
 @JS('initWebCodecsEncoder')
 external void _initWebCodecsEncoder(JSFunction onChunk);
@@ -7,10 +8,12 @@ external void _initWebCodecsEncoder(JSFunction onChunk);
 @JS('encodeFrameFromJpegBytes')
 external JSPromise _encodeFrameFromJpegBytes(JSUint8Array bytes);
 
-class WebCodecsService {
+
+class WebCodecsService implements FrameEncoder {
   bool _isInitialized = false;
   Function(Uint8List)? onChunkEncoded;
 
+  @override
   void initialize(Function(Uint8List) onChunk) {
     if (_isInitialized) return;
     onChunkEncoded = onChunk;
@@ -27,6 +30,7 @@ class WebCodecsService {
     _isInitialized = true;
   }
 
+  @override
   Future<void> encodeFrame(Uint8List jpegBytes) async {
     if (!_isInitialized) return;
     // Pass the bytes to JS for WebCodecs encoding

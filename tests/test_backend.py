@@ -31,7 +31,7 @@ def run_backend_server():
         return
 
     import os
-    project_root = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     backend_dir = os.path.join(project_root, "backend")
     
     env = os.environ.copy()
@@ -81,8 +81,10 @@ async def test_websocket_connection():
 @pytest.mark.asyncio
 async def test_websocket_send_invalid_data():
     async with websockets.connect(WS_URL, additional_headers={"X-Bypass-SEB": "1"}) as websocket:
-        # Send random bytes that aren't an image
-        await websocket.send(b"not an image")
+        # Send invalid H.264 data (a JPEG) to trigger a decode error instead of silent drop
+        frame = np.zeros((10, 10, 3), dtype=np.uint8)
+        _, buffer = cv2.imencode(".jpg", frame)
+        await websocket.send(buffer.tobytes())
         response = await websocket.recv()
         data = json.loads(response)
         assert "error" in data or data["verdict"] == "No Face Detected"
@@ -218,13 +220,13 @@ async def test_websocket_identity_mismatch():
     mock_ws.send_json = AsyncMock()
     mock_ws.close = AsyncMock()
     
-    # Mock cv2 imdecode and process_challenge_frame
-    with patch('cv2.imdecode') as mock_imdecode, \
+    # Mock WebCodecsDecoder and process_challenge_frame
+    with patch('services.video_decoder.WebCodecsDecoder.decode_chunk') as mock_decode, \
          patch.object(fusion_service, 'process_challenge_frame') as mock_process:
         
-        mock_imdecode.side_effect = [
-            np.zeros((480, 640, 3), dtype=np.uint8),
-            np.ones((480, 640, 3), dtype=np.uint8)
+        mock_decode.side_effect = [
+            [np.zeros((480, 640, 3), dtype=np.uint8)],
+            [np.ones((480, 640, 3), dtype=np.uint8)]
         ]
         
         # Frame 1: Valid frame with landmarks_1
@@ -235,8 +237,11 @@ async def test_websocket_identity_mismatch():
         ]
         
         try:
+            import traceback
             await websocket_challenge(mock_ws)
         except Exception:
+            print("WEBSOCKET EXITED WITH EXCEPTION:")
+            traceback.print_exc()
             pass
             
     # Verify we received "Identity mismatch detected" error message

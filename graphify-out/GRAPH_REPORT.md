@@ -1,16 +1,16 @@
 # Graph Report - SHIELD-Secure-Human-Identity-Liveness-Evaluation-Detection  (2026-07-09)
 
 ## Corpus Check
-- 160 files · ~210,655 words
+- 136 files · ~197,436 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1473 nodes · 1938 edges · 120 communities (103 shown, 17 thin omitted)
+- 1487 nodes · 1955 edges · 120 communities (103 shown, 17 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 115 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `71ae20e2`
+- Built from commit: `78c268a6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -147,8 +147,8 @@
 ## Communities (120 total, 17 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.08
-Nodes (31): DataLoader, device, Tensor, FASAugmentation, FASDataset, PyTorch Dataset for Face Anti-Spoofing training.     Supports directory-based lo, Args:             root_dir: Path to dataset with train/test subdirs containing r, Standard augmentations for FAS training. (+23 more)
+Cohesion: 0.06
+Nodes (44): DataLoader, device, Tensor, FASAugmentation, FASDataset, PyTorch Dataset for Face Anti-Spoofing training.     Supports directory-based lo, Args:             root_dir: Path to dataset with train/test subdirs containing r, Standard augmentations for FAS training. (+36 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.06
@@ -164,7 +164,7 @@ Nodes (37): double?, int?, action, bbox, behavioralScore, blurScore, brightness,
 
 ### Community 4 - "Community 4"
 Cohesion: 0.06
-Nodes (33): Animation, AnimationController, Color, CustomPainter, package:flutter/services.dart, _FaceGuideOvalPainter, ChallengeState, build (+25 more)
+Nodes (30): Animation, AnimationController, Color, dart:math, package:flutter/services.dart, build, _buildActiveCard, _buildContent (+22 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.31
@@ -172,15 +172,15 @@ Nodes (3): QualityScoreEngine, test_quality_gate(), verify_serialization()
 
 ### Community 6 - "Community 6"
 Cohesion: 0.07
-Nodes (28): ChallengeState, double get, int get, _challengeScore, ChallengeService, _countdownTimer, _currentAction, _currentIndex (+20 more)
+Nodes (29): ChallengeState, double get, int get, _challengeScore, ChallengeService, ChallengeState, _countdownTimer, _currentAction (+21 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.11
 Nodes (22): fl_register_plugins(), FlView, FlPluginRegistry, GObject, GApplication, gboolean, gchar, GtkApplication (+14 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.11
-Nodes (13): Registry of active :class:`VerificationSession` instances.      Handles session, Create and register a new verification session.          :param client_id: Optio, Remove all expired sessions from the registry.          :return: Number of sessi, Check whether a client_id is within its rate limit.          Only sessions creat, Number of currently active (non-expired) sessions., SessionManager, Proof that TemporalValidator is part of the SessionManager workflow., Test basic session creation and lookup. (+5 more)
+Cohesion: 0.13
+Nodes (12): Registry of active :class:`VerificationSession` instances.      Handles session, Create and register a new verification session.          :param client_id: Optio, Remove all expired sessions from the registry.          :return: Number of sessi, Check whether a client_id is within its rate limit.          Only sessions creat, Number of currently active (non-expired) sessions., SessionManager, Test basic session creation and lookup., Creating a session should make it retrievable by ID. (+4 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.07
@@ -188,11 +188,11 @@ Nodes (28): ChallengeService, ChallengeService get, ChallengeState get, Liveness
 
 ### Community 10 - "Community 10"
 Cohesion: 0.09
-Nodes (22): dart:math, bbox, build, _buildDynamicFaceGuide, _buildResultSummary, _cameraService, _challengeSub, color (+14 more)
+Nodes (22): bbox, build, _buildDynamicFaceGuide, _buildResultSummary, _cameraService, _challengeSub, color, createState (+14 more)
 
 ### Community 11 - "Community 11"
-Cohesion: 0.12
-Nodes (18): build, CameraScreen, _CameraScreenState, _cameraService, createState, dispose, _errorMessage, _frameSub (+10 more)
+Cohesion: 0.13
+Nodes (14): build, _cameraService, createState, dispose, _errorMessage, _frameSub, _initializeCamera, _isStreaming (+6 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.06
@@ -200,15 +200,15 @@ Nodes (34): 📈 Current Status & Next Steps, Milestone 0: Foundation & Infrastr
 
 ### Community 13 - "Community 13"
 Cohesion: 0.11
-Nodes (17): bool get, dart:async, ../models/liveness_result.dart, package:web_socket_channel/web_socket_channel.dart, _channel, connect, dispose, _isConnected (+9 more)
+Nodes (18): bool get, dart:async, dart:developer, ../models/liveness_result.dart, package:web_socket_channel/web_socket_channel.dart, _channel, connect, dispose (+10 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.15
 Nodes (9): Dataset, Extract green-channel ROI signals from videos., Generate synthetic training data., PyTorch Dataset for rPPG liveness detection training., RPPGDataset, RPPGSignalExtractor, build_rppg_model(), evaluate() (+1 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.20
-Nodes (13): evaluate(), export_onnx(), extract_roi_signal_from_video(), generate_live_signal(), generate_spoof_signal(), load_video_data(), ndarray, SHIELD – Upgraded rPPG Training Script v2  Training approach:   1. Synthetic dat (+5 more)
+Cohesion: 0.29
+Nodes (4): Proof that TemporalValidator is part of the SessionManager workflow., Proof that ChallengeSession is integrated with FusionService., Proof that RPPGDetector is available in FusionService., TestAuditIntegrity
 
 ### Community 16 - "Community 16"
 Cohesion: 0.16
@@ -219,8 +219,8 @@ Cohesion: 0.13
 Nodes (10): Convert a normalized MediaPipe landmark to pixel coordinates., Convert a normalized MediaPipe landmark to pixel coordinates (2D for solvePnP)., Euclidean distance between two 2D points., Computes the Eye Aspect Ratio (EAR) for a single eye.          EAR = (||p2 - p6|, Detects if a blink is occurring using EAR on both eyes.          A blink is dete, Detects if the mouth is open using MAR (Mouth Aspect Ratio).          MAR = vert, Detects a smile using the ratio of lip corner distance to vertical mouth opening, Estimates head pose (yaw, pitch, roll) using cv2.solvePnP with 6 facial landmark (+2 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.16
-Nodes (10): ChallengeSession, Marks the start time for the current challenge.          Must be called before `, Process a single frame's action-recognition result.          Call this for each, Returns the running challenge score as passed / total.          :return: Float b, Returns the full session state, suitable for WebSocket responses.          :retu, Checks whether the current challenge has exceeded its timeout.          :return:, Move to the next challenge or mark the session as complete., State machine for a single active-challenge verification session.      Generates (+2 more)
+Cohesion: 0.14
+Nodes (11): ChallengeSession, Marks the start time for the current challenge.          Must be called before `, Process a single frame's action-recognition result.          Call this for each, Returns the running challenge score as passed / total.          :return: Float b, Returns the full session state, suitable for WebSocket responses.          :retu, Checks whether the current challenge has exceeded its timeout.          :return:, Move to the next challenge or mark the session as complete., Selects *n* unique random ChallengeTypes.          :param n: Number of challenge (+3 more)
 
 ### Community 19 - "Community 19"
 Cohesion: 0.50
@@ -235,8 +235,8 @@ Cohesion: 0.22
 Nodes (6): _build_v1_model(), Try each (path, variant) candidate in order.  Return the first that         load, Return the architecture matching *variant*., Rebuild the original 2-conv simple 1D-CNN., Module, Sequential
 
 ### Community 22 - "Community 22"
-Cohesion: 0.14
-Nodes (10): Compile the combined verification result.          Merges the challenge score fr, A single end-to-end liveness-verification session.      Bundles a :class:`Challe, Look up a session by its ID.          :param session_id: UUID string of the desi, Check whether this session has exceeded its TTL.          :return: ``True`` when, Ingest a single video frame for verification.          Performs the following in, VerificationSession, ndarray, Test duplicate-frame detection in a VerificationSession. (+2 more)
+Cohesion: 0.17
+Nodes (9): Compile the combined verification result.          Merges the challenge score fr, A single end-to-end liveness-verification session.      Bundles a :class:`Challe, Look up a session by its ID.          :param session_id: UUID string of the desi, Check whether this session has exceeded its TTL.          :return: ``True`` when, Ingest a single video frame for verification.          Performs the following in, VerificationSession, Test duplicate-frame detection in a VerificationSession., Submitting the same frame twice should flag the second as duplicate. (+1 more)
 
 ### Community 23 - "Community 23"
 Cohesion: 0.14
@@ -248,11 +248,11 @@ Nodes (24): WebSocket endpoint for passive liveness detection (no challenge prom
 
 ### Community 25 - "Community 25"
 Cohesion: 0.10
-Nodes (14): SHIELD – Verification Session Manager  Manages active verification sessions, com, ndarray, SHIELD – Temporal Validator  Validates that challenge responses are temporally c, Validate that the user's response time is humanly plausible.          :param cha, Check that the background region stays stable across stored frames.          The, Clear the internal frame buffer., Extract the background border region of a greyscale frame.          Keeps only t, Lightweight temporal-consistency checker for liveness verification.      Maintai (+6 more)
+Nodes (13): ndarray, Validate that the user's response time is humanly plausible.          :param cha, Check that the background region stays stable across stored frames.          The, Clear the internal frame buffer., Extract the background border region of a greyscale frame.          Keeps only t, Lightweight temporal-consistency checker for liveness verification.      Maintai, Initialise the TemporalValidator.          :param min_response_time: Minimum cre, Store a frame (converted to greyscale) and its timestamp.          :param frame: (+5 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.16
-Nodes (9): BenchmarkEngine, FASMetrics, Calculates Anti-Spoofing Metrics.         :param y_true: List of true labels (1, WeightTuner, BehavioralAnalyzer, Resets temporal tracking counters (call between sessions)., Initializes Behavioral analysis. Falls back to simple heuristics if MediaPipe fa, test_weight_tuner() (+1 more)
+Cohesion: 0.13
+Nodes (10): AntispoofInference, Standardized inference wrapper for anti-spoof models.         Prioritizes loadin, Performs inference on a face crop.         :param face_crop: BGR image., BenchmarkEngine, FASMetrics, Calculates Anti-Spoofing Metrics.         :param y_true: List of true labels (1, BehavioralAnalyzer, Resets temporal tracking counters (call between sessions). (+2 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.22
@@ -279,8 +279,8 @@ Cohesion: 0.17
 Nodes (11): 1. Backend (Python/FastAPI), 2. Frontend (Flutter), 📊 Benchmark Scores, 🚀 Competitive Innovation, ✅ Completed (Current State), ⚙️ Installation & Setup, 🚀 Next Steps, 📋 Project Overview & Plan (+3 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.10
-Nodes (20): createState, initState, main, _urlController, package:flutter_localizations/flutter_localizations.dart, package:flutter/material.dart, package:flutter_test/flutter_test.dart, package:provider/provider.dart (+12 more)
+Cohesion: 0.09
+Nodes (23): createState, initState, main, ShieldApp, _urlController, package:flutter_localizations/flutter_localizations.dart, package:flutter/material.dart, package:flutter_test/flutter_test.dart (+15 more)
 
 ### Community 34 - "Community 34"
 Cohesion: 0.22
@@ -288,7 +288,7 @@ Nodes (5): ChallengeBenchmark, Run *num_trials* simulated challenge sessions and
 
 ### Community 35 - "Community 35"
 Cohesion: 0.03
-Nodes (72): app_localizations_en.dart, app_localizations_es.dart, app_localizations_fr.dart, actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth (+64 more)
+Nodes (71): app_localizations_en.dart, app_localizations_es.dart, app_localizations_fr.dart, actionBlink, actionNod, actionNodDown, actionNodUp, actionOpenMouth (+63 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.03
@@ -303,8 +303,8 @@ Cohesion: 0.22
 Nodes (8): 1. Plan Mode Default, 4. Verification Before Done, Core Principles, graphify, SHIELD – Secure Human Identity & Liveness Evaluation Detection, Task Management, Workflow Hooks, Workflow Orchestration
 
 ### Community 39 - "Community 39"
-Cohesion: 0.32
-Nodes (3): AntispoofInference, Standardized inference wrapper for anti-spoof models.         Prioritizes loadin, Performs inference on a face crop.         :param face_crop: BGR image.
+Cohesion: 0.67
+Nodes (3): CustomPainter, _FaceGuideOvalPainter, _CountdownRingPainter
 
 ### Community 40 - "Community 40"
 Cohesion: 0.25
@@ -351,8 +351,8 @@ Cohesion: 0.14
 Nodes (12): dart:io, package:flutter/foundation.dart, return, seb/seb_checker.dart, false, isSafeExamBrowserActive, _checkLinuxVirtualCamera, _checkMacOSVirtualCamera (+4 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.14
-Nodes (14): _make_frame(), _make_noisy_frame(), SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te, Test frame coherence detection., Two similar frames → coherent; one wildly different → incoherent., Test that suspiciously fast responses are flagged., A response faster than min_response_time should be invalid., Test background consistency detection. (+6 more)
+Cohesion: 0.19
+Nodes (9): Extract the average green-channel value from the facial skin ROI.         If a f, Ingest one frame and return a liveness probability., ndarray, _make_frame(), _make_noisy_frame(), Two similar frames → coherent; one wildly different → incoherent., Frames with the same background should be consistent., Create a uniform BGR dummy frame filled with *value*. (+1 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.29
@@ -363,8 +363,8 @@ Cohesion: 0.29
 Nodes (7): fl_method_response, FlMethodResponse, G_DECLARE_DERIVABLE_TYPE(), FL, G_MODULE_EXPORT, GObject, METHOD_RESPONSE
 
 ### Community 56 - "Community 56"
-Cohesion: 0.22
-Nodes (9): @JS, dart:js_interop, dart:typed_data, encodeFrame, _encodeFrameFromJpegBytes, initialize, _initWebCodecsEncoder, _isInitialized (+1 more)
+Cohesion: 0.14
+Nodes (13): @JS, dart:js_interop, dart:typed_data, encodeFrame, initialize, WebCodecsService, encodeFrame, _encodeFrameFromJpegBytes (+5 more)
 
 ### Community 57 - "Community 57"
 Cohesion: 0.29
@@ -391,20 +391,20 @@ Cohesion: 0.40
 Nodes (4): dart:html, contains, isSafeExamBrowserActive, userAgent
 
 ### Community 87 - "Community 87"
-Cohesion: 0.25
-Nodes (6): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Server-side state machine that genera, Enumeration of supported liveness-challenge actions., Selects *n* unique random ChallengeTypes.          :param n: Number of challenge, Initialises a ChallengeSession and generates its challenge sequence.          :p
+Cohesion: 0.19
+Nodes (11): Enum, ChallengeType, SHIELD – Active Challenge-Response Engine  Server-side state machine that genera, Enumeration of supported liveness-challenge actions., SHIELD – Verification Session Manager  Manages active verification sessions, com, SHIELD – Temporal Validator  Validates that challenge responses are temporally c, SHIELD – Sprint D: Active Challenge-Response Test Suite  Comprehensive pytest te, Test frame coherence detection. (+3 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.33
 Nodes (7): AppLocalizations, _AppLocalizationsDelegate, AppLocalizationsEn, AppLocalizationsEs, AppLocalizationsFr, of, LocalizationsDelegate
 
 ### Community 89 - "Community 89"
-Cohesion: 0.18
-Nodes (16): HomeScreen, _HomeScreenState, ShieldApp, ChallengeScreen, _ChallengeScreenState, PreVerificationScreen, _PreVerificationScreenState, _state (+8 more)
+Cohesion: 0.22
+Nodes (15): HomeScreen, _HomeScreenState, CameraScreen, _CameraScreenState, ChallengeScreen, _ChallengeScreenState, PreVerificationScreen, _PreVerificationScreenState (+7 more)
 
 ### Community 93 - "Community 93"
-Cohesion: 0.09
-Nodes (13): run_ablation(), exp1_rppg_roi(), inference/rppg_detector.py =========================== Real-time rPPG liveness d, Extract the average green-channel value from the facial skin ROI.         If a f, Ingest one frame and return a liveness probability., Clear the signal buffer (e.g. between subjects)., Fraction of the window that is currently filled [0, 1]., Frame-by-frame rPPG liveness scorer.      Parameters     ----------     window_s (+5 more)
+Cohesion: 0.10
+Nodes (11): run_ablation(), exp1_rppg_roi(), inference/rppg_detector.py =========================== Real-time rPPG liveness d, Clear the signal buffer (e.g. between subjects)., Fraction of the window that is currently filled [0, 1]., Frame-by-frame rPPG liveness scorer.      Parameters     ----------     window_s, RPPGDetector, compute_metrics() (+3 more)
 
 ### Community 94 - "Community 94"
 Cohesion: 0.50
@@ -423,8 +423,8 @@ Cohesion: 0.50
 Nodes (3): Simulate passing every challenge and verify a perfect score., Passing all challenges should yield score == 1.0., TestChallengePassAll
 
 ### Community 98 - "Community 98"
-Cohesion: 0.10
-Nodes (19): CameraController?, CameraController? get, CameraState get, List, ../models/camera_frame.dart, CameraState, ../models/camera_state.dart, errorUnknown (+11 more)
+Cohesion: 0.08
+Nodes (23): CameraController?, CameraController? get, CameraState, CameraState get, List, ../models/camera_frame.dart, CameraState, ../models/camera_state.dart (+15 more)
 
 ### Community 100 - "Community 100"
 Cohesion: 0.50
@@ -443,16 +443,16 @@ Cohesion: 0.14
 Nodes (13): Completed Experiments, Completed Research, Current Architecture, Current Progress Percentage, Current Version, Future Work, Implemented Features, Known Issues (+5 more)
 
 ### Community 105 - "Community 105"
-Cohesion: 0.19
-Nodes (4): FusionEngine, Fuses multiple liveness scores into a single final score.         Uses dynamic w, Initializes the Fusion Engine with customizable weights.         :param weights:, test_fusion_engine()
+Cohesion: 0.16
+Nodes (6): WeightTuner, FusionEngine, Fuses multiple liveness scores into a single final score.         Uses dynamic w, Initializes the Fusion Engine with customizable weights.         :param weights:, test_fusion_engine(), test_weight_tuner()
 
 ### Community 106 - "Community 106"
-Cohesion: 0.18
-Nodes (7): CameraImage, DateTime, ReportGenerator, CameraFrame, image, timestamp, package:camera/camera.dart
+Cohesion: 0.17
+Nodes (8): CameraImage, DateTime, ReportGenerator, CameraFrame, frameNumber, image, timestamp, package:camera/camera.dart
 
 ### Community 107 - "Community 107"
-Cohesion: 0.29
-Nodes (10): ChangeNotifier, build, LivenessProvider, MaterialPageRoute, LivenessProvider, _startStreaming, _resetChallenge, _startChallenge (+2 more)
+Cohesion: 0.21
+Nodes (14): ChangeNotifier, build, LivenessProvider, MaterialPageRoute, LivenessProvider, initState, _startStreaming, initState (+6 more)
 
 ### Community 108 - "Community 108"
 Cohesion: 0.25
@@ -483,19 +483,19 @@ Cohesion: 0.40
 Nodes (4): Future Production (Cloud Infrastructure), SHIELD Roadmap, Version 2 (Implementation), Version 3 (Enterprise Scale)
 
 ## Knowledge Gaps
-- **667 isolated node(s):** `SHIELD Bug Tracker`, `Verified Fixes`, `Investigations Completed`, `Experiments Concluded`, `Architectural Decisions` (+662 more)
+- **675 isolated node(s):** `_urlController`, `main`, `createState`, `initState`, `CameraFrame` (+670 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `RPPGDetector` connect `Community 93` to `Community 34`, `Community 105`, `Community 16`, `Community 21`, `Community 25`, `Community 26`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
-- **Why does `SessionManager` connect `Community 8` to `Community 64`, `Community 97`, `Community 96`, `Community 100`, `Community 18`, `Community 19`, `Community 53`, `Community 22`, `Community 24`, `Community 25`, `Community 94`, `Community 95`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
-- **Why does `ChallengeSession` connect `Community 18` to `Community 64`, `Community 97`, `Community 34`, `Community 96`, `Community 100`, `Community 8`, `Community 105`, `Community 16`, `Community 19`, `Community 53`, `Community 22`, `Community 87`, `Community 25`, `Community 26`, `Community 94`, `Community 95`?**
-  _High betweenness centrality (0.037) - this node is a cross-community bridge._
+- **Why does `ChallengeSession` connect `Community 18` to `Community 64`, `Community 97`, `Community 34`, `Community 96`, `Community 100`, `Community 8`, `Community 105`, `Community 15`, `Community 16`, `Community 19`, `Community 22`, `Community 87`, `Community 25`, `Community 26`, `Community 94`, `Community 95`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `BehavioralAnalyzer` connect `Community 26` to `Community 16`, `Community 105`, `Community 34`, `Community 17`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Why does `SessionManager` connect `Community 8` to `Community 64`, `Community 97`, `Community 96`, `Community 100`, `Community 15`, `Community 18`, `Community 19`, `Community 22`, `Community 87`, `Community 24`, `Community 25`, `Community 94`, `Community 95`?**
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **Are the 19 inferred relationships involving `ChallengeSession` (e.g. with `BenchmarkEngine` and `ChallengeBenchmark`) actually correct?**
   _`ChallengeSession` has 19 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 5 inferred relationships involving `RPPGDetector` (e.g. with `BenchmarkEngine` and `ChallengeBenchmark`) actually correct?**

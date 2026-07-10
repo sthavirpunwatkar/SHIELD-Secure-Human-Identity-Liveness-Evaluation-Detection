@@ -6,7 +6,7 @@ import '../providers/liveness_provider.dart';
 import '../services/challenge_service.dart';
 import '../widgets/challenge_prompt.dart';
 import '../services/camera_capture_service.dart';
-import '../models/camera_frame.dart';
+
 import '../models/camera_state.dart';
 import 'package:shield_app/l10n/app_localizations.dart';
 
@@ -21,7 +21,7 @@ class ChallengeScreen extends StatefulWidget {
 
 class _ChallengeScreenState extends State<ChallengeScreen> {
   late CameraCaptureService _cameraService;
-  StreamSubscription<CameraFrame>? _frameSub;
+
   bool _isStreaming = false;
   String? _errorMessage;
   int _tryCount = 0;
@@ -65,9 +65,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
         return;
       }
 
-      _frameSub = _cameraService.frameStream.listen((CameraFrame frame) {
-        // Continuous capture only, no backend streaming yet.
-      });
+
 
       if (mounted) {
         setState(() => _errorMessage = null);
@@ -129,7 +127,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   @override
   void dispose() {
     _cameraService.removeListener(_onServiceUpdated);
-    _frameSub?.cancel();
+
     _challengeSub?.cancel();
     super.dispose();
   }

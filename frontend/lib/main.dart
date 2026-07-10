@@ -7,15 +7,27 @@ import 'screens/camera_screen.dart';
 
 import 'screens/pre_verification_screen.dart';
 import 'services/camera_capture_service.dart';
+import 'services/frame_transport_service.dart';
+import 'services/webcodecs_service.dart';
+import 'transport/current_websocket_transport.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LivenessProvider()),
         ChangeNotifierProvider<CameraCaptureService>(
           create: (_) => CameraCaptureService(),
+        ),
+        ChangeNotifierProxyProvider<CameraCaptureService, LivenessProvider>(
+          create: (context) {
+            final cameraService = Provider.of<CameraCaptureService>(context, listen: false);
+            final encoder = WebCodecsService();
+            final transport = CurrentWebSocketTransport(encoder);
+            final transportService = FrameTransportService(cameraService, transport);
+            return LivenessProvider(transportService);
+          },
+          update: (_, cameraService, previous) => previous ?? LivenessProvider(FrameTransportService(cameraService, CurrentWebSocketTransport(WebCodecsService()))),
         ),
       ],
       child: const ShieldApp(),

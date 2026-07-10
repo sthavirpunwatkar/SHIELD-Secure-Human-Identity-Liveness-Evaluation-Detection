@@ -116,67 +116,67 @@ async def websocket_challenge(websocket: WebSocket):
                     if not frame_res["accepted"]:
                         if frame_res.get("expired"):
                             await websocket.send_json({"type": "error", "message": "Session expired"})
-                            break
+                            return
                         if frame_res.get("reason") == "identity_swap_detected":
                             await websocket.send_json({"type": "error", "message": "Identity mismatch detected"})
-                            break
+                            return
                         continue
                 
-                # Check challenge updates
-                if "challenge_info" in result and "session_update" in result["challenge_info"]:
-                    update = result["challenge_info"]["session_update"]
-                    
-                    if update.get("challenge_passed"):
-                        await websocket.send_json({
-                            "type": "challenge_result",
-                            "action": result["challenge_info"]["action"],
-                            "passed": True,
-                            "next_action": update.get("next_challenge")
-                        })
+                    # Check challenge updates
+                    if "challenge_info" in result and "session_update" in result["challenge_info"]:
+                        update = result["challenge_info"]["session_update"]
                         
-                        if update.get("next_challenge"):
+                        if update.get("challenge_passed"):
                             await websocket.send_json({
-                                "type": "challenge",
-                                "action": update.get("next_challenge"),
-                                "timeout_s": challenge_session.timeout_per_challenge,
-                                "index": challenge_session._current_index + 1,
-                                "total": challenge_session.num_challenges
+                                "type": "challenge_result",
+                                "action": result["challenge_info"]["action"],
+                                "passed": True,
+                                "next_action": update.get("next_challenge")
                             })
                             
-                    elif update.get("challenge_failed"):
-                        await websocket.send_json({
-                            "type": "challenge_result",
-                            "action": result["challenge_info"]["action"],
-                            "passed": False,
-                            "next_action": update.get("next_challenge")
-                        })
-                        # If there's a next challenge after failure, re-issue it
-                        if update.get("next_challenge") and not update.get("session_complete"):
-                            current = challenge_session.get_current_challenge()
-                            if current:
-                                challenge_session.start_current_challenge()
+                            if update.get("next_challenge"):
                                 await websocket.send_json({
                                     "type": "challenge",
-                                    "action": current.value,
+                                    "action": update.get("next_challenge"),
                                     "timeout_s": challenge_session.timeout_per_challenge,
                                     "index": challenge_session._current_index + 1,
                                     "total": challenge_session.num_challenges
                                 })
-                        
-                    if update.get("session_complete"):
-                        # Send final verdict
-                        final_res = session.get_final_result()
-                        # Override verdict with the temporally validated one
-                        result["verdict"] = final_res["verdict"]
-                        result["temporal_valid"] = final_res["temporal_valid"]
-                        result["challenge_score"] = final_res["challenge_score"]
-                        await websocket.send_json(result)
-                        break # End session
-                else:
-                    # Normal frame update (can send partial progress if needed)
-                    # For now, just send the frame result silently or omitted to save bandwidth
-                    # We can send a generic verdict update
-                    pass
+                                
+                        elif update.get("challenge_failed"):
+                            await websocket.send_json({
+                                "type": "challenge_result",
+                                "action": result["challenge_info"]["action"],
+                                "passed": False,
+                                "next_action": update.get("next_challenge")
+                            })
+                            # If there's a next challenge after failure, re-issue it
+                            if update.get("next_challenge") and not update.get("session_complete"):
+                                current = challenge_session.get_current_challenge()
+                                if current:
+                                    challenge_session.start_current_challenge()
+                                    await websocket.send_json({
+                                        "type": "challenge",
+                                        "action": current.value,
+                                        "timeout_s": challenge_session.timeout_per_challenge,
+                                        "index": challenge_session._current_index + 1,
+                                        "total": challenge_session.num_challenges
+                                    })
+                            
+                        if update.get("session_complete"):
+                            # Send final verdict
+                            final_res = session.get_final_result()
+                            # Override verdict with the temporally validated one
+                            result["verdict"] = final_res["verdict"]
+                            result["temporal_valid"] = final_res["temporal_valid"]
+                            result["challenge_score"] = final_res["challenge_score"]
+                            await websocket.send_json(result)
+                            return # End session
+                    else:
+                        # Normal frame update (can send partial progress if needed)
+                        # For now, just send the frame result silently or omitted to save bandwidth
+                        # We can send a generic verdict update
+                        pass
 
     except WebSocketDisconnect:
         print(f"Client disconnected from Challenge WS: {client_host}")

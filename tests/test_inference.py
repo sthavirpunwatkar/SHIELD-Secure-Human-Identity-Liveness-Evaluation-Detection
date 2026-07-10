@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from inference.face_detector import FaceDetector
+from inference.yolo_detector import YoloSegDetector
 from inference.antispoof import AntispoofInference
 from inference.behavioral_analyzer import BehavioralAnalyzer
 from inference.rppg_detector import RPPGDetector
@@ -9,7 +9,7 @@ def main():
     print("--- SHIELD Inference Pipeline Test ---")
     
     # Initialize models
-    detector = FaceDetector()
+    detector = YoloSegDetector()
     antispoof = AntispoofInference()
     behavioral = BehavioralAnalyzer()
     rppg = RPPGDetector()

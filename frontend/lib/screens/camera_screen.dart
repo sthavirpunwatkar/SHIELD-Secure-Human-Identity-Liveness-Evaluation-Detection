@@ -1,4 +1,4 @@
-import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +6,7 @@ import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
 import '../services/security_service.dart';
 import '../services/camera_capture_service.dart';
-import '../models/camera_frame.dart';
+
 import '../models/camera_state.dart';
 import 'package:shield_app/l10n/app_localizations.dart';
 
@@ -19,7 +19,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   late CameraCaptureService _cameraService;
-  StreamSubscription<CameraFrame>? _frameSub;
+
   bool _isStreaming = false;
   String? _errorMessage;
 
@@ -60,9 +60,7 @@ class _CameraScreenState extends State<CameraScreen> {
         return;
       }
 
-      _frameSub = _cameraService.frameStream.listen((CameraFrame frame) {
-        // Continuous capture only, no backend streaming yet.
-      });
+
 
       if (mounted) {
         setState(() {
@@ -115,7 +113,7 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void dispose() {
     _cameraService.removeListener(_onServiceUpdated);
-    _frameSub?.cancel();
+
     _cameraService.stopStreaming();
     super.dispose();
   }
