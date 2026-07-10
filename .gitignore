@@ -136,7 +136,7 @@ slide-*.jpg
 SHIELD_CDAC_Project_Review.pdf
 
 # Databases
-shield_local.db
+*.db
 
 # Media and Archives
 *.mp4
