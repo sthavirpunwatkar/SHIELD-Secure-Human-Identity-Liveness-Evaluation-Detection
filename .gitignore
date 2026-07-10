@@ -93,11 +93,13 @@ linux/flutter/ephemeral/
 # Build outputs
 **/build/
 
-# Logs
+# Logs & Generated
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
+graphify-out/
 
 # Environment files
 *.env
