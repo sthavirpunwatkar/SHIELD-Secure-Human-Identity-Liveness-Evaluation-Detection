@@ -53,8 +53,10 @@ class StreamingDecoder:
         
         arrival_timestamp = time.time()
         
+        logger.info(f"Decoder received chunk of size: {len(data)}")
         try:
             packets = self.codec.parse(data)
+            logger.info(f"Parsed {len(packets)} packets")
         except Exception as e:
             logger.warning(f"Rejecting chunk: Corrupted packet parse error - {e}")
             return []
@@ -80,6 +82,7 @@ class StreamingDecoder:
                 logger.warning(f"Rejecting chunk: Corrupted packet decode error - {e}")
                 continue
 
+        logger.info(f"Decoded {len(frames)} frames")
         return frames
 
     def close(self):

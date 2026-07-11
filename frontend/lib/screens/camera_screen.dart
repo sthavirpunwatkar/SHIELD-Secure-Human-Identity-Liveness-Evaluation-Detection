@@ -93,15 +93,9 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   void _startStreaming() {
-    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) return;
+    if (_cameraService.state != CameraState.ready && _cameraService.state != CameraState.streaming) return;
 
     final provider = Provider.of<LivenessProvider>(context, listen: false);
-    if (!provider.isConnected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.notConnected)),
-      );
-      return;
-    }
 
     setState(() {
       _isStreaming = true;
@@ -143,7 +137,7 @@ class _CameraScreenState extends State<CameraScreen> {
       );
     }
 
-    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) {
+    if (_cameraService.state == CameraState.initial || _cameraService.state == CameraState.initializing) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -170,11 +164,11 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
       body: Center(
         child: AspectRatio(
-          aspectRatio: _cameraService.controller!.value.aspectRatio,
+          aspectRatio: _cameraService.aspectRatio,
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CameraPreview(_cameraService.controller!),
+              _cameraService.buildPreview(),
               const LivenessOverlay(),
             ],
           ),

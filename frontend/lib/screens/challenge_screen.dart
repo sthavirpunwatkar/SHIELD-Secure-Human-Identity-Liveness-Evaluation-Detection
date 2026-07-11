@@ -83,7 +83,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   // ---------------------------------------------------------------------------
 
   void _startStreaming() {
-    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) return;
+    if (_cameraService.state != CameraState.ready && _cameraService.state != CameraState.streaming) return;
 
     final provider = Provider.of<LivenessProvider>(context, listen: false);
     if (!provider.isConnected) {
@@ -94,7 +94,16 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
 
     setState(() => _isStreaming = true);
-    _cameraService.startStreaming();
+    try {
+      _cameraService.startStreaming();
+    } catch (e) {
+      setState(() {
+        _isStreaming = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to start camera: $e')),
+      );
+    }
   }
 
   void _stopStreaming() {
@@ -164,7 +173,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     }
 
     // Loading state
-    if (_cameraService.controller == null || !_cameraService.controller!.value.isInitialized) {
+    if (_cameraService.state == CameraState.initial || _cameraService.state == CameraState.initializing) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.challengeVerification)),
         body: Center(
@@ -204,11 +213,11 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               Expanded(
                 child: Center(
                   child: AspectRatio(
-                    aspectRatio: _cameraService.controller!.value.aspectRatio,
+                    aspectRatio: _cameraService.aspectRatio,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        CameraPreview(_cameraService.controller!),
+                        _cameraService.buildPreview(),
                         
                         // Face guide oval with dynamic feedback
                         _buildDynamicFaceGuide(provider, cs, challengeState),

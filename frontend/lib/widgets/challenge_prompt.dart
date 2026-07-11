@@ -137,7 +137,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
 
   Widget _buildIdleCard(AppLocalizations l10n) {
     return _glassCard(
-      key: const ValueKey('idle'),
+      key: ValueKey('idle_${widget.state.name}'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -159,7 +159,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
     final text = ChallengeService.getActionDisplayText(widget.currentAction, l10n);
 
     return _glassCard(
-      key: const ValueKey('active'),
+      key: ValueKey('active_${widget.currentIndex}_${widget.currentAction}'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -215,7 +215,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
 
   Widget _buildWaitingCard(AppLocalizations l10n) {
     return _glassCard(
-      key: const ValueKey('waiting'),
+      key: ValueKey('waiting_${widget.currentIndex}'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

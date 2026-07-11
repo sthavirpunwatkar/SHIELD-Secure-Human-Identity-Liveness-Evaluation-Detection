@@ -154,26 +154,32 @@ class RPPGDetector:
 
     # ── signal extraction ─────────────────────────────────────────────────
 
-    def extract_roi_signal(self, frame: np.ndarray, landmarks=None, bbox=None) -> float:
-        """
-        Extract the average green-channel value from the facial skin ROI.
-        If a face bounding box is provided, dynamically computes the forehead 
-        and upper cheek region to avoid eyes, mouth, and background.
-        """
+    def extract_roi_signal(self, frame: np.ndarray, bbox=None) -> float:
+        import time
+        if not hasattr(self, '_frame_counter'):
+            self._frame_counter = 0
+            self._start_time = time.time()
+        self._frame_counter += 1
+        
+        print("\n" + "-"*56)
+        print("ROI statistics")
+        print(f"Frame Number: {self._frame_counter}")
+        
+        if not hasattr(self, '_saved_debug'):
+            self._saved_debug = False
+            import os
+            os.makedirs("debug", exist_ok=True)
+        
         if bbox is not None and len(bbox) == 4:
             x1, y1, x2, y2 = bbox
             h, w = frame.shape[:2]
             
-            # Constrain to frame boundaries
             x1, y1 = max(0, int(x1)), max(0, int(y1))
             x2, y2 = min(w, int(x2)), min(h, int(y2))
             
             box_h = y2 - y1
             box_w = x2 - x1
             
-            # Dynamically compute forehead and upper cheeks region
-            # Y: 15% to 40% avoids hair (top) and eyes/mouth (bottom)
-            # X: 20% to 80% avoids background and ears
             if box_h > 0 and box_w > 0:
                 roi_y1 = y1 + int(box_h * 0.50)
                 roi_y2 = y1 + int(box_h * 0.75)
@@ -183,39 +189,65 @@ class RPPGDetector:
             else:
                 roi = np.array([])
         else:
-            # Fallback for backward compatibility if no bbox is provided
             h, w = frame.shape[:2]
             y0, y1 = int(h * 0.45), int(h * 0.55)
             x0, x1 = int(w * 0.45), int(w * 0.55)
             roi = frame[y0:y1, x0:x1]
             
         if roi.size == 0:
+            print("ROI width: 0")
+            print("ROI height: 0")
+            print("ROI mean RGB: [0, 0, 0]")
+            print("ROI std RGB: [0, 0, 0]")
+            print("ROI pixel count: 0")
             return 0.0
+            
+        print(f"ROI width: {roi.shape[1]}")
+        print(f"ROI height: {roi.shape[0]}")
+        print(f"ROI mean RGB: [{roi[:,:,2].mean():.2f}, {roi[:,:,1].mean():.2f}, {roi[:,:,0].mean():.2f}]") # OpenCV is BGR
+        print(f"ROI std RGB: [{roi[:,:,2].std():.2f}, {roi[:,:,1].std():.2f}, {roi[:,:,0].std():.2f}]")
+        print(f"ROI pixel count: {roi.shape[0] * roi.shape[1]}")
+            
+        if self._frame_counter % 30 == 0 and self._frame_counter <= 150:
+            import cv2
+            cv2.imwrite(f"debug/roi_frame_{self._frame_counter}.png", roi)
+
             
         return float(np.mean(roi[:, :, 1]))
 
-    # ── frame update ──────────────────────────────────────────────────────
-
     def update(self, frame: np.ndarray, bbox=None) -> float:
-        """
-        Ingest one frame and return a liveness probability.
-        """
-        self.signal_buffer.append(self.extract_roi_signal(frame, bbox=bbox))
+        val = self.extract_roi_signal(frame, bbox=bbox)
+        self.signal_buffer.append(val)
 
-        # Rolling window — drop oldest sample when over-full
         if len(self.signal_buffer) > self.window_size:
             self.signal_buffer.pop(0)
+            
+        import time
+        elapsed = time.time() - getattr(self, '_start_time', time.time())
+        est_fps = self._frame_counter / elapsed if elapsed > 0 else 30.0
+        
+        print("-" * 56)
+        print("Signal Buffer")
+        print(f"Current buffer length: {len(self.signal_buffer)}")
+        print(f"Required length: {self.window_size}")
+        print(f"Estimated runtime FPS: {est_fps:.2f}")
+        print(f"Window duration: {len(self.signal_buffer) / 30.0:.2f}s") # hardcoded fps in pipeline
 
         if len(self.signal_buffer) < self.window_size:
-            return 0.5   # not enough data yet
+            return 0.0
 
         if not self.weights_loaded:
             raise RuntimeError("RPPGDetector: weights not loaded.")
 
-        # Normalise & run inference
-        sig = np.array(self.signal_buffer, dtype=np.float32)
+        sig_raw = np.array(self.signal_buffer, dtype=np.float32)
         
-        # Training-inference parity: Apply bandpass filter before standard normalization
+        raw_mean = sig_raw.mean()
+        raw_std = sig_raw.std()
+        
+        detrended = sig_raw - raw_mean
+        detrended_mean = detrended.mean()
+        detrended_std = detrended.std()
+        
         try:
             from scipy.signal import butter, filtfilt
             fps = 30.0
@@ -223,24 +255,84 @@ class RPPGDetector:
             low = 0.7 / nyq
             high = 4.0 / nyq
             b, a = butter(2, [low, high], btype='band')
-            sig = filtfilt(b, a, sig)
+            sig_bandpass = filtfilt(b, a, sig_raw)
         except ImportError:
-            # Match training fallback
-            sig = sig - sig.mean()
+            sig_bandpass = detrended
             
-        sig = sig.astype(np.float32)
+        bandpass_mean = sig_bandpass.mean()
+        bandpass_std = sig_bandpass.std()
+        
+        print("-" * 56)
+        print("Preprocessing")
+        print(f"Raw signal mean: {raw_mean:.6f}")
+        print(f"Raw signal std: {raw_std:.6f}")
+        print(f"Detrended signal mean: {detrended_mean:.6f}")
+        print(f"Detrended signal std: {detrended_std:.6f}")
+        print(f"Bandpass output mean: {bandpass_mean:.6f}")
+        print(f"Bandpass output std: {bandpass_std:.6f}")
+        print(f"Min: {sig_bandpass.min():.6f}")
+        print(f"Max: {sig_bandpass.max():.6f}")
+        
+        # Frequency analysis
+        fft = np.abs(np.fft.rfft(sig_bandpass))
+        freqs = np.fft.rfftfreq(len(sig_bandpass), 1.0/30.0)
+        
+        valid_idx = np.where((freqs >= 0.7) & (freqs <= 4.0))[0]
+        if len(valid_idx) > 0:
+            dom_idx = valid_idx[np.argmax(fft[valid_idx])]
+            dom_freq = freqs[dom_idx]
+            est_bpm = dom_freq * 60
+            peak_mag = fft[dom_idx]
+            snr = peak_mag / (np.sum(fft[valid_idx]) - peak_mag + 1e-6)
+        else:
+            dom_freq = 0
+            est_bpm = 0
+            peak_mag = 0
+            snr = 0
+            
+        print("-" * 56)
+        print("Frequency Analysis")
+        print(f"Dominant frequency: {dom_freq:.2f} Hz")
+        print(f"Estimated BPM: {est_bpm:.1f}")
+        print(f"FFT peak magnitude: {peak_mag:.2f}")
+        print(f"Signal-to-noise ratio: {snr:.4f}")
+            
+        sig = sig_bandpass.astype(np.float32)
         sig = (sig - sig.mean()) / (sig.std() + 1e-6)
 
+        if len(self.signal_buffer) == self.window_size and not self._saved_debug:
+            self._saved_debug = True
+            np.savetxt("debug/raw_signal.csv", sig_raw, delimiter=",")
+            np.savetxt("debug/detrended_signal.csv", detrended, delimiter=",")
+            np.savetxt("debug/bandpassed_signal.csv", sig_bandpass, delimiter=",")
+            np.savetxt("debug/model_input.csv", sig, delimiter=",")
+
+        print("-" * 56)
+        print("ONNX Input")
+        tensor_shape = (1, 1, self.window_size)
+        print(f"Tensor shape: {tensor_shape}")
+        print(f"Tensor dtype: {sig.dtype}")
+        print(f"Tensor min: {sig.min():.4f}")
+        print(f"Tensor max: {sig.max():.4f}")
+        print(f"Tensor mean: {sig.mean():.4f}")
+        print(f"Tensor std: {sig.std():.4f}")
+
         if self.is_onnx:
-            sig = np.expand_dims(np.expand_dims(sig, axis=0), axis=0) # [1, 1, T]
+            sig = np.expand_dims(np.expand_dims(sig, axis=0), axis=0)
             outputs = self.session.run([self.output_name], {self.input_name: sig})[0]
-            return float(outputs[0][0])
+            score = float(outputs[0][0])
+        else:
+            tensor = torch.from_numpy(sig).unsqueeze(0).unsqueeze(0).to(self.device)
+            with torch.no_grad():
+                score = self.model(tensor).item()
 
-        tensor = torch.from_numpy(sig).unsqueeze(0).unsqueeze(0).to(self.device)  # (1,1,T)
-        with torch.no_grad():
-            score = self.model(tensor).item()
-
-        return float(score)
+        print("-" * 56)
+        print("ONNX Output")
+        print(f"Raw logits: N/A (Model includes Sigmoid)")
+        print(f"Sigmoid output: {score:.6f}")
+        print(f"Final rPPG score: {score:.6f}")
+        
+        return score
 
     # ── convenience ───────────────────────────────────────────────────────
 

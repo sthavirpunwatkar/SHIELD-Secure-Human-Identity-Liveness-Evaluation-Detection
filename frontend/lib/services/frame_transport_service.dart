@@ -69,7 +69,8 @@ class FrameTransportService {
     framesProduced++;
     
     if (_queue.length >= _maxQueueSize) {
-      _queue.removeAt(0); // Drop oldest frame
+      final droppedFrame = _queue.removeAt(0); // Drop oldest frame
+      droppedFrame.dispose();
       framesDropped++;
     }
     

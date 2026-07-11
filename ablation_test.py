@@ -42,26 +42,9 @@ def run_ablation():
     for cfg, modules in configs.items():
         latencies = []
         for frame in frames_to_test:
-            start_t = time.time()
-            faces = None
-            if 'yolo' in modules:
-                faces = yolo.detect_faces(frame)
-                
-            if faces and len(faces) > 0:
-                crop = yolo.crop_face(frame, faces[0]['bbox'])
-            else:
-                crop = frame
-                
-            if 'antispoof' in modules:
-                _ = antispoof.predict(crop)
-                
-            if 'mediapipe' in modules or 'blink' in modules:
-                _ = behavioral.analyze(frame, faces=faces)
-                
-            if 'rppg' in modules:
-                _ = rppg.update(frame)
-                
-            end_t = time.time()
+            from backend.services.fusion_service import fusion_service
+            res = fusion_service.process_frame(frame, frame_number=0, capture_timestamp="")
+            print(res)
             latencies.append((end_t - start_t) * 1000)
             
         results[cfg] = np.mean(latencies) if latencies else 0

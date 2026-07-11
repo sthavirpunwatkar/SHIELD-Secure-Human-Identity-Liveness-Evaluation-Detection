@@ -23,16 +23,16 @@ class FusionEngine:
         else:
             if blink_score == 0.0:
                 active_weights = {
-                    "rppg": 0.20,
+                    "rppg": 0.40,
                     "blink": 0.0,
-                    "antispoof": 0.80,
+                    "antispoof": 0.60,
                     "challenge": 0.0
                 }
             else:
                 active_weights = {
-                    "rppg": 0.20,
+                    "rppg": 0.30,
                     "blink": 0.20,
-                    "antispoof": 0.60,
+                    "antispoof": 0.50,
                     "challenge": 0.0
                 }
 

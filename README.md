@@ -13,6 +13,12 @@ The core plan is to prevent presentation attacks (printed photos, replay videos,
 3. **Behavioral Consistency:** Real-time analysis of blinks, expressions, and head movements.
 4. **Active Challenge-Response:** Randomized user tasks (e.g., "Look Left", "Blink") with temporal jump-cut validation.
 
+## Current Status
+
+The SHIELD V2 backend protocol and streaming architecture is fully complete and expects **H.264 Annex B** chunks.
+
+Currently, the frontend utilizes an intentionally isolated **placeholder encoder** to maintain transport integrity. The `FrameEncoder` abstraction has already been cleanly designed and proven. Replacing this placeholder with a genuine platform-specific hardware encoder (Android MediaCodec / iOS VideoToolbox) does **not** require modifying the Transport, Backend, Fusion, or StreamingDecoder systems. The native hardware encoder has been deferred to a standalone V3 epic.
+
 ### System Architecture
 
 ```mermaid

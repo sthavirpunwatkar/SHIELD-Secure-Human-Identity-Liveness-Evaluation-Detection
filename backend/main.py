@@ -162,18 +162,28 @@ async def websocket_challenge(websocket: WebSocket):
                 continue
 
             if "bytes" in message:
+                print("FRAME_RECEIVED")
                 data = message["bytes"]
                 try:
                     frames = decoder.decode_chunk(data, metadata=last_metadata)
                     last_metadata = None
+                    print("FRAME_DECODED")
                 except Exception as e:
+                    import traceback
+                    print("FULL STACK TRACE")
+                    traceback.print_exc()
                     logger.warning(f"Decode error: {e}")
                     await websocket.send_json({"type": "error", "message": f"Decode error: {e}"})
                     continue
 
                 for decoded_frame in frames:
                     start_proc = time.time()
-                    result = fusion_service.process_challenge_frame(decoded_frame.image, challenge_session)
+                    result = fusion_service.process_challenge_frame(
+                        decoded_frame.image, 
+                        challenge_session,
+                        frame_number=decoded_frame.frame_number,
+                        capture_timestamp=decoded_frame.capture_timestamp
+                    )
                     raw_landmarks = result.pop("_raw_landmarks", None)
                     
                     frame_res = session.add_frame(decoded_frame.image, landmarks=raw_landmarks)
@@ -327,6 +337,7 @@ async def websocket_verify_passive(websocket: WebSocket):
     try:
         while True:
             message = await websocket.receive()
+            logger.info(f"WebSocket received message keys: {message.keys()}")
 
             if "text" in message:
                 try:
@@ -338,17 +349,26 @@ async def websocket_verify_passive(websocket: WebSocket):
                 continue
 
             if "bytes" in message:
+                print("FRAME_RECEIVED")
                 data = message["bytes"]
                 try:
                     frames = decoder.decode_chunk(data, metadata=last_metadata)
                     last_metadata = None
+                    print("FRAME_DECODED")
                 except Exception as e:
+                    import traceback
+                    print("FULL STACK TRACE")
+                    traceback.print_exc()
                     logger.warning(f"Decode error: {e}")
                     await websocket.send_json({"error": f"Decode error: {e}"})
                     continue
                     
                 for decoded_frame in frames:
-                    result = fusion_service.process_frame(decoded_frame.image)
+                    result = fusion_service.process_frame(
+                        decoded_frame.image,
+                        frame_number=decoded_frame.frame_number,
+                        capture_timestamp=decoded_frame.capture_timestamp
+                    )
                     raw_landmarks = result.pop("_raw_landmarks", None)
                     
                     # Demo Mode Visualization

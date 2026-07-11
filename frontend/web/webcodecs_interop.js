@@ -21,39 +21,35 @@ window.initWebCodecsEncoder = function(onChunk) {
         output: (chunk, metadata) => {
             const buffer = new ArrayBuffer(chunk.byteLength);
             chunk.copyTo(buffer);
+            const bytes = new Uint8Array(buffer);
+            
             if (chunkCallback) {
-                // Pass back to Dart
-                chunkCallback(new Uint8Array(buffer));
+                chunkCallback(bytes, chunk.timestamp);
             }
         },
         error: (e) => {
-            console.error("WebCodecs VideoEncoder error: ", e);
+            console.error("[WebCodecs] VideoEncoder error: ", e);
         }
     });
 
     encoder.configure(config);
 };
 
-window.encodeFrameFromJpegBytes = async function(bytesUint8Array) {
-    if (!encoder) return;
+window.encodeVideoFrame = function(videoFrame) {
+    if (!encoder) {
+        videoFrame.close();
+        return;
+    }
     
-    let bitmap = null;
-    let frame = null;
     try {
-        const blob = new Blob([bytesUint8Array], { type: 'image/jpeg' });
-        // Resize to match encoder config
-        bitmap = await createImageBitmap(blob, { resizeWidth: 640, resizeHeight: 480 });
-        
-        frame = new VideoFrame(bitmap, { timestamp: frameCount * 33333 }); // ~30fps
-        frameCount++;
-        
         // Keyframe every 30 frames
         const keyFrame = (frameCount % 30 === 0);
-        encoder.encode(frame, { keyFrame });
+        
+        encoder.encode(videoFrame, { keyFrame });
+        frameCount++;
     } catch (e) {
-        console.error("Error encoding frame:", e);
+        console.error("[WebCodecs] Error encoding video frame:", e);
     } finally {
-        if (frame) frame.close();
-        if (bitmap && bitmap.close) bitmap.close();
+        videoFrame.close();
     }
 };

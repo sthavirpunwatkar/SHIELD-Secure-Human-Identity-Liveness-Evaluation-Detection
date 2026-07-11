@@ -65,6 +65,12 @@ class LivenessProvider with ChangeNotifier {
       _challengeService.setConnecting();
     }
     await _transportService.connect(signedUrl);
+    
+    final connected = _transportService.transport.connectionState == TransportConnectionState.connected;
+    if (_isConnected != connected) {
+      _isConnected = connected;
+    }
+
     if (isChallenge && _isConnected) {
       _challengeService.reset();
     }

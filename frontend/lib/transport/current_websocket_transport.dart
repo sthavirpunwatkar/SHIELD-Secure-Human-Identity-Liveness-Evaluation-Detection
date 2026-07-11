@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:collection';
 import 'dart:developer' as developer;
 
 import 'frame_transport.dart';
@@ -17,17 +18,26 @@ class CurrentWebSocketTransport implements FrameTransport {
   String? _lastUrl;
   final FrameEncoder _encoder;
   
-  // Temporary storage for metadata to send along with the next chunk
-  Map<String, dynamic>? _pendingMetadata;
-
   CurrentWebSocketTransport(this._encoder) {
-    _encoder.initialize((chunkData) {
+    _encoder.initialize((chunkData, [frame]) {
       if (_state == TransportConnectionState.connected && _channel != null) {
         try {
-          if (_pendingMetadata != null) {
-            _pendingMetadata!['payloadSize'] = chunkData.length;
-            _channel!.sink.add(jsonEncode(_pendingMetadata));
-            _pendingMetadata = null;
+          if (frame != null) {
+            final metadata = {
+              'frameNumber': frame.frameNumber,
+              'timestamp': frame.timestamp.toIso8601String(),
+              'captureTime': DateTime.now().toIso8601String(),
+              'resolution': '${frame.width}x${frame.height}',
+              'width': frame.width,
+              'height': frame.height,
+              'imageFormat': frameFormatToString(frame.imageFormat),
+              'compressionType': 'h264',
+              'payloadSize': chunkData.length,
+            };
+            _channel!.sink.add(jsonEncode(metadata));
+          } else {
+            // Fallback for non-web platforms if they haven't adopted the direct frame passing
+            // (Queue logic could go here if needed for fallback, but for this PR we enforce strict sync)
           }
           _channel!.sink.add(chunkData);
         } catch (e) {
@@ -61,6 +71,7 @@ class CurrentWebSocketTransport implements FrameTransport {
     
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
+      await _channel!.ready;
       _updateState(TransportConnectionState.connected);
       
       _channel!.stream.listen(
@@ -106,25 +117,15 @@ class CurrentWebSocketTransport implements FrameTransport {
   Future<void> sendFrame(CameraFrame frame) async {
     if (_state != TransportConnectionState.connected) return;
 
-    // Task 4: Metadata
-    _pendingMetadata = {
-      'frameNumber': frame.frameNumber,
-      'timestamp': frame.timestamp.toIso8601String(),
-      'captureTime': DateTime.now().toIso8601String(),
-      'resolution': '${frame.image.width}x${frame.image.height}',
-      'width': frame.image.width,
-      'height': frame.image.height,
-      'imageFormat': frame.image.format.group.name,
-      'compressionType': 'h264',
-      'payloadSize': 0, // Will be updated when chunk is produced
-    };
+    // The metadata will be assembled strictly when the chunk is ready.
 
     // Convert frames to the current backend payload (trigger WebCodecs)
     // Here we pass a dummy Uint8List to simulate conversion, since full Dart conversion
     // from YUV420 to JPEG is complex and beyond the pure architectural scope of this PR.
     // In production, CameraImage to JPEG conversion would happen before this.
-    final dummyJpegBytes = Uint8List(0);
-    _encoder.encodeFrame(dummyJpegBytes);
+    _encoder.encodeFrame(frame).catchError((e) {
+      developer.log('Encoder error: $e');
+    });
   }
 
   @override
