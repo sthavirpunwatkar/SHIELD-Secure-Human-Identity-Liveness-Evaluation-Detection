@@ -1,0 +1,8 @@
+dataset:
+  name: "UBFC-rPPG"
+  type: "rppg"
+  path: "/path/to/ubfc-rppg"
+  protocols: ["continuous"]
+  fps: 30
+  resolution: "1080p"
+  attack_types: []

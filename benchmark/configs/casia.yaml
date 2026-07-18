@@ -1,0 +1,8 @@
+dataset:
+  name: "CASIA-FASD"
+  type: "presentation_attack"
+  path: "/path/to/casia-fasd"
+  protocols: ["low", "normal", "high"]
+  fps: 25
+  resolution: "varied"
+  attack_types: ["warped_photo", "cut_out", "replay"]

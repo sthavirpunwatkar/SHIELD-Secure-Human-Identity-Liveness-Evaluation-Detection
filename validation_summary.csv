@@ -1,0 +1,12 @@
+model,metric,value,unit
+MiniFASNet,average_latency,4.8,ms
+MiniFASNet,output_shape,"(1, 3)",tensor
+MiniFASNet,class_1,live,label
+MiniFASNet,status,verified,status
+PhysNet,average_latency,25.0,ms
+PhysNet,output_shape,"(1, 8)",tensor
+PhysNet,status,verified,status
+SHIELD_AntiSpoof,average_latency,0.5,ms
+SHIELD_AntiSpoof,status,verified,status
+SHIELD_rPPG,average_latency,1.2,ms
+SHIELD_rPPG,status,verified,status

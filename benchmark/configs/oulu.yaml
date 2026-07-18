@@ -1,0 +1,8 @@
+dataset:
+  name: "OULU-NPU"
+  type: "presentation_attack"
+  path: "/path/to/oulu-npu"
+  protocols: [1, 2, 3, 4]
+  fps: 30
+  resolution: "1080p"
+  attack_types: ["print", "replay"]

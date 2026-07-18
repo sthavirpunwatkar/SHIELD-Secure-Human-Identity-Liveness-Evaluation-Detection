@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SHIELD WebCodecs PoC</title>
+</head>
+<body>
+  <video id="preview" autoplay muted playsinline></video>
+  <script>
+    (async () => {
+      try {
+        console.log("=== PHASE 1: Browser Audit ===");
+        console.log("navigator.mediaDevices.getUserMedia:", !!navigator.mediaDevices?.getUserMedia);
+        console.log("HTMLVideoElement:", !!window.HTMLVideoElement);
+        console.log("VideoFrame:", !!window.VideoFrame);
+        console.log("VideoEncoder:", !!window.VideoEncoder);
+        console.log("MediaStreamTrackProcessor:", !!window.MediaStreamTrackProcessor);
+
+        console.log("=== PHASE 2: Camera Test ===");
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, frameRate: 30 } });
+        const video = document.getElementById('preview');
+        video.srcObject = stream;
+        await video.play();
+        console.log(`Video started: ${video.videoWidth}x${video.videoHeight}`);
+
+        const ws = new WebSocket("ws://127.0.0.1:8000/ws/verify?x-bypass-seb=1");
+        ws.onopen = () => console.log("WebSocket connected.");
+        ws.onmessage = (e) => console.log("Backend says:", e.data);
+        
+        let frameCount = 0;
+        let isConfigured = false;
+        
+        // Wait for connection
+        await new Promise(r => ws.onopen = r);
+
+        console.log("=== PHASE 4 & 5: WebCodecs Encoder ===");
+        const init = {
+          output: (chunk, metadata) => {
+            console.log(`Encoded chunk: type=${chunk.type}, byteLength=${chunk.byteLength}, timestamp=${chunk.timestamp}`);
+            const buffer = new ArrayBuffer(chunk.byteLength);
+            chunk.copyTo(buffer);
+            const bytes = new Uint8Array(buffer);
+            
+            console.log("HEX:", Array.from(bytes.slice(0, 32)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+
+            let isAnnexB = bytes[0] === 0 && bytes[1] === 0 && bytes[2] === 0 && bytes[3] === 1;
+            console.log("Is Annex B?", isAnnexB);
+
+            let annexBBytes = bytes;
+            if (!isAnnexB) {
+                // If this is a keyframe and has config, prepend SPS/PPS
+                let spsPps = new Uint8Array();
+                if (chunk.type === 'key' && metadata && metadata.decoderConfig && metadata.decoderConfig.description) {
+                    const desc = new Uint8Array(metadata.decoderConfig.description);
+                    // AVCDecoderConfigurationRecord parsing
+                    if (desc[0] === 1) { // configurationVersion = 1
+                        const spsCount = desc[5] & 0x1f;
+                        let pos = 6;
+                        let configLen = 0;
+                        let arrays = [];
+                        
+                        // Parse SPS
+                        for (let i = 0; i < spsCount; i++) {
+                            const length = (desc[pos] << 8) | desc[pos + 1];
+                            pos += 2;
+                            arrays.push(new Uint8Array([0, 0, 0, 1, ...desc.slice(pos, pos + length)]));
+                            configLen += 4 + length;
+                            pos += length;
+                        }
+                        
+                        // Parse PPS
+                        const ppsCount = desc[pos++];
+                        for (let i = 0; i < ppsCount; i++) {
+                            const length = (desc[pos] << 8) | desc[pos + 1];
+                            pos += 2;
+                            arrays.push(new Uint8Array([0, 0, 0, 1, ...desc.slice(pos, pos + length)]));
+                            configLen += 4 + length;
+                            pos += length;
+                        }
+                        
+                        spsPps = new Uint8Array(configLen);
+                        let offset = 0;
+                        for (const arr of arrays) {
+                            spsPps.set(arr, offset);
+                            offset += arr.length;
+                        }
+                    }
+                }
+
+                // AVCC parsing for NAL units
+                let parsedBytes = new Uint8Array(bytes.length);
+                let offset = 0;
+                while (offset < bytes.length) {
+                    let nalLength = (bytes[offset] << 24) | (bytes[offset+1] << 16) | (bytes[offset+2] << 8) | bytes[offset+3];
+                    parsedBytes[offset] = 0;
+                    parsedBytes[offset+1] = 0;
+                    parsedBytes[offset+2] = 0;
+                    parsedBytes[offset+3] = 1;
+                    let nalStart = offset + 4;
+                    let nalEnd = nalStart + nalLength;
+                    for (let i = nalStart; i < nalEnd; i++) {
+                        parsedBytes[i] = bytes[i];
+                    }
+                    offset = nalEnd;
+                }
+                
+                if (spsPps.length > 0) {
+                    annexBBytes = new Uint8Array(spsPps.length + parsedBytes.length);
+                    annexBBytes.set(spsPps, 0);
+                    annexBBytes.set(parsedBytes, spsPps.length);
+                } else {
+                    annexBBytes = parsedBytes;
+                }
+            }
+
+            const metaJson = JSON.stringify({
+              frameNumber: frameCount++,
+              timestamp: new Date().toISOString(),
+              captureTime: new Date().toISOString(),
+              resolution: "640x480",
+              width: 640,
+              height: 480,
+              imageFormat: "bgra8888",
+              compressionType: "h264",
+              payloadSize: annexBBytes.length
+            });
+
+            ws.send(metaJson);
+            ws.send(annexBBytes);
+          },
+          error: (e) => console.error("Encoder error:", e)
+        };
+
+        const config = {
+          codec: 'avc1.42001e',
+          width: 640,
+          height: 480,
+          hardwareAcceleration: 'prefer-software',
+          latencyMode: 'realtime',
+          framerate: 30
+        };
+
+        const support = await VideoEncoder.isConfigSupported(config);
+        console.log("Codec support:", support.supported);
+        if (!support.supported) {
+           config.codec = 'vp8';
+           console.log("Falling back to vp8 to test pipeline");
+        }
+
+        const encoder = new VideoEncoder(init);
+        encoder.configure(config);
+
+        console.log("=== PHASE 3: VideoFrame Test ===");
+        setInterval(() => {
+          if (encoder.state === "configured") {
+            // Create VideoFrame from <video>
+            const frame = new VideoFrame(video, { timestamp: performance.now() * 1000 });
+            encoder.encode(frame, { keyFrame: frameCount % 30 === 0 });
+            frame.close();
+          }
+        }, 33);
+        
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    })();
+  </script>
+</body>
+</html>

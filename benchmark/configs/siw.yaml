@@ -1,0 +1,8 @@
+dataset:
+  name: "SiW"
+  type: "presentation_attack"
+  path: "benchmark/datasets/SiW"
+  protocols: [1, 2, 3]
+  fps: 30
+  resolution: "1080p"
+  attack_types: ["print", "replay", "mask"]
