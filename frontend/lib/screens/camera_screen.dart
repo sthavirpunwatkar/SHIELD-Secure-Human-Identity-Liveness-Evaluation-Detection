@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/liveness_provider.dart';
 import '../widgets/liveness_overlay.dart';
 import '../services/security_service.dart';
 import '../services/camera_capture_service.dart';
