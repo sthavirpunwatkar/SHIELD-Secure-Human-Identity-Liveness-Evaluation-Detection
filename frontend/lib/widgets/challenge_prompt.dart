@@ -291,7 +291,7 @@ class _ChallengePromptState extends State<ChallengePrompt>
               color: dotColor,
               shape: BoxShape.circle,
               boxShadow: i == widget.currentIndex
-                  ? [BoxShadow(color: dotColor.withOpacity(0.6), blurRadius: 8)]
+                  ? [BoxShadow(color: dotColor.withValues(alpha: 0.6), blurRadius: 8)]
                   : null,
             ),
           );
@@ -315,20 +315,20 @@ class _ChallengePromptState extends State<ChallengePrompt>
       margin: const EdgeInsets.symmetric(horizontal: 24),
       padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.55),
+        color: Colors.black.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white12),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withOpacity(0.08),
-            Colors.white.withOpacity(0.02),
+            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.02),
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),

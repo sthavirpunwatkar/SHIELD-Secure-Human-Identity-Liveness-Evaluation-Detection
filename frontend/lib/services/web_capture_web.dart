@@ -1,5 +1,6 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
+import 'dart:developer' as developer;
 import 'package:flutter/widgets.dart';
 import 'dart:ui_web' as ui_web;
 import 'package:web/web.dart' as web;
@@ -91,7 +92,7 @@ class WebCaptureService {
         // after it is encoded, but since encoding isn't implemented here, 
         // we leave it to be garbage collected or closed by the encoder later.
       } catch (e) {
-        print('Error reading frame: $e');
+        developer.log('Error reading frame: $e');
         break;
       }
     }

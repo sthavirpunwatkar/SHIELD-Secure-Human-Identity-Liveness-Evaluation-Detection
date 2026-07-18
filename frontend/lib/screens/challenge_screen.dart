@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
@@ -382,7 +381,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       decoration: BoxDecoration(
         color: Colors.black87,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -408,7 +407,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: cs.temporalValid! ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                    color: cs.temporalValid! ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: cs.temporalValid! ? Colors.green : Colors.red, width: 0.5),
                   ),
@@ -508,7 +507,7 @@ class _FaceGuideOvalPainter extends CustomPainter {
     final spotlightPath = Path.combine(PathOperation.difference, backgroundPath, ovalPath);
 
     final spotlightPaint = Paint()
-      ..color = Colors.black.withOpacity(0.65)
+      ..color = Colors.black.withValues(alpha: 0.65)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
     canvas.drawPath(spotlightPath, spotlightPaint);
 
@@ -521,7 +520,7 @@ class _FaceGuideOvalPainter extends CustomPainter {
 
     // Outer glow for the oval
     final glowPaint = Paint()
-      ..color = color.withOpacity(0.3)
+      ..color = color.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);

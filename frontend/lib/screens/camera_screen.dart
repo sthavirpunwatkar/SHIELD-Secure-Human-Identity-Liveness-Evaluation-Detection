@@ -1,5 +1,4 @@
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/liveness_provider.dart';
@@ -94,8 +93,6 @@ class _CameraScreenState extends State<CameraScreen> {
 
   void _startStreaming() {
     if (_cameraService.state != CameraState.ready && _cameraService.state != CameraState.streaming) return;
-
-    final provider = Provider.of<LivenessProvider>(context, listen: false);
 
     setState(() {
       _isStreaming = true;

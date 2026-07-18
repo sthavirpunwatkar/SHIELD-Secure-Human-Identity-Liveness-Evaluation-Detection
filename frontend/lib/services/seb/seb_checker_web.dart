@@ -1,6 +1,6 @@
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 Future<bool> isSafeExamBrowserActive() async {
-  final userAgent = html.window.navigator.userAgent.toUpperCase();
+  final userAgent = web.window.navigator.userAgent.toUpperCase();
   return userAgent.contains('SEB');
 }

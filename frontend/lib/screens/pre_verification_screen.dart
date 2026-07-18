@@ -190,14 +190,14 @@ class _PreVerificationScreenState extends State<PreVerificationScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF1E293B), // Slate 800
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withOpacity(0.1),
+                color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: const Color(0xFF3B82F6), size: 28),
