@@ -106,6 +106,8 @@ jobs:
     name: Release Workflow
     needs: [docker-build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
