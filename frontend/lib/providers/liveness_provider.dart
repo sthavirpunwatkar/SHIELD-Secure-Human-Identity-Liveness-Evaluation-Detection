@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/liveness_result.dart';
 import '../services/challenge_service.dart';
@@ -25,8 +26,12 @@ class LivenessProvider with ChangeNotifier {
   ChallengeService get challengeService => _challengeService;
   ChallengeState get challengeState => _challengeService.state;
 
+  StreamSubscription? _messageSub;
+  StreamSubscription? _connectionStateSub;
+  StreamSubscription? _challengeStateSub;
+
   LivenessProvider(this._transportService) {
-    _transportService.messageStream.listen((jsonMessage) {
+    _messageSub = _transportService.messageStream.listen((jsonMessage) {
       if (jsonMessage.containsKey('verdict') || jsonMessage.containsKey('temporal_valid')) {
         _currentResult = LivenessResult.fromJson(jsonMessage);
         _isProcessing = false;
@@ -35,7 +40,7 @@ class LivenessProvider with ChangeNotifier {
       notifyListeners();
     });
 
-    _transportService.transport.connectionStateStream.listen((state) {
+    _connectionStateSub = _transportService.transport.connectionStateStream.listen((state) {
       final wasConnected = _isConnected;
       _isConnected = (state == TransportConnectionState.connected);
       if (wasConnected != _isConnected) {
@@ -43,7 +48,7 @@ class LivenessProvider with ChangeNotifier {
       }
     });
 
-    _challengeService.stateStream.listen((state) {
+    _challengeStateSub = _challengeService.stateStream.listen((state) {
       notifyListeners();
     });
   }
@@ -103,6 +108,9 @@ class LivenessProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _messageSub?.cancel();
+    _connectionStateSub?.cancel();
+    _challengeStateSub?.cancel();
     _challengeService.dispose();
     _transportService.dispose();
     super.dispose();
