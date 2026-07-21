@@ -45,11 +45,11 @@ class WeightTuner:
             as_score = self.antispoof.predict(crop)
             rppg_score = self.rppg.update(frame)
             behavior = self.behavioral.analyze(frame)
-            blink_score = 1.0 if behavior["blink_detected"] else 0.0
+            behavior_score = behavior.get("behavior_score", 0.0)
             challenge_score = 0.0  # Not testing active challenges here
             
             y_true = 1 if label == "live" else 0
-            samples_data.append((y_true, rppg_score, blink_score, as_score, challenge_score))
+            samples_data.append((y_true, rppg_score, behavior_score, as_score, challenge_score))
 
         print(f"Running grid search (min_weight={min_weight})...")
         best_acer = 1.0
@@ -70,8 +70,8 @@ class WeightTuner:
                     y_true_list = []
                     y_pred_scores = []
                     
-                    for y_true, rppg_score, blink_score, as_score, challenge_score in samples_data:
-                        score = (r_w * rppg_score) + (b_w * blink_score) + (a_w * as_score) + (c_w * challenge_score)
+                    for y_true, rppg_score, behavior_score, as_score, challenge_score in samples_data:
+                        score = (r_w * rppg_score) + (b_w * behavior_score) + (a_w * as_score) + (c_w * challenge_score)
                         y_true_list.append(y_true)
                         y_pred_scores.append(score)
                         
@@ -85,7 +85,7 @@ class WeightTuner:
                         best_accuracy = accuracy
                         best_weights = {
                             "rppg": r_w,
-                            "blink": b_w,
+                            "behavior": b_w,
                             "antispoof": a_w,
                             "challenge": c_w
                         }

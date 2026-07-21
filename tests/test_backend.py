@@ -192,7 +192,7 @@ async def test_websocket_challenge_session_cleanup():
 
 @pytest.mark.asyncio
 async def test_websocket_identity_mismatch():
-    from backend.main import websocket_challenge, session_manager, fusion_service
+    from backend.main import websocket_challenge, session_manager
     from fastapi import WebSocket
     from unittest.mock import AsyncMock, MagicMock, patch
     
@@ -245,10 +245,10 @@ async def test_websocket_identity_mismatch():
     mock_ws.send_json = AsyncMock()
     mock_ws.close = AsyncMock()
     
-    # Mock StreamingDecoder and process_challenge_frame
-    from backend.services.video_decoder import DecodedFrame
-    with patch('services.video_decoder.StreamingDecoder.decode_chunk') as mock_decode, \
-         patch.object(fusion_service, 'process_challenge_frame') as mock_process:
+    from services.video_decoder import StreamingDecoder, DecodedFrame
+    from services.fusion_service import FusionService
+    with patch.object(StreamingDecoder, 'decode_chunk') as mock_decode, \
+         patch.object(FusionService, 'process_challenge_frame') as mock_process:
         
         frame1 = DecodedFrame(image=np.zeros((480, 640, 3), dtype=np.uint8), capture_timestamp="", arrival_timestamp=1.0, frame_number=1, sequence_number=1, resolution="", metadata={})
         frame2 = DecodedFrame(image=np.ones((480, 640, 3), dtype=np.uint8), capture_timestamp="", arrival_timestamp=1.0, frame_number=2, sequence_number=2, resolution="", metadata={})
