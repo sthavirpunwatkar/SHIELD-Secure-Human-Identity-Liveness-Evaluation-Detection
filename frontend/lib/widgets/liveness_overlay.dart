@@ -82,13 +82,21 @@ class LivenessOverlay extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                l10n.confidence((result.confidence * 100).toStringAsFixed(1)),
-                                style: const TextStyle(color: Colors.white),
+                              Expanded(
+                                child: Text(
+                                  l10n.confidence((result.confidence * 100).toStringAsFixed(1)),
+                                  style: const TextStyle(color: Colors.white),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              Text(
-                                l10n.latency(result.processingTimeMs.toString()),
-                                style: const TextStyle(color: Colors.white),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  l10n.latency(result.processingTimeMs.toString()),
+                                  style: const TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.right,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
@@ -132,7 +140,14 @@ class LivenessOverlay extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
           Text(
             '${(value * 100).toStringAsFixed(0)}%',
             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),

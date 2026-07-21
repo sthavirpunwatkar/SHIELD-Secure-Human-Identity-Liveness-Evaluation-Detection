@@ -4,10 +4,10 @@ import os
 from ultralytics import YOLO
 
 class YoloSegDetector:
-    def __init__(self, model_path='models/yolov8n-face.pt'):
+    def __init__(self, model_path='models/l_version_1_300.pt'):
         """
-        Initializes the YOLOv8-seg face and mask detector.
-        :param model_path: Path to the YOLOv8-seg model weights.
+        Initializes the YOLOv8 face and mask detector.
+        :param model_path: Path to the YOLO model weights.
         """
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
@@ -18,7 +18,7 @@ class YoloSegDetector:
             self.model = YOLO(model_path)
         except Exception as e:
             print(f"Error loading model {model_path}: {e}")
-            fallback = os.path.join(project_root, 'models', 'yolov8n-face.pt')
+            fallback = os.path.join(project_root, 'models', 'l_version_1_300.pt')
             print(f"Falling back to {fallback}")
             self.model = YOLO(fallback)
 
@@ -30,7 +30,6 @@ class YoloSegDetector:
         """
         results = self.model(frame, verbose=False)
         faces = []
-        mask_spoof_detected = False
         
         for result in results:
             boxes = result.boxes
@@ -38,23 +37,17 @@ class YoloSegDetector:
                 cls = int(box.cls[0])
                 conf = float(box.conf[0])
                 
-                # Assume class 1 is 'mask' for spoofing (e.g., silicone mask or physical mask spoof)
-                if cls == 1 and conf > 0.60:
-                    mask_spoof_detected = True
-                
-                # Assume class 0 is 'face'
-                if cls == 0 and conf > 0.35:
+                # new weights l_version_1_300.pt: 0 = 'fake', 1 = 'real'
+                if conf > 0.35:
+                    # Disable YOLO's buggy mask spoof classification to rely on the dedicated antispoof model
+                    is_mask_spoof = False
                     xyxy = box.xyxy[0].tolist()
                     faces.append({
                         'bbox': [int(x) for x in xyxy],
                         'confidence': conf,
-                        'is_mask_spoof': mask_spoof_detected
+                        'is_mask_spoof': is_mask_spoof
                     })
         
-        # If any face is found, we can attach the spoof detected flag to it
-        for face in faces:
-            face['is_mask_spoof'] = mask_spoof_detected
-            
         return faces
 
     def crop_face(self, frame, bbox):

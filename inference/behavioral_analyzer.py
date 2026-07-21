@@ -112,6 +112,10 @@ class BehavioralAnalyzer:
         self._last_frame_id = None
         self._last_landmarks = None
         self._last_timestamp_ms = 0
+        
+        # Temporal tracking for micro-movements
+        self._pose_history = []
+        self._pose_window_size = 15  # About 1-1.5 seconds at 10-15 FPS
 
         if self.has_mediapipe:
             if not self.use_tasks_api:
@@ -511,6 +515,23 @@ class BehavioralAnalyzer:
                     pose = self.estimate_head_pose(face_landmarks, img_w, img_h)
                     results["pose"] = pose
 
+                    # Track micro-movements
+                    self._pose_history.append((pose["yaw"], pose["pitch"], pose["roll"]))
+                    if len(self._pose_history) > self._pose_window_size:
+                        self._pose_history.pop(0)
+
+                    # Compute variance to detect natural head jitter
+                    if len(self._pose_history) >= 10:
+                        yaws = [p[0] for p in self._pose_history]
+                        pitches = [p[1] for p in self._pose_history]
+                        # A completely static image will have 0.0 variance.
+                        # Real humans naturally have a tiny amount of jitter (>0.05 var)
+                        yaw_var = np.var(yaws)
+                        pitch_var = np.var(pitches)
+                        results["micro_movement"] = bool((yaw_var > 0.05) or (pitch_var > 0.05))
+                    else:
+                        results["micro_movement"] = False
+
                     # Classify head turn direction
                     yaw = pose["yaw"]
                     if yaw < -self.YAW_TURN_THRESHOLD:
@@ -540,6 +561,7 @@ class BehavioralAnalyzer:
         self._prev_ear = None
         self._blink_counter = 0
         self._ear_history = []
+        self._pose_history = []
 
 
 if __name__ == "__main__":

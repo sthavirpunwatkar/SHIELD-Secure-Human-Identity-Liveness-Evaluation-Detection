@@ -173,7 +173,7 @@ class LivenessDetails {
       primaryLiveness: (json['primary_liveness'] ?? json['antispoof'] ?? 0.0).toDouble(),
       secondaryLiveness: (json['secondary_liveness'] ?? json['challenge'] ?? 0.0).toDouble(),
       combinedLiveness: (json['combined_liveness'] ?? json['combined'] ?? 0.0).toDouble(),
-      behavioralScore: (json['behavioral_score'] ?? json['blink'] ?? 0.0).toDouble(),
+      behavioralScore: (json['behavioral_score'] ?? json['behavior'] ?? json['blink'] ?? 0.0).toDouble(),
       rppgScore: (json['rppg_score'] ?? json['rppg'] ?? 0.0).toDouble(),
     );
   }

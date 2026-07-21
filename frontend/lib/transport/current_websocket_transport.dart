@@ -69,7 +69,6 @@ class CurrentWebSocketTransport implements FrameTransport {
     
     try {
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      await _channel!.ready;
       _updateState(TransportConnectionState.connected);
       
       _channel!.stream.listen(

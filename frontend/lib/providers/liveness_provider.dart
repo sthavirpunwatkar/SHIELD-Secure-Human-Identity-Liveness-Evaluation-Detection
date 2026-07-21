@@ -11,8 +11,9 @@ class LivenessProvider with ChangeNotifier {
   
   LivenessResult _currentResult = LivenessResult.empty();
   bool _isProcessing = false;
-  String _serverUrl = 'ws://127.0.0.1:8000/ws/verify'; // Default URL
-  String _challengeUrl = 'ws://127.0.0.1:8000/ws/challenge';
+  static const String _defaultBackendUrl = String.fromEnvironment('BACKEND_URL', defaultValue: 'ws://127.0.0.1:8000');
+  String _serverUrl = '$_defaultBackendUrl/ws/verify';
+  String _challengeUrl = '$_defaultBackendUrl/ws/challenge';
 
   LivenessResult get currentResult => _currentResult;
   bool get isProcessing => _isProcessing;

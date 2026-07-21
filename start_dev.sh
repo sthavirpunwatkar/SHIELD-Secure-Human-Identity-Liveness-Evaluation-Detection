@@ -5,7 +5,7 @@
 # ensuring clean shutdown of background processes upon exit.
 
 # Default values
-DEVICE="linux" # fallback to linux, can be overridden with ./start_dev.sh -d chrome
+DEVICE=""
 
 # Parse arguments
 while getopts d: flag
@@ -14,6 +14,20 @@ do
         d) DEVICE=${OPTARG};;
     esac
 done
+
+# If no device was provided via flags, prompt the user
+if [ -z "$DEVICE" ]; then
+    echo "Please select the target device to run the Flutter frontend:"
+    echo "1) Chrome (Web) (Default)"
+    echo "2) Linux"
+    echo "3) Windows"
+    read -p "Enter choice [1-3]: " choice
+    case "$choice" in
+        2) DEVICE="linux" ;;
+        3) DEVICE="windows" ;;
+        *) DEVICE="chrome" ;;
+    esac
+fi
 
 echo "========================================="
 echo " 🛡️  Starting SHIELD Development Session "
@@ -47,7 +61,7 @@ else
 fi
 
 # Run backend
-python main.py &
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 echo "Backend running with PID: $BACKEND_PID"
 
@@ -68,12 +82,19 @@ else
     exit 1
 fi
 
+# Get the primary local IP address to allow external devices to connect
+LOCAL_IP=$(hostname -I | awk '{print $1}')
+if [ -z "$LOCAL_IP" ]; then
+    LOCAL_IP="127.0.0.1"
+fi
+BACKEND_URL="ws://${LOCAL_IP}:8000"
+
 # Run the flutter app
-echo "Running: $FLUTTER_CMD run -d $DEVICE"
-$FLUTTER_CMD run -d $DEVICE
+echo "Running: $FLUTTER_CMD run -d $DEVICE --dart-define=BACKEND_URL=$BACKEND_URL"
+$FLUTTER_CMD run -d $DEVICE --dart-define=BACKEND_URL=$BACKEND_URL
 
 # If flutter run fails, try interactive fallback
 if [ $? -ne 0 ]; then
     echo -e "\n⚠️ Could not launch on '$DEVICE'. Trying interactive device selection..."
-    $FLUTTER_CMD run
+    $FLUTTER_CMD run --dart-define=BACKEND_URL=$BACKEND_URL
 fi

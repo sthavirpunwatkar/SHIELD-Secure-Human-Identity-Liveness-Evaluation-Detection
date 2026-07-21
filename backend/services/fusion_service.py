@@ -149,12 +149,11 @@ class FusionService:
                 "bbox": bbox
             }
             
-        # Use blink_count so the score persists after the first blink, rather than just the 1 frame it occurs
+        # Compute unified behavior score (Blink OR Natural Micro-movements)
         blink_score = 1.0 if behavior.get('blink_count', 0) > 0 else 0.0
-        if blink_score is None:
-            print("NULL SCORE DETECTED")
-        if np.isnan(blink_score):
-            print("NAN DETECTED")
+        micro_movement_score = 1.0 if behavior.get('micro_movement', False) else 0.0
+        behavior_score = max(blink_score, micro_movement_score)
+        
         raw_landmarks = behavior.get("raw_landmarks")
         
         # Cascade Step 2: Anti-Spoofing
@@ -249,11 +248,11 @@ class FusionService:
 
         # 5. Decision Fusion
         print("FUSION_START")
-        pipeline_logger.info(f"Fusion Inputs: rppg={rppg_score}, blink={blink_score}, antispoof={as_score}, challenge={challenge_score}")
+        pipeline_logger.info(f"Fusion Inputs: rppg={rppg_score}, behavior={behavior_score}, antispoof={as_score}, challenge={challenge_score}")
         try:
             fusion_res = self.fusion_engine.fuse(
                 rppg_score=rppg_score,
-                blink_score=blink_score,
+                behavior_score=behavior_score,
                 antispoof_score=as_score,
                 challenge_score=challenge_score,
                 is_challenge_active=is_challenge_active

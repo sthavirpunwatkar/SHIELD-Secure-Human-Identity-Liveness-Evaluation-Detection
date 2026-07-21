@@ -13,6 +13,7 @@ class CameraCaptureService extends ChangeNotifier with WidgetsBindingObserver {
   WebCaptureService? _webCaptureService;
 
   CameraController? get controller => _controller;
+  bool _isDisposed = false;
 
   Widget buildPreview() {
     if (kIsWeb) {
@@ -179,11 +180,14 @@ class CameraCaptureService extends ChangeNotifier with WidgetsBindingObserver {
     }
     
     _state = CameraState.ready;
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     stopStreaming();
     _frameController.close();

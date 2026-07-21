@@ -6,6 +6,11 @@ class SecurityService {
   /// Checks for the presence of known virtual camera drivers at the OS level.
   /// Returns `true` if a virtual camera is detected, `false` otherwise.
   static Future<bool> hasVirtualCamera() async {
+    // Bypass in debug mode for local development
+    if (kDebugMode) {
+      return false;
+    }
+
     if (kIsWeb) {
       // Web browsers abstract hardware. Cannot do OS-level check here.
       return false;

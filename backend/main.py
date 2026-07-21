@@ -44,7 +44,7 @@ class GlobalMetrics:
 global_metrics = GlobalMetrics()
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
 
-from services.fusion_service import fusion_service
+from services.fusion_service import FusionService
 from services.db_service import db_service
 from services.seb_service import verify_seb_headers_http, verify_seb_headers_ws
 
@@ -123,6 +123,7 @@ async def websocket_challenge(websocket: WebSocket):
     logger.info(f"Client connected to Challenge WebSocket: {client_host} | Session: {session_uuid}")
     
     decoder = StreamingDecoder()
+    session_fusion = FusionService()
     session_log_path = f"logs/sessions/session_{session_uuid}.jsonl"
     
     try:
@@ -178,7 +179,7 @@ async def websocket_challenge(websocket: WebSocket):
 
                 for decoded_frame in frames:
                     start_proc = time.time()
-                    result = fusion_service.process_challenge_frame(
+                    result = session_fusion.process_challenge_frame(
                         decoded_frame.image, 
                         challenge_session,
                         frame_number=decoded_frame.frame_number,
@@ -331,6 +332,7 @@ async def websocket_verify_passive(websocket: WebSocket):
     logger.info(f"Client connected to Passive Verify WebSocket: {client_host}")
     
     decoder = StreamingDecoder()
+    session_fusion = FusionService()
 
     last_metadata = None
 
@@ -364,12 +366,21 @@ async def websocket_verify_passive(websocket: WebSocket):
                     continue
                     
                 for decoded_frame in frames:
-                    result = fusion_service.process_frame(
+                    result = session_fusion.process_frame(
                         decoded_frame.image,
                         frame_number=decoded_frame.frame_number,
                         capture_timestamp=decoded_frame.capture_timestamp
                     )
                     raw_landmarks = result.pop("_raw_landmarks", None)
+                    
+                    # Log the verdict to debug file
+                    with open("logs/debug_verify.log", "a") as f:
+                        f.write(json.dumps({
+                            "timestamp": time.time(),
+                            "verdict": result.get("verdict"),
+                            "confidence": result.get("confidence"),
+                            "details": result.get("details")
+                        }) + "\\n")
                     
                     # Demo Mode Visualization
                     if DEMO_MODE:

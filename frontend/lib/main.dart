@@ -78,8 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _urlController.text = 'ws://127.0.0.1:8000/ws/verify'; // Example local IP
-
+    const String backendUrl = String.fromEnvironment('BACKEND_URL', defaultValue: 'ws://127.0.0.1:8000');
+    _urlController.text = '$backendUrl/ws/verify';
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = Provider.of<LivenessProvider>(context, listen: false);
+      await provider.connect(isChallenge: false);
+      if (mounted && provider.isConnected) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CameraScreen()));
+      }
+    });
   }
 
   @override
