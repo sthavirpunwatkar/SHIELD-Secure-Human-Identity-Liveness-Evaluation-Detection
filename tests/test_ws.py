@@ -3,7 +3,10 @@ import websockets
 import json
 import cv2
 import numpy as np
+import pytest
 
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="Requires running server on localhost:8000")
 async def test_ws():
     uri = "ws://localhost:8000/ws/verify"
     async with websockets.connect(uri) as websocket:
@@ -25,5 +28,3 @@ async def test_ws():
             # Receive result
             res = await websocket.recv()
             print("Received:", res)
-
-asyncio.run(test_ws())
