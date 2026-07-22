@@ -146,3 +146,8 @@ SHIELD_CDAC_Project_Review.pdf
 *.mov
 *.zip
 *.7z
+
+docs/pandoc*
+data/media/*
+logs/*
+!docs/media/demo.mp4
