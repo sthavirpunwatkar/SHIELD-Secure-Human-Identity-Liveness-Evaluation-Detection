@@ -1,0 +1,15 @@
+graph LR
+    User([User]) -->|Interacts| Flutter[Flutter Frontend]
+    Flutter -->|Captures Video| Camera[Camera Service]
+    Camera -->|H.264 Encode| Encoder[WebCodecs]
+    Encoder -->|WS Transport| FastAPI[FastAPI Backend]
+    
+    subgraph Server
+        FastAPI --> Auth[SEB Auth & Trust]
+        Auth --> Pipeline[AI Inference Pipeline]
+        Pipeline --> DB[Local Database]
+    end
+    
+    Pipeline -->|Verdict| FastAPI
+    FastAPI -->|WS JSON| Flutter
+    Flutter -->|Displays Result| User

@@ -1,0 +1,18 @@
+graph TD
+    Client((Client App))
+    
+    Process1((Frame Decoder))
+    Process2((AI Inference))
+    Process3((Fusion Logic))
+    Process4((DB Service))
+    
+    Store1[(Model Files)]
+    Store2[(SQLite DB)]
+    
+    Client -->|Video Stream| Process1
+    Process1 -->|OpenCV BGR Matrix| Process2
+    Store1 -->|Weights| Process2
+    Process2 -->|Individual Scores| Process3
+    Process3 -->|Final Boolean Verdict| Process4
+    Process4 -->|Log Data| Store2
+    Process3 -->|Response JSON| Client

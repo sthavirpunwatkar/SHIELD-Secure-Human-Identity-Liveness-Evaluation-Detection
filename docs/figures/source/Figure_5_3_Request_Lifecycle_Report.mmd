@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Client as Flutter Client
+    participant Server as FastAPI WebSocket
+    participant DB as SQLite
+    
+    Client->>Server: Connect (Session ID, SEB Token)
+    Server->>Client: Connection Accepted
+    
+    loop Every Frame
+        Client->>Server: Binary Frame Chunk
+        activate Server
+        Server->>Server: Decode H.264
+        Server->>Server: Run YOLO, MediaPipe, FAS, rPPG
+        Server->>Server: Compute Fusion Score
+        Server->>DB: Synchronous Write (UPDATE session)
+        Server-->>Client: JSON Response (Verdict, Score)
+        deactivate Server
+    end

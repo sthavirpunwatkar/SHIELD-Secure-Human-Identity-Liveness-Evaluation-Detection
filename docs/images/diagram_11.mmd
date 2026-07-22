@@ -1,0 +1,21 @@
+graph TD
+    subgraph Client Device
+        FlutterApp[Mobile/Desktop App]
+        Cam[Hardware Camera]
+    end
+    
+    subgraph Cloud / Server
+        Docker[Docker Engine]
+        subgraph Docker Container
+            FastAPI[Uvicorn / FastAPI Server]
+            SQLite[(shield_local.db)]
+            Disk[(Local Images)]
+            Models[(ONNX/PT Models)]
+        end
+    end
+    
+    Cam --> FlutterApp
+    FlutterApp -->|WSS over Internet| FastAPI
+    FastAPI --> SQLite
+    FastAPI --> Disk
+    FastAPI --> Models

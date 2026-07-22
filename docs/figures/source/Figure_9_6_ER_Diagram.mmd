@@ -1,0 +1,10 @@
+erDiagram
+    VERIFICATION {
+        string id PK "UUID"
+        string session_id "UUID"
+        string verdict "Live/Spoof"
+        float confidence "0.0 - 1.0"
+        string details "JSON breakdown"
+        string image_url "Path to snapshot"
+        datetime timestamp
+    }

@@ -1,0 +1,23 @@
+graph TD
+    subgraph UI Screens
+        PS[Pre-Verification Screen]
+        CS[Challenge Screen]
+        CamS[Camera Screen]
+    end
+    
+    subgraph Services
+        CCS[CameraCaptureService]
+        ChalS[ChallengeService]
+        FTS[FrameTransportService]
+        SEB[SecurityService]
+        Codec[WebCodecs]
+    end
+    
+    CS --> ChalS
+    CamS --> CCS
+    PS --> SEB
+    
+    CCS --> Codec
+    Codec --> FTS
+    FTS -->|WebSocket| Backend[Backend API]
+    ChalS -->|Listens to WS| FTS

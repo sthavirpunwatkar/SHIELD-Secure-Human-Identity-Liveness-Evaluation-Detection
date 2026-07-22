@@ -1,0 +1,18 @@
+flowchart TD
+    Input(Raw BGR Frame) --> YOLO[YOLOv8 Face Detection]
+    Input --> MP[MediaPipe Face Mesh]
+    
+    YOLO -->|Bounding Box| Crop[ROI Cropping]
+    
+    Crop --> FAS[MiniFASNet Texture Inference]
+    Crop --> rPPG[1D-CNN Pulse Extraction]
+    
+    MP -->|Landmarks| Behav[Behavioral Analyzer - EAR/MAR]
+    
+    FAS -->|Spoof Score| Fusion((Weighted Fusion Engine))
+    rPPG -->|Pulse Signal| Fusion
+    Behav -->|Blink/Yaw Metrics| Fusion
+    
+    Fusion --> Verdict{Final Decision}
+    Verdict -- Pass --> Live[Live Human Detected]
+    Verdict -- Fail --> Spoof[Presentation Attack Detected]

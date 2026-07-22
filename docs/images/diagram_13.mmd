@@ -1,0 +1,14 @@
+graph TD
+    App[Client App]
+    API[FastAPI Router]
+    
+    App -->|GET /health| API
+    API -->|JSON 200 OK| App
+    
+    App -->|GET /metrics/debug| API
+    API -->|JSON Metrics| App
+    
+    App -->|WSS /ws/challenge| API
+    API -->|Challenge Text| App
+    App -->|Binary Frame| API
+    API -->|Verdict Text| App

@@ -1,0 +1,29 @@
+graph TD
+    WS[WebSocket Routers] -->|Raw Bytes| Decoder[StreamingDecoder]
+    WS -->|JSON Commands| SM[SessionManager]
+    Decoder -->|Decoded Frames| FS[FusionService]
+    
+    subgraph Services
+        FS
+        SM
+        DB[LocalDBService]
+    end
+    
+    subgraph AI Orchestration [FusionService]
+        Yolo[YOLOv8-Seg]
+        Qual[QualityScoreEngine]
+        Behav[BehavioralAnalyzer]
+        Anti[MiniFASNet Antispoof]
+        rPPG[rPPG 1D-CNN]
+        FE[FusionEngine]
+    end
+    
+    FS --> Yolo
+    FS --> Qual
+    FS --> Behav
+    FS --> Anti
+    FS --> rPPG
+    
+    Yolo & Qual & Behav & Anti & rPPG --> FE
+    FE -->|Score & Verdict| SM
+    SM -->|Save State| DB

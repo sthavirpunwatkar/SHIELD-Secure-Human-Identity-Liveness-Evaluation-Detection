@@ -1,0 +1,25 @@
+graph TD
+    Frame[Raw Frame] --> Yolo[YoloSegDetector]
+    Yolo -->|bbox| Crop[Face Crop]
+    Yolo -->|is_mask_spoof| MaskCheck{Mask Found?}
+    
+    MaskCheck -- Yes --> SpoofVerdict[Verdict: Spoof]
+    MaskCheck -- No --> QSE[QualityScoreEngine]
+    
+    QSE -->|passes_gate| GateCheck{Passes?}
+    GateCheck -- No --> LQ[Verdict: Low Quality]
+    GateCheck -- No --> SpoofVerdict
+    GateCheck -- Yes --> BA[BehavioralAnalyzer]
+    
+    BA -->|EAR, MAR, Pose| Landmarks[Landmarks Extracted]
+    Landmarks -->|Challenge Active?| ChalCheck{Action Performed?}
+    
+    Landmarks --> AS[AntispoofInference / MiniFASNet]
+    AS -->|Confidence Score| RPPG[RPPGDetector]
+    
+    RPPG -->|Window Buffer HR| FE[FusionEngine]
+    ChalCheck -->|Score| FE
+    AS --> FE
+    BA -->|Behavior Score| FE
+    
+    FE -->|Threshold/Weights applied| FinalDecision[Final Verdict]

@@ -1,0 +1,58 @@
+\chapter{Security \& Liveness Detection}
+
+\section{Threat Model}
+Presentation Attacks (PAs) aim to subvert biometric authentication by presenting an artifact to the camera sensor. The SHIELD threat model encompasses:
+\begin{itemize}
+    \item \textbf{Printed Photo Attacks:} A high-resolution 2D image presented to the lens.
+    \item \textbf{Screen Replay Attacks:} A pre-recorded video or photograph displayed on a digital screen (e.g., iPad, smartphone).
+    \item \textbf{3D Mask Attacks:} Silicone, paper, or resin masks worn over a human face.
+    \item \textbf{Deepfake/Virtual Camera Injections:} Synthetically generated face swaps injected directly into the video feed at the OS level.
+\end{itemize}
+
+\section{Defense Mechanisms}
+
+\subsection{Passive Texture Analysis (MiniFASNet)}
+Digital screens emit distinct chromatic profiles and moiré patterns due to pixel grids, while printed photos lack specular reflections. MiniFASNet excels at identifying these high-frequency artifacts. 
+\\ \textbf{Limitation:} A high-quality 3D silicone mask mimics human skin texture, often bypassing 2D convolutional filters.
+
+\subsection{Physiological Liveness (rPPG)}
+To counter 3D masks, SHIELD employs rPPG. Synthetic artifacts, regardless of texture quality, do not possess a cardiovascular system. By strictly filtering and classifying the micro-variations in the green color channel of the facial ROI, SHIELD accurately identifies the lack of a human pulse.
+\\ \textbf{Limitation:} The rPPG signal is extremely susceptible to ambient lighting noise and severe head motion.
+
+\subsection{Dynamic Behavioral Tracking}
+To defeat static photos and pre-recorded videos, the \texttt{ChallengeService} prompts the user with randomized tasks ("Look Left", "Smile"). The \texttt{BehavioralAnalyzer} tracks the Euler angles and MediaPipe landmarks to verify intent in real-time.
+
+\subsection{Environment Security}
+To defend against virtual camera injections (e.g., OBS Virtual Cam), the system enforces Safe Exam Browser (SEB) cryptographic header validation. The FastAPI backend rejects all WebSocket handshakes lacking a valid SEB trust token, ensuring the video feed originates from a secure hardware boundary.
+
+\begin{table}[H]
+\centering
+\caption{Threat vs Defense Matrix}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Attack Vector} & \textbf{Primary Defense Mechanism} & \textbf{Effectiveness} \\
+\hline
+Printed Photograph & MiniFASNet, Behavioral Challenge & Very High \\
+Screen Replay & MiniFASNet, rPPG (No pulse) & Very High \\
+3D Silicone Mask & rPPG (No pulse), Behavioral Challenge & High \\
+Virtual Camera Swap & SEB Token Validation, HTTP Headers & Absolute (By Design) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Liveness Technique Comparison}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\textbf{Technique} & \textbf{Strengths} & \textbf{Computational Overhead} \\
+\hline
+Texture Analysis (2D) & Instantaneous decision, highly robust to screens. & Low (CPU Optimized via ONNX) \\
+Physiological (rPPG) & Unmatched against 3D masks and high-fidelity prints. & High (Requires sliding window buffering) \\
+Behavioral Response & Highly interactive, defeats static replays. & Medium (Requires dense facial landmarking) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{Conclusion on System Security}
+SHIELD implements a defense-in-depth architecture. By aggregating passive spatial metrics, active temporal behavior, and physiological pulse detection through a unified Fusion Engine, the system mathematically ensures that bypassing one modality (e.g., using a high-res screen to bypass rPPG) triggers a critical failure in another (MiniFASNet detecting screen borders).

@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant F as Flutter Frontend
+    participant B as FastAPI Backend
+    participant CE as Challenge Engine
+    participant BA as Behavioral Analyzer
+    participant FE as Fusion Engine
+
+    F->>B: WebSocket Connect
+    B->>CE: Initialize Session
+    CE->>B: Challenge Sequence [BLINK, TURN_LEFT, SMILE]
+    B->>F: {"challenge": "BLINK", "timeout_s": 5}
+
+    loop For Each Challenge
+        F->>F: Display challenge prompt + countdown
+        F->>B: Send frame (binary)
+        B->>BA: Analyze frame for challenge action
+        BA->>CE: Action detected / not detected
+        CE->>B: Challenge result
+        B->>F: {"challenge_status": "PASSED", "next": "TURN_LEFT"}
+    end
+
+    CE->>FE: challenge_score = passed/total
+    FE->>B: Final fusion verdict
+    B->>F: {"verdict": "Live", "confidence": 0.94}

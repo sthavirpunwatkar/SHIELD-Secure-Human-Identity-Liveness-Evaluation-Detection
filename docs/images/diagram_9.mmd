@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Connecting : ws.connect()
+    Connecting --> Connected : accepted
+    Connected --> Capturing : challenge issued
+    Capturing --> Detecting : frame received
+    Detecting --> Liveness : AI pipeline passed
+    Detecting --> Spoof : AI pipeline failed
+    Liveness --> Verified : session complete
+    Spoof --> Rejected : session aborted
+    Verified --> Disconnected
+    Rejected --> Disconnected
+    Disconnected --> [*]

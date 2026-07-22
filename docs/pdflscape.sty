@@ -1,0 +1,13 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pdflscape}[2008/08/11 v0.10 Landscape pages with PDF rotation (local mock)]
+\RequirePackage{lscape}
+\def\PLS@AddRotate#1{%
+  \ifx\pdfpageattr\@undefined\else
+    \pdfpageattr{/Rotate #1}%
+  \fi
+}
+\let\PLS@landscape\landscape
+\def\landscape{\PLS@landscape\PLS@AddRotate{90}}
+\let\PLS@endlandscape\endlandscape
+\def\endlandscape{\PLS@endlandscape\PLS@AddRotate{0}}
+\endinput

@@ -1,0 +1,6 @@
+flowchart LR
+    A[CameraImage YUV/BGRA] --> B[FrameEncoder Interface]
+    B --> C[Native Plugin: Android MediaCodec / iOS VideoToolbox]
+    C --> D[H.264 Annex B NAL Units]
+    D --> E[FrameTransport]
+    E --> F[Backend StreamingDecoder]

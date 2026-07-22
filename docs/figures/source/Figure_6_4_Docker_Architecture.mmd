@@ -1,0 +1,21 @@
+graph TD
+    subgraph Host Network
+        Port[Host Port 8000]
+    end
+    
+    subgraph Docker Container: shield_backend
+        Port --> Uvicorn[Uvicorn Process]
+        Uvicorn --> FastAPI[FastAPI App]
+        
+        subgraph Volumes
+            V1[./models:/app/models]
+            V2[./local_storage:/app/local_storage]
+            V3[./logs:/app/logs]
+            V4[./shield_local.db:/app/shield_local.db]
+        end
+        
+        FastAPI --> V1
+        FastAPI --> V2
+        FastAPI --> V3
+        FastAPI --> V4
+    end

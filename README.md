@@ -2,6 +2,8 @@
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen) ![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg) ![Flutter](https://img.shields.io/badge/flutter-ready-cyan.svg) ![License](https://img.shields.io/badge/license-MIT-green)
 
+<video src="docs/media/demo.mp4" controls="controls" width="100%"></video>
+
 ## 📋 Project Overview & Plan
 
 SHIELD is a professional-grade, real-time multimodal liveness detection system designed for high-security environments such as **Remote Interview Verification** and **Automated Attendance Systems**. 
@@ -22,13 +24,38 @@ Currently, the frontend utilizes an intentionally isolated **placeholder encoder
 ### System Architecture
 
 ```mermaid
-flowchart LR
-    A[Camera Input] --> B(YOLOv8 Face Detection)
-    B --> C{Quality Gate}
-    C -- Pass --> D[Multimodal Inference]
-    C -- Fail --> X[Reject Frame]
-    D --> E((Weighted Fusion Engine))
-    E --> F[Decisive UI Verdict]
+flowchart TB
+    subgraph Frontend["📱 Flutter Client"]
+        A[Camera Input] --> B[Frame Encoder]
+        B --> C[WebSocket Streaming Client]
+        F[Dynamic UI & Challenge Prompts] --> A
+    end
+
+    subgraph Backend["☁️ FastAPI Server"]
+        C <-->|H.264 Chunks / JSON| D[WebSocket Handler & Decoder]
+        D --> E{OS & SEB Security Check}
+        E -- Valid --> Q[Quality Gate]
+        E -- Invalid --> X[Reject Connection]
+        
+        Q -->|"Face & Mask Det"| M1[YOLOv8-seg]
+        M1 -- Pass --> P[Cascade Inference]
+        M1 -- Fail --> Drop[Drop Frame]
+        
+        subgraph Models["🧠 Multimodal Inference Pipeline"]
+            P -->|Texture| M2[MiniFASNet / EfficientNet]
+            P -->|Physiological| M3[rPPG 3D CNN PhysNet]
+            P -->|Behavioral| M4[Facial Landmarks & Pose]
+        end
+        
+        M2 --> FUS((Weighted Fusion Engine))
+        M3 --> FUS
+        M4 --> FUS
+        
+        FUS --> TV[Temporal Validator]
+    end
+
+    TV -->|Decisive Verdict| D
+    D -->|Real-time Result| F
 ```
 
 ---

@@ -1,0 +1,11 @@
+graph TD
+    Client["Client Frontend (Flutter)"]
+    WS["WebSocket Manager"]
+    Video["Video Decoder Service"]
+    AI["AI Fusion Engine"]
+    DB["Database Service"]
+    
+    Client -->|Uses| WS
+    WS -->|Depends on| Video
+    WS -->|Depends on| AI
+    WS -->|Depends on| DB

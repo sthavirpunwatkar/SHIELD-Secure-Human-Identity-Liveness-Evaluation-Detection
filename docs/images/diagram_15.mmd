@@ -1,0 +1,11 @@
+componentDiagram
+    [Client Frontend (Flutter)] as Client
+    [WebSocket Manager] as WS
+    [Video Decoder Service] as Video
+    [AI Fusion Engine] as AI
+    [Database Service] as DB
+    
+    Client --> WS : Uses
+    WS --> Video : Depends on
+    WS --> AI : Depends on
+    WS --> DB : Depends on

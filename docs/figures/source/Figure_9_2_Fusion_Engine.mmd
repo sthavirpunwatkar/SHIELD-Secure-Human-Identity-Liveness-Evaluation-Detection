@@ -1,0 +1,20 @@
+graph TD
+    subgraph Inputs
+        RPPG[rPPG Score 0-1]
+        Behav[Behavior Score 0-1]
+        AS[Antispoof Score 0-1]
+        Chal[Challenge Score 0-1]
+    end
+    
+    Inputs --> Logic[Fusion Engine Weights]
+    Logic --> |Challenge Active| W1[rPPG: 0.1, Beh: 0.1, AS: 0.4, Chal: 0.4]
+    Logic --> |Passive| W2[rPPG: 0.3, Beh: 0.2, AS: 0.5, Chal: 0]
+    Logic --> |Passive No Movement| W3[rPPG: 0.4, Beh: 0, AS: 0.6, Chal: 0]
+    
+    W1 & W2 & W3 --> Agg[Aggregate Score]
+    
+    Agg --> FinalCheck{Score > 0.5?}
+    FinalCheck -- Yes --> Live[Verdict: Live]
+    FinalCheck -- No --> Spoof[Verdict: Spoof]
+    
+    AS -.->|Score < 0.25| Spoof

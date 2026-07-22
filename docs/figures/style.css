@@ -1,0 +1,8 @@
+* {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif !important;
+}
+.label, .nodeLabel, text, .messageText, .loopText {
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif !important;
+    fill: #000000 !important;
+    color: #000000 !important;
+}

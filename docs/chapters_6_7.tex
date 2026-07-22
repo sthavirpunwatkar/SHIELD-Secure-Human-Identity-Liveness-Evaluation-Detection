@@ -1,0 +1,266 @@
+\chapter{Technologies Used}
+
+\section{Frontend Technologies}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_6\_1\_Frontend\_Architecture.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 6.1: Frontend Architecture\\
+\vspace{1em}
+Orientation:\\
+Portrait\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Frontend Architecture}
+\label{fig:diag_3}
+\end{figure}
+\vspace{1em}
+\textbf{Flutter:} Flutter was selected as the cross-platform UI toolkit. Its isolate-based concurrency model allows the heavy computational task of camera stream encoding to run independently from the main UI thread, ensuring smooth 60 FPS animations. Alternatives like React Native were considered but discarded due to the JavaScript bridge overhead during high-frequency frame capture.
+
+\section{Backend \& Server Technologies}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_6\_2\_Backend\_Architecture.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 6.2: Backend Architecture\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Backend Architecture}
+\label{fig:diag_2}
+\end{figure}
+\textbf{FastAPI \& Python:} FastAPI serves as the backend framework, selected for its native ASGI asynchronous support and seamless WebSocket integration, which are critical for real-time streaming architectures. Python acts as the glue language given its unparalleled ecosystem for computer vision and machine learning.
+\\
+\textbf{WebSockets:} Utilized for continuous bi-directional telemetry. Standard REST HTTP was avoided due to the unacceptable latency overhead of establishing new TCP handshakes for every video frame.
+
+\section{Computer Vision \& Machine Learning}
+\textbf{OpenCV \& NumPy:} OpenCV handles raw image matrix transformations, color space conversions, and geometric cropping. NumPy provides the underlying C-optimized tensor data structures required by the ML models.
+\\
+\textbf{MediaPipe:} Selected to provide dense 468-point 3D facial meshes at sub-5ms latency. This drives the Behavioral Analyzer without relying on heavy neural networks.
+\\
+\textbf{Ultralytics YOLOv8:} Utilized for highly accurate spatial bounding box extraction. 
+\\
+\textbf{ONNX Runtime:} The PyTorch MiniFASNet and rPPG models were exported to the Open Neural Network Exchange (ONNX) format. ONNX Runtime was explicitly selected to allow the backend to utilize the CPUExecutionProvider for high-speed inference, removing strict hardware dependencies on NVIDIA CUDA GPUs.
+
+\section{Database \& Deployment}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_6\_3\_Deployment\_Diagram.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 6.3: Deployment Diagram\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Deployment Diagram}
+\label{fig:diag_11}
+\end{figure}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_6\_4\_Docker\_Architecture.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 6.4: Docker Architecture\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Docker Architecture}
+\label{fig:diag_12}
+\end{figure}
+\vspace{1em}
+\textbf{SQLite \& SQLAlchemy:} SQLite is currently implemented for rapid prototyping and local session persistence via SQLAlchemy ORM. However, its file-level locking is a known limitation.
+\\
+\textbf{Docker:} Docker and Docker Compose containerize the application, ensuring environmental parity between development and production deployments.
+
+\begin{table}[H]
+\centering
+\caption{Technology Selection Matrix}
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
+\hline
+\textbf{Domain} & \textbf{Selected Tech} & \textbf{Alternatives Considered} & \textbf{Primary Advantage} \\
+\hline
+Frontend UI & Flutter & React Native & Isolate-based threading for camera streams. \\
+Backend API & FastAPI & Django, Flask & Native WebSocket and ASGI support. \\
+Face Mesh & MediaPipe & dlib, MTCNN & Sub-5ms latency on CPU. \\
+Model Execution & ONNX Runtime & PyTorch Native & Hardware-agnostic CPU optimization. \\
+\hline
+\end{tabularx}
+\end{table}
+
+\chapter{Functional Modules}
+
+The SHIELD repository is strictly categorized into specific functional modules across the client and server.
+
+\section{Frontend Modules (Flutter)}
+\begin{itemize}
+    \item \textbf{CameraCaptureService:} \\
+    \textit{Location:} \texttt{frontend/lib/services/camera\_capture\_service.dart} \\
+    \textit{Purpose:} Interfaces with platform camera APIs to capture raw frames. \\
+    \textit{Responsibilities:} Grabs frames at 30 FPS and pushes them to the transport queue.
+    
+    \item \textbf{FrameTransportService:} \\
+    \textit{Location:} \texttt{frontend/lib/services/frame\_transport\_service.dart} \\
+    \textit{Purpose:} Manages network backpressure and payload transmission. \\
+    \textit{Responsibilities:} Compresses frames into H.264 byte chunks and transmits them via WebSockets interlaced with JSON metadata.
+    
+    \item \textbf{ChallengeService:} \\
+    \textit{Location:} \texttt{frontend/lib/services/challenge\_service.dart} \\
+    \textit{Purpose:} Manages the active behavioral challenge state machine. \\
+    \textit{Responsibilities:} Parses backend commands, runs local UI countdown timers, and emits state changes to the \texttt{challenge\_screen.dart} UI.
+\end{itemize}
+
+\section{Backend Orchestration Modules}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_7\_2\_API\_Communication.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 7.2: API Communication\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{API Communication}
+\label{fig:diag_13}
+\end{figure}
+\vspace{1em}
+\begin{itemize}
+    \item \textbf{StreamingDecoder:} \\
+    \textit{Location:} \texttt{backend/services/video\_decoder.py} \\
+    \textit{Purpose:} Unpacks network payloads. \\
+    \textit{Responsibilities:} Decodes H.264 binary WebSocket chunks back into raw \texttt{numpy} BGR matrices for the ML pipeline.
+    
+    \item \textbf{SessionManager:} \\
+    \textit{Location:} \texttt{inference/session\_manager.py} \\
+    \textit{Purpose:} Manages active verification sessions. \\
+    \textit{Responsibilities:} Aggregates challenge states, tracks historical predictions for temporal consistency, and handles timeouts.
+    
+    \item \textbf{LocalDBService:} \\
+    \textit{Location:} \texttt{backend/services/db\_service.py} \\
+    \textit{Purpose:} Data persistence. \\
+    \textit{Responsibilities:} Stores session metadata and final verdicts into the \texttt{shield\_local.db} SQLite database.
+\end{itemize}
+
+\section{AI \& Inference Modules}
+\begin{itemize}
+    \item \textbf{QualityScoreEngine:} \\
+    \textit{Location:} \texttt{inference/quality/} \\
+    \textit{Purpose:} Evaluates frame viability. \\
+    \textit{Responsibilities:} Calculates brightness, blur, and contrast. Rejects frames to prevent noisy data from polluting the temporal rPPG buffers.
+    
+    \item \textbf{YoloSegDetector:} \\
+    \textit{Location:} \texttt{inference/yolo\_detector.py} \\
+    \textit{Purpose:} Spatial localization. \\
+    \textit{Responsibilities:} Executes YOLOv8 to extract facial bounding boxes and masks. \textit{Future Improvement:} Deprecate in favor of MediaPipe bounding boxes to eliminate a 28ms latency penalty.
+    
+    \item \textbf{BehavioralAnalyzer:} \\
+    \textit{Location:} \texttt{inference/behavioral\_analyzer.py} \\
+    \textit{Purpose:} Tracks dynamic facial geometry. \\
+    \textit{Responsibilities:} Extracts 468 landmarks via MediaPipe. Computes the Eye Aspect Ratio (EAR) for blink detection and Perspective-n-Point (PnP) for head pose.
+    
+    \item \textbf{AntispoofInference:} \\
+    \textit{Location:} \texttt{inference/antispoof/inference.py} \\
+    \textit{Purpose:} Defends against 2D printed and digital spoofs. \\
+    \textit{Responsibilities:} Normalizes the cropped ROI and executes the \texttt{minifas\_antispoof\_v2.onnx} model. Outputs a spatial spoof probability.
+    
+    \item \textbf{RPPGDetector:} \\
+    \textit{Location:} \texttt{inference/rppg\_detector.py} \\
+    \textit{Purpose:} Physiological pulse verification. \\
+    \textit{Responsibilities:} Extracts the green channel signal across a temporal buffer of spatial crops. Executes a 1D-CNN over the time-series data to estimate blood flow volumetric changes.
+    
+    \item \textbf{FusionEngine:} \\
+    \textit{Location:} \texttt{inference/fusion\_engine.py} \\
+    \textit{Purpose:} Final decision orchestration. \\
+    \textit{Responsibilities:} Applies weighted cascade logic to the incoming multi-modal scores. Defaults to 'Spoof' if the aggregated threshold falls below 0.5.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Repository Module Summary}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Module} & \textbf{Type} & \textbf{Primary Output} \\
+\hline
+FrameTransportService & Frontend & H.264 Byte Stream \\
+StreamingDecoder & Backend & Numpy BGR Matrices \\
+YoloSegDetector & AI Inference & Bounding Box Coordinates \\
+BehavioralAnalyzer & AI Inference & EAR, MAR, Head Pose Vectors \\
+AntispoofInference & AI Inference & 2D Texture Liveness Score \\
+RPPGDetector & AI Inference & 3D Physiological Pulse Score \\
+FusionEngine & Backend & Final Boolean Verdict \\
+\hline
+\end{tabularx}
+\end{table}

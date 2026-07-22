@@ -1,0 +1,79 @@
+\chapter{Literature Survey}
+
+Automated Face Anti-Spoofing (FAS) has transitioned from traditional hand-crafted feature extraction to advanced spatial-temporal deep learning analysis. Early implementations relied heavily on texture descriptors such as Local Binary Patterns (LBP) and Histogram of Oriented Gradients (HOG) \cite{boulkenafet2015face}. While computationally efficient, these models struggled to generalize across diverse camera sensors and illumination environments.
+
+The advent of Convolutional Neural Networks (CNNs) revolutionized FAS. Single-shot object detection architectures such as YOLO \cite{redmon2016you} enabled rapid face localization, while lightweight CNNs based on MobileNet paradigms successfully traded marginal accuracy drops for massive latency improvements on edge devices \cite{howard2017mobilenets}. The MiniFASNet architecture, employed by SHIELD, builds upon these principles to detect high-frequency spoofing artifacts like moiré patterns with sub-millisecond latency.
+
+Simultaneously, Remote Photoplethysmography (rPPG) emerged as a critical biological liveness indicator, positing that synthetic masks and photographs fundamentally lack a biological pulse \cite{poh2010non}. Recent research introduced 3D Convolutional Neural Networks (PhysNet) capable of extracting spatiotemporal pulse signals directly from raw video frames \cite{yu2019remote}. 
+
+Furthermore, behavioral biometrics leveraging facial meshes, such as Google's MediaPipe \cite{lugaresi2019mediapipe}, provide geometric verification of liveness through blink detection and head pose estimation. 
+
+Despite these advancements, unimodal systems remain vulnerable to specific Presentation Attack Instruments (PAIs). Consequently, fusion strategies integrating texture, physiological, and behavioral signals are now required to meet ISO/IEC 30107-3 standards \cite{iso30107}. The primary research gap exists in minimizing the computational overhead of fusing 3D-CNNs and 2D-CNNs in real-time server environments. SHIELD resolves this via an asynchronous, threshold-gated cascade architecture.
+
+\begin{table}[H]
+\centering
+\caption{Research Paper Comparison}
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|}
+\hline
+\textbf{Topic / Paper} & \textbf{Methodology} & \textbf{Advantages} & \textbf{Limitations} & \textbf{Relation to SHIELD} \\
+\hline
+YOLOv8 \cite{jocher2023yolo} & Anchor-free single-stage detection. & High bounding box accuracy and speed. & Computationally heavy for simple crops. & Used for initial spatial ROI extraction. \\
+\hline
+MediaPipe Mesh \cite{lugaresi2019mediapipe} & ML-based 468-point 3D facial topology. & Sub-5ms latency, cross-platform. & Susceptible to extreme yaw angles. & Drives Behavioral Analyzer (EAR/MAR). \\
+\hline
+MiniFASNet & Lightweight CNN for texture anomaly detection. & Optimized for mobile/edge inference. & Vulnerable to high-fidelity 3D masks. & Core Anti-Spoofing Engine for 2D attacks. \\
+\hline
+PhysNet rPPG \cite{yu2019remote} & 3D-CNN processing facial video volumes. & Highly robust to physical masking. & Requires strict lighting and temporal buffering. & Physiological rPPG Detector for pulse validation. \\
+\hline
+\end{tabularx}
+\end{table}
+
+\chapter{Objectives}
+
+\section{Project Objective}
+To develop and deploy a professional-grade, multi-modal Presentation Attack Detection (PAD) framework capable of authenticating genuine human presence in zero-trust remote environments using real-time video streams.
+
+\section{Specific Objectives}
+\begin{itemize}
+    \item \textbf{Technical Objectives:} To integrate YOLOv8, MediaPipe, and MiniFASNet into a synchronized, threshold-gated inference pipeline achieving sub-100ms end-to-end latency per frame.
+    \item \textbf{Security Objectives:} To detect and neutralize 2D printouts, digital video replays, and 3D silicone masks by enforcing passive texture analysis and active behavioral challenge-response mechanisms.
+    \item \textbf{Implementation Objectives:} To establish a low-latency bidirectional WebSocket architecture bridging a Flutter client and a FastAPI python backend, backed by SQLite for session state persistence.
+    \item \textbf{Research Objectives:} To quantify the latency impact of redundant cascaded object detectors (e.g., YOLOv8 followed by MediaPipe) and evaluate CPU-bound ONNX execution for 1D-CNN rPPG extraction.
+\end{itemize}
+
+\chapter{Scope}
+
+\section{Current Scope}
+The SHIELD system encompasses a Flutter-based mobile/desktop client for video capture and a FastAPI server for backend inference. The implemented pipeline supports real-time Face Detection, 468-point landmark extraction, passive texture analysis (MiniFASNet), and active behavioral challenges. Session telemetry is securely persisted to a local SQLite database.
+
+\section{Applications \& Target Users}
+SHIELD is targeted toward high-stakes remote environments including Remote Proctoring, automated Know Your Customer (KYC) banking pipelines, and secure corporate access control. Target users include educational institutions and financial entities requiring stringent identity verification without physical human oversight.
+
+\section{Advantages vs Limitations}
+\begin{table}[H]
+\centering
+\caption{Advantages vs Limitations}
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Implemented Advantages} & \textbf{Current Limitations} \\
+\hline
+Highly optimized ONNX Runtime execution for CPU infrastructure. & CPU-bound ML inference executes synchronously on the ASGI event loop. \\
+Cascaded thresholding aborts inference early on obvious spoofs, saving compute. & SQLite database-level locking causes bottlenecking under high concurrent client loads. \\
+Multimodal fusion prevents unimodal bypass attacks. & rPPG extraction requires strict ambient lighting constraints. \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{Future Scalability \& Deployment Scope}
+Future iterations will migrate the monolithic inference logic to distributed Celery/Redis worker queues and transition the datastore from SQLite to PostgreSQL. This decoupled asynchronous architecture will unlock massive horizontal scalability. Furthermore, the repository indicates a planned deprecation of YOLOv8 in favor of utilizing existing MediaPipe data for ROI extraction to further streamline the computer vision pipeline.
+
+\begin{thebibliography}{9}
+\bibitem{boulkenafet2015face} Z. Boulkenafet, J. Komulainen, and A. Hadid, "Face anti-spoofing based on color texture analysis," \textit{IEEE ICIP}, 2015.
+\bibitem{redmon2016you} J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, "You only look once: Unified, real-time object detection," \textit{CVPR}, 2016.
+\bibitem{howard2017mobilenets} A. G. Howard et al., "MobileNets: Efficient convolutional neural networks for mobile vision applications," \textit{arXiv preprint}, 2017.
+\bibitem{poh2010non} M. Z. Poh, D. J. McDuff, and R. W. Picard, "Non-contact, automated cardiac pulse measurements using video imaging and blind source separation," \textit{Optics express}, 2010.
+\bibitem{yu2019remote} Z. Yu et al., "Remote photoplethysmograph signal measurement from facial videos using spatio-temporal networks," \textit{BMVC}, 2019.
+\bibitem{lugaresi2019mediapipe} C. Lugaresi et al., "MediaPipe: A framework for building perception pipelines," \textit{arXiv preprint}, 2019.
+\bibitem{iso30107} ISO/IEC JTC 1/SC 37, "Information technology — Biometric presentation attack detection," \textit{ISO/IEC 30107-3:2017}.
+\bibitem{jocher2023yolo} G. Jocher, A. Chaurasia, and J. Qiu, "YOLO by Ultralytics," 2023.
+\end{thebibliography}

@@ -1,0 +1,241 @@
+\chapter{AI Pipeline \& Algorithms}
+
+\section{Overall AI Pipeline}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_1\_Overall\_System\_Architecture.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.1: Overall System Architecture\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Overall System Architecture}
+\label{fig:diag_1}
+\end{figure}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_2\_Data\_Flow\_Diagram\_Level\_1\_.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.2: Data Flow Diagram (Level 1)\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Data Flow Diagram (Level 1)}
+\label{fig:diag_14}
+\end{figure}
+\vspace{1em}
+The SHIELD inference pipeline operates on an asynchronous, threshold-gated cascade. When a client application streams an H.264 video payload, the backend decodes it into a sequence of NumPy BGR matrices. These frames enter the pipeline and are immediately subject to Quality Validation. If ambient lighting is insufficient, the frame is discarded to preserve temporal integrity. Valid frames proceed to spatial extraction (YOLOv8 + MediaPipe), passive texture analysis (MiniFASNet), and physiological pulse extraction (rPPG). The individual model confidences are subsequently aggregated by the Fusion Engine. For a visual representation, refer to the generated \textit{Figure 8.1: Overall System Architecture} diagram in the architecture documentation.
+
+\section{Face Detection}
+\textbf{Purpose:} To spatially localize the user's face and extract the primary Region of Interest (ROI) for downstream models. \\
+\textbf{Algorithm \& Implementation:} The repository implements Ultralytics YOLOv8 (\texttt{yolov8n-seg.pt}). The model accepts a downscaled $640 \times 640$ tensor and outputs a bounding box tensor $(x, y, w, h)$ along with object class confidence. \\
+\textbf{Advantages:} Single-shot detection provides unparalleled accuracy against complex backgrounds. \\
+\textbf{Limitations:} Profiling the repository revealed that executing YOLOv8 alongside MediaPipe introduces a redundant 28ms latency penalty, making it a target for future architectural deprecation.
+
+\section{Face Mesh \& Alignment}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_3\_Inference\_Pipeline.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.3: Inference Pipeline\\
+\vspace{1em}
+Orientation:\\
+Landscape\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Inference Pipeline}
+\label{fig:diag_5}
+\end{figure}
+\textbf{Algorithm \& Implementation:} The repository utilizes the Google MediaPipe FaceLandmarker task. The model projects a dense 468-point 3D facial topology onto the 2D bounding box. These geometric points drive the behavioral tracker and allow for tight, precise cropping of the forehead and cheeks for the rPPG pipeline. Refer to \textit{Figure 8.2: Inference Pipeline} for the sequence flow.
+
+\section{Blink Detection}
+\textbf{Purpose \& Implementation:} To satisfy active challenge-response protocols (e.g., "Blink"), the Behavioral Analyzer calculates the Eye Aspect Ratio (EAR) dynamically across consecutive frames.
+\textbf{Mathematical Logic:} The EAR equation leverages the Euclidean distance between the vertical ($p_2, p_6$ and $p_3, p_5$) and horizontal ($p_1, p_4$) eye landmarks:
+\begin{equation}
+EAR = \frac{||p_2 - p_6|| + ||p_3 - p_5||}{2 ||p_1 - p_4||}
+\end{equation}
+If $EAR < \tau_{blink}$ (where the threshold $\tau_{blink} \approx 0.2$) for a specified temporal window, a blink event is registered and verified against the active state machine.
+
+\section{Head Pose Estimation}
+\textbf{Algorithm:} To detect active "Look Left" or "Look Right" challenges, the system calculates the geometric head pose using the Perspective-n-Point (PnP) algorithm.
+\textbf{Implementation:} By mapping the 2D MediaPipe landmarks to a generic 3D human face model, the system solves the extrinsic camera matrix to extract rotation vectors. These are converted into Euler Angles:
+\begin{itemize}
+    \item \textbf{Yaw ($\theta$):} Left/Right rotation.
+    \item \textbf{Pitch ($\phi$):} Up/Down rotation.
+    \item \textbf{Roll ($\psi$):} Tilt.
+\end{itemize}
+The \texttt{BehavioralAnalyzer} asserts challenge success if the Yaw exceeds a threshold of $\pm 25^{\circ}$.
+
+\section{MiniFASNet Anti-Spoofing}
+\textbf{Purpose:} To perform passive texture analysis and detect surface-level presentation attacks (e.g., digital screens, paper masks). \\
+\textbf{Implementation:} The system executes \texttt{minifas\_antispoof\_v2.onnx} via ONNXRuntime. \\
+\textbf{Inference Pipeline:} The cropped facial ROI is normalized into a $80 \times 80$ tensor. MiniFASNet utilizes depthwise separable convolutions to extract high-frequency features such as moiré patterns. A final Softmax layer converts the logits into a normalized probability:
+\begin{equation}
+P(y=live \mid x) = \frac{e^{z_{live}}}{e^{z_{live}} + e^{z_{spoof}}}
+\end{equation}
+\textbf{Strengths:} Exceptionally fast (sub-10ms on CPU). \\
+\textbf{Limitations:} Susceptible to highly realistic 3D silicone masks which do not present 2D surface artifacts.
+
+\section{Remote Photoplethysmography (rPPG) Pipeline}
+\textbf{Purpose:} To detect volumetric changes in facial blood flow representing a live human pulse. \\
+\textbf{Implementation:} The \texttt{RPPGDetector} module enforces a strict signal processing pipeline.
+\begin{enumerate}
+    \item \textbf{ROI Selection:} The cheeks and forehead are isolated utilizing MediaPipe coordinates.
+    \item \textbf{Signal Extraction:} The spatial mean of the Green channel is extracted per frame, as hemoglobin absorption peaks in the green spectrum.
+    \item \textbf{Temporal Buffering:} A sliding window of $N$ frames is maintained.
+    \item \textbf{Filtering:} A digital band-pass filter ($[0.7\text{Hz}, 3.0\text{Hz}]$) removes low-frequency lighting changes and high-frequency noise.
+    \item \textbf{Inference:} The filtered 1D time-series signal is passed through a 1D-CNN (\texttt{rppg\_1dcnn\_v2.onnx}), outputting a pulse confidence score.
+\end{enumerate}
+
+\section{Feature Fusion Engine}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_4\_Fusion\_Engine.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.4: Fusion Engine\\
+\vspace{1em}
+Orientation:\\
+Portrait\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Fusion Engine}
+\label{fig:diag_6}
+\end{figure}
+\vspace{1em}
+\textbf{Logic:} The \texttt{FusionEngine} aggregates the independent modal scores into a single verdict. \\
+\textbf{Implementation:} SHIELD utilizes a weighted sum fusion approach. During a passive monitoring state (no active challenge), the system applies predefined weights:
+\begin{equation}
+Score_{final} = w_{app} \cdot S_{MiniFASNet} + w_{rPPG} \cdot S_{pulse} + w_{beh} \cdot S_{dynamic}
+\end{equation}
+Where $w_{app} = 0.5$, $w_{rPPG} = 0.3$, and $w_{beh} = 0.2$. If $Score_{final} < 0.5$, the frame is classified as a Spoof.
+
+\section{Decision Engine}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_5\_Activity\_Diagram.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.5: Activity Diagram\\
+\vspace{1em}
+Orientation:\\
+Portrait\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Activity Diagram}
+\label{fig:diag_8}
+\end{figure}
+\vspace{1em}
+\begin{figure}[htbp]
+\begin{center}
+----------------------------------------------------------\\
+\vspace{0.5em}
+\textbf{INSERT THE FOLLOWING FIGURE}\\
+\vspace{1em}
+File Name:\\
+\texttt{Figure\_8\_6\_Session\_State\_Diagram.pdf}\\
+\vspace{1em}
+Folder:\\
+\texttt{Figures/}\\
+\vspace{1em}
+Caption:\\
+Figure 8.6: Session State Diagram\\
+\vspace{1em}
+Orientation:\\
+Portrait\\
+\vspace{1em}
+Suggested Width:\\
+90\% of printable page\\
+\vspace{3cm}
+----------------------------------------------------------
+\end{center}
+\caption{Session State Diagram}
+\label{fig:diag_9}
+\end{figure}
+\vspace{1em}
+The \texttt{SessionManager} enforces the final authentication rules. If the FusionEngine classifies an attack, or if a user fails to complete a randomized challenge within the temporal timeout window (typically 10 seconds), the session state transitions to \texttt{Rejected}. Database logging occurs simultaneously.
+
+\begin{table}[H]
+\centering
+\caption{AI Model Summary}
+\begin{tabularx}{\textwidth}{|l|l|X|X|}
+\hline
+\textbf{Model} & \textbf{Type} & \textbf{Inputs} & \textbf{Outputs} \\
+\hline
+YOLOv8-Seg & 2D CNN & $640\times640\times3$ Tensor & Bounding Box \& Mask \\
+MediaPipe Mesh & MLP Cascade & Bounding Box ROI & 468 3D Landmarks \\
+MiniFASNet & Lightweight CNN & $80\times80\times3$ Tensor & Softmax Liveness Score \\
+1D-CNN rPPG & Temporal CNN & 1D Pulse Array (Time-series) & Biological Liveness Score \\
+\hline
+\end{tabularx}
+\end{table}

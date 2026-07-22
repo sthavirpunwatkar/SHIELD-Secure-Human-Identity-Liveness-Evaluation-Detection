@@ -1,0 +1,23 @@
+stateDiagram-v2
+    [*] --> Launch
+    Launch --> ValidateSEB
+    ValidateSEB --> ConnectingWS
+    ConnectingWS --> ActiveSession
+    
+    state ActiveSession {
+        [*] --> Idle
+        Idle --> Capturing : Received Challenge
+        Capturing --> Decoding
+        Decoding --> InferencePipeline
+        InferencePipeline --> Decision
+        Decision --> Capturing : Challenge not complete
+        Decision --> Success : All passed
+        Decision --> Failed : Timeout/Spoof
+    }
+    
+    ActiveSession --> DBLogging
+    DBLogging --> [*]
+    
+    ConnectingWS --> Error : WS Failure
+    ActiveSession --> Error : Protocol Error
+    Error --> [*]

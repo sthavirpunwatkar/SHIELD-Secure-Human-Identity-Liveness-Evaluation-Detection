@@ -1,0 +1,345 @@
+\documentclass[12pt, a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{lscape}
+\usepackage{xcolor}
+
+\titleformat{\chapter}[hang]
+  {\normalfont\LARGE\bfseries}{\MakeUppercase{\chaptertitlename} \thechapter:}{0.5em}{\MakeUppercase}
+\titleformat{name=\chapter,numberless}[block]
+  {\normalfont\LARGE\bfseries\centering}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{0.5cm}
+        
+        \textbf{\large PROJECT REPORT} \\
+        \vspace{0.5cm}
+        \textbf{\normalsize ON} \\
+        \vspace{0.5cm}
+        \textbf{\large SECURE HUMAN IDENTITY \& LIVENESS} \\
+        \vspace{0.2cm}
+        \textbf{\large EVALUATION DETECTION (SHIELD)}
+        
+        \vspace{1cm}
+        \textbf{\normalsize Carried Out at} \\
+        \vspace{0.5cm}
+        % CDAC Logo
+        \includegraphics[height=3.5cm]{cdac-logo.png} \\
+        \vspace{0.5cm}
+        
+        \textbf{\normalsize CENTRE FOR DEVELOPMENT OF ADVANCED COMPUTING} \\
+        \vspace{0.5cm}
+        \textbf{\normalsize UNDER THE SUPERVISION OF} \\
+        \vspace{0.5cm}
+        \textbf{\normalsize C-DAC}
+        
+        \vspace{1.5cm}
+        \textbf{\normalsize Submitted by} \\
+        \vspace{0.5cm}
+        Sthavir Punwatkar \\
+        \vspace{0.3cm}
+        Mihir Rabade
+        
+        \vfill
+        
+        \textbf{\normalsize PG CERTIFICATE PROGRAMME IN ARTIFICIAL INTELLIGENCE (PGCP-AI), CDAC GUWAHATI} \\
+        \vspace{0.5cm}
+        \textbf{\normalsize C-DAC}
+        
+    \end{center}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Candidate's Declaration}
+\addcontentsline{toc}{chapter}{Candidate's Declaration}
+We hereby certify that the work presented in this report entitled ``Secure Human Identity \& Liveness Evaluation Detection (SHIELD)'', in partial fulfillment of the requirements for the award of the \textbf{PG Certificate Programme in Artificial Intelligence (PGCP-AI)}, and submitted to the \textbf{Centre for Development of Advanced Computing (C-DAC), Guwahati}, is an authentic record of our work carried out during the project period.
+
+The matter presented in this report has not been submitted by us for the award of any degree of this or any other Institute/University.
+
+\vspace{2cm}
+\noindent \textbf{Candidates:} \\
+\vspace{0.3cm}
+Sthavir Punwatkar \\
+\vspace{0.5cm}
+Mihir Rabade
+
+\chapter*{Acknowledgement}
+\addcontentsline{toc}{chapter}{Acknowledgement}
+We would like to express our sincere appreciation to all those who contributed directly or indirectly to the successful completion of this project. We are grateful to the faculty members and staff of the department for providing the necessary academic support and resources throughout the course of this work.
+
+We would also like to thank the institution for offering the learning environment required to carry out this project effectively. Additionally, we acknowledge the use of publicly available datasets, research publications, and open-source tools that made this project possible.
+
+Finally, we extend our heartfelt thanks to our mentors, family, and friends for their constant encouragement and support throughout the project.
+
+\vspace{2cm}
+\noindent \textbf{Student Names:} \\
+\vspace{0.3cm}
+Sthavir Punwatkar \\
+\vspace{0.5cm}
+Mihir Rabade
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+With the rapid digital transformation of remote interviews, online examinations, and secure banking access, the threat of identity spoofing and presentation attacks has escalated significantly. Malicious actors increasingly employ high-resolution printed photos, replay video attacks, and sophisticated silicone masks to bypass traditional facial recognition systems. To combat these advanced threats, this project presents the \textbf{Secure Human Identity \& Liveness Evaluation Detection (SHIELD)} system, a professional-grade, real-time multimodal liveness detection framework.
+
+SHIELD utilizes a \textbf{hybrid approach} to differentiate genuine human presence from spoofing attempts by analyzing four independent biological and physical signals. The system combines \textbf{passive texture analysis} using a deep learning architecture (MiniFASNet) to identify non-human surface artifacts, \textbf{physiological verification} via a \textbf{3D Convolutional Neural Network (PhysNet)} for \textbf{Remote Photoplethysmography (rPPG)} to detect human pulse blood volume changes, and \textbf{behavioral consistency tracking} using real-time spatial facial landmarks. Furthermore, an \textbf{active challenge-response mechanism} validates temporal consistency, effectively mitigating deep-replay attacks.
+
+The architecture comprises a \textbf{Flutter-based frontend client} communicating via \textbf{low-latency WebSockets} with a \textbf{synchronous FastAPI Python backend}. The backend orchestrates a complex inference pipeline utilizing \textbf{Ultralytics YOLOv8} for face detection, \textbf{MediaPipe} for mesh extraction, and \textbf{ONNX Runtime} for optimized deep learning model execution. 
+
+A rigorous testing and ablation study evaluated the system's performance, achieving an Attack Presentation Classification Error Rate (APCER) of 1.2\% and an Average Classification Error Rate (ACER) of 1.0\%, with an end-to-end inference latency of approximately 45ms per frame on local execution. The study also highlighted areas for future optimization, specifically decoupling synchronous database I/O from the ASGI event loop and streamlining the computer vision pipeline by deprecating redundant bounding box extractions. Overall, SHIELD establishes a robust foundation for building zero-trust, continuous authentication environments resilient to modern presentation attacks.
+
+\clearpage
+\tableofcontents
+
+\chapter*{Abbreviations \& Acronyms}
+\addcontentsline{toc}{chapter}{Abbreviations \& Acronyms}
+\begin{description}
+    \item[AI] Artificial Intelligence
+    \item[ML] Machine Learning
+    \item[DL] Deep Learning
+    \item[CNN] Convolutional Neural Network
+    \item[FAS] Face Anti-Spoofing
+    \item[rPPG] Remote Photoplethysmography
+    \item[APCER] Attack Presentation Classification Error Rate
+    \item[BPCER] Bona Fide Presentation Classification Error Rate
+    \item[ACER] Average Classification Error Rate
+    \item[API] Application Programming Interface
+    \item[JSON] JavaScript Object Notation
+    \item[ASGI] Asynchronous Server Gateway Interface
+    \item[ONNX] Open Neural Network Exchange
+    \item[SEB] Safe Exam Browser
+    \item[ROI] Region of Interest
+    \item[CV] Computer Vision
+\end{description}
+
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+
+\section{Overview}
+The \textbf{Secure Human Identity \& Liveness Evaluation Detection (SHIELD)} is a state-of-the-art liveness detection system designed to authenticate genuine human presence in digital environments. As remote interactions become the standard, systems must robustly differentiate between a real user and a presentation attack (PA), such as a printed photograph or a digital screen replay. SHIELD addresses this by orchestrating a highly optimized inference pipeline that evaluates texture, pulse (rPPG), and behavioral biometrics simultaneously, providing an explainable and decisive verdict through a unified fusion engine. 
+
+\section{Background}
+Traditional facial recognition systems focus solely on matching geometric facial features to a stored template, answering the question "Who is this?" rather than "Is this a live person?". This limitation has been aggressively exploited using Presentation Attacks (PAs). A Presentation Attack Instrument (PAI) can range from simple 2D paper masks and smartphone screens displaying videos to complex 3D silicone masks. Developing countermeasures, known as Presentation Attack Detection (PAD) or Face Anti-Spoofing (FAS), has become an active field of research spanning computer vision and signal processing.
+
+\section{Motivation}
+The motivation behind SHIELD stems from the vulnerabilities observed in current virtual environments such as Remote Interview Verification, Automated Attendance Systems, and Remote Proctoring. High-stakes assessments face constant threats from impersonation. Many existing solutions rely on unimodal passive texture analysis, which can be bypassed by high-resolution digital screens. A system is needed that not only observes the physical texture of the face but confirms underlying biological processes, such as the micro-color changes in the skin corresponding to the human heartbeat.
+
+\section{Problem Statement}
+Existing unimodal liveness detection systems suffer from high False Acceptance Rates (FAR) when subjected to sophisticated replay or 3D mask attacks. Furthermore, systems that incorporate multiple checks often suffer from prohibitive latency, rendering them unusable for real-time video streaming authentication. The challenge is to design and implement a multimodal liveness detection framework that seamlessly fuses deep learning texture analysis, physiological blood flow verification (rPPG), and temporal behavioral tracking into a single, low-latency pipeline (under 100ms) without degrading the user experience.
+
+\input{chapters_2_3_4.tex}
+\iffalse
+Automated Face Anti-Spoofing (FAS) has evolved from hand-crafted feature extraction to deep learning-based spatial-temporal analysis. 
+
+Early approaches demonstrated that texture artifacts caused by printers or digital screens could be detected using Local Binary Patterns (LBP) converted into various color spaces. While computationally efficient, these models struggled to generalize across diverse camera sensors and lighting conditions.
+
+With the advent of deep learning, Convolutional Neural Networks (CNNs) became the standard for FAS. To improve deployment efficiency, lightweight architectures like MiniFASNet (based on EfficientNet and MobileNet paradigms) were developed, successfully trading a slight accuracy drop for massive latency improvements on edge devices.
+
+Simultaneously, Remote Photoplethysmography (rPPG) emerged as a powerful liveness indicator, as synthetic masks and photographs lack a biological pulse. Later researchers proposed 3D Convolutional Neural Networks (PhysNet) to extract spatiotemporal pulse signals directly from raw video frames, proving highly effective against high-fidelity 3D masks.
+
+Despite these advancements, unimodal systems remain vulnerable to specific edge cases. Therefore, fusion strategies combining texture and physiological signals have been recommended by ISO/IEC 30107-3 standards. Current research gaps include minimizing the immense computational overhead of fusing 3D CNNs (for rPPG) and 2D CNNs (for texture) in real-time server environments. SHIELD bridges this gap by deploying an asynchronous, threshold-gated cascade architecture where expensive rPPG inference is strictly optimized and fused with lightweight MiniFASNet spatial scoring.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of Approaches}
+\begin{tabularx}{\textwidth}{|l|l|X|X|X|}
+\hline
+\textbf{Approach} & \textbf{Latency} & \textbf{Resistance to 2D} & \textbf{Resistance to 3D} & \textbf{Hardware Dependency} \\
+\hline
+Texture (LBP) & Low & Medium & Low & None \\
+Spatial CNN & Medium & High & Medium & GPU/NPU \\
+rPPG 3D CNN & High & High & High & GPU \\
+\textbf{SHIELD} & \textbf{Low-Medium} & \textbf{Very High} & \textbf{Very High} & CPU/GPU (ONNX) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\chapter{Objectives}
+
+\section{Functional Objectives}
+\begin{itemize}
+    \item To develop a cross-platform client capable of capturing and streaming H.264 video chunks to a backend processing server.
+    \item To implement an active challenge-response mechanism prompting the user with randomized tasks (e.g., "Look Left", "Blink").
+    \item To provide an interactive, real-time UI that delivers dynamic feedback based on the current liveness confidence score.
+\end{itemize}
+
+\section{Technical Objectives}
+\begin{itemize}
+    \item To integrate a multi-stage computer vision pipeline encompassing YOLOv8, MediaPipe FaceLandmarker, and ONNX Runtime models.
+    \item To achieve a sub-100ms end-to-end inference latency per frame.
+    \item To architect a weighted fusion engine that aggregates passive texture scores, rPPG data, and behavioral cues into a single decisive verdict.
+    \item To ensure reliable communication using low-latency WebSockets.
+\end{itemize}
+
+\section{Research Objectives}
+\begin{itemize}
+    \item To evaluate the performance impact and redundancy of utilizing multiple object detectors within the same inference pipeline.
+    \item To assess the viability of deploying 1D-CNN and 3D-CNN rPPG models on CPU-only infrastructure via ONNX execution providers.
+\end{itemize}
+
+\chapter{Scope}
+
+\section{Applications}
+\begin{itemize}
+    \item \textbf{Remote Proctoring \& E-Learning:} Preventing impersonation and video-replay attacks during high-stakes online examinations.
+    \item \textbf{Banking \& KYC:} Ensuring the physical presence of users during account creation and high-value remote transactions.
+    \item \textbf{Corporate Access Control:} Secure remote interview verification and automated attendance tracking.
+\end{itemize}
+
+\section{Limitations}
+\begin{itemize}
+    \item \textbf{Processing Bottlenecks:} The current monolithic architecture executes CPU-bound ML inference synchronously on the ASGI event loop, limiting concurrent client capacity.
+    \item \textbf{Environmental Dependency:} The rPPG extraction relies heavily on adequate ambient lighting to detect micro-color variations in the skin. 
+    \item \textbf{Geometric Vulnerabilities:} Identity tracking currently leverages 2D Euclidean distances of facial landmarks, making it susceptible to false identity rejections during extreme head yaw rotations.
+\end{itemize}
+
+\section{Future Scalability}
+The system's modular FusionEngine allows for the seamless addition of future biometric signals (e.g., Voice Anti-Spoofing). Furthermore, migrating the inference logic to distributed Celery/Redis worker queues and transitioning from SQLite to PostgreSQL will unlock massive horizontal scalability for enterprise deployments.
+
+\fi
+\chapter{System Architecture}
+
+SHIELD operates on a client-server paradigm, heavily utilizing WebSockets for real-time telemetry and video streaming. The architecture prioritizes separation of concerns, routing raw frames from the Flutter client to the FastAPI backend, where they enter the synchronous Computer Vision (CV) pipeline.
+
+\section{Overall System Architecture}
+The user interacts with the Flutter application, which accesses the device camera. Frames are encoded and dispatched via WebSockets. The FastAPI backend decodes the payload and routes the raw Numpy matrices to the Fusion Service, which orchestrates the AI models and records the verdict in the SQLite database.
+
+\section{Inference Pipeline Data Flow}
+A single frame is processed by YOLOv8 for spatial bounding boxes and MediaPipe for dense facial landmarks. The cropped Region of Interest (ROI) is passed to the MiniFASNet model to detect texture irregularities. Concurrently, the rPPG network analyzes the crop for pulse variations, and the Behavioral analyzer computes Eye Aspect Ratios (EAR). The Fusion Engine aggregates these multi-dimensional vectors to determine if the frame is a Live Human or a Presentation Attack.
+
+\section{Request Lifecycle \& Concurrency}
+Every frame enters the pipeline and is immediately gated by a Quality Check. Blurry or poorly lit frames are rejected to prevent poisoning the temporal buffers of the rPPG models. Valid frames undergo spatial analysis (texture extraction) and temporal analysis (pulse and behavior tracking). The final aggregated result is committed to the database and streamed back to the client UI. As highlighted in the Root Cause Investigation, the backend currently executes the entire CV pipeline synchronously within the WebSocket event loop, presenting a bottleneck requiring migration to asynchronous workers.
+
+\input{chapters_6_7.tex}
+\iffalse
+
+\section{Flutter (Frontend)}
+Flutter provides a high-performance rendering engine capable of maintaining 60 FPS across iOS, Android, Web, and Desktop from a single codebase. Its isolate-based concurrency model allows the camera stream encoding to run independently from the UI thread, ensuring smooth animations.
+
+\section{FastAPI (Backend)}
+FastAPI is built on Starlette and Pydantic, making it one of the fastest Python web frameworks available. Its native support for asynchronous programming (ASGI) and WebSockets makes it exceptionally well-suited for building real-time streaming architectures.
+
+\section{OpenCV \& MediaPipe (Computer Vision)}
+OpenCV is the industry standard for matrix manipulations. MediaPipe provides heavily optimized, cross-platform ML pipelines. Specifically, the FaceLandmarker task offers dense 468-point 3D facial meshes at sub-5ms latency, critical for behavioral analysis without relying on heavy neural networks.
+
+\section{Ultralytics YOLOv8 (Face Detection)}
+YOLOv8 is a state-of-the-art, single-shot object detection model chosen for high accuracy across varying scales. However, profiling revealed that its inclusion alongside MediaPipe introduces a redundant 28ms latency penalty, making it a candidate for future architectural deprecation.
+
+\section{MiniFASNet \& ONNX Runtime (Anti-Spoofing)}
+MiniFASNet relies on lightweight convolution blocks to detect high-frequency spoofing artifacts. Exporting the PyTorch model to ONNX standardizes the deployment, allowing the backend to utilize the ONNX Runtime CPUExecutionProvider for high-speed inference without requiring CUDA dependencies on the host server.
+
+\section{SQLite \& PostgreSQL (Database)}
+SQLite was selected for rapid prototyping. However, it implements database-level locking during write operations. PostgreSQL, coupled with asynchronous drivers (asyncpg), is required for production deployment to handle highly concurrent telemetry writes.
+
+\chapter{Functional Modules}
+
+\section{WebSocket Streaming Service}
+Handles the persistent bi-directional connection between the client and server. Receives raw H.264 byte chunks, decodes them into Numpy matrices, and passes them to the Fusion Service. Handles connection drops and manages session timeouts.
+
+\section{Computer Vision Pipeline}
+Extracts spatial features and bounding boxes from the raw frame. YOLOv8 outputs bounding box coordinates. MediaPipe calculates the 468 facial landmarks. The Behavioral Analyzer computes the Eye Aspect Ratio (EAR) and the Mouth Aspect Ratio (MAR).
+
+\section{Anti-Spoofing Engine}
+Performs passive texture analysis. Takes the cropped facial ROI, normalizes the tensors, and executes the ONNX MiniFASNet model. Outputs a float representing the spoof probability.
+
+\section{Physiological rPPG Detector}
+Analyzes skin color variations to extract a heart rate signature. Maintains a temporal buffer of spatial crops. Executes a 1D-CNN over the time-series data to detect the volumetric changes in blood flow.
+
+\section{Weighted Fusion Engine}
+Aggregates multi-modal scores into a final decision. Applies a weighted cascade logic. If the initial texture score falls below a critical threshold, the frame is immediately rejected to save compute resources.
+
+\section{Session Manager}
+Maintains state across the lifecycle of a user session. Tracks historical predictions, handles active challenge state machines, and securely logs events to the database.
+
+\fi
+\chapter{System Requirements}
+
+\section{Hardware Requirements}
+\begin{itemize}
+    \item \textbf{Server:} Minimum 4 CPU Cores (8 recommended for concurrent ONNX inference), 8 GB RAM. (GPU not strictly required due to ONNX CPU optimization, but NVIDIA CUDA support significantly increases throughput).
+    \item \textbf{Client (Mobile/Desktop):} Modern smartphone or Web Browser with a 720p minimum webcam.
+\end{itemize}
+
+\section{Software Requirements}
+\begin{itemize}
+    \item \textbf{Backend:} Python 3.10+, FastAPI, ONNXRuntime, OpenCV-Python, Ultralytics, MediaPipe.
+    \item \textbf{Frontend:} Flutter SDK 3.19+, Dart.
+    \item \textbf{Database:} SQLite3 (Local) / PostgreSQL 14+ (Production).
+    \item \textbf{Deployment:} Docker, Docker Compose (for scalable deployments).
+\end{itemize}
+
+\input{chapters_8.tex}
+\input{chapters_9.tex}
+\iffalse
+\chapter{Execution Flow}
+Every frame enters the pipeline and is immediately gated by a Quality Check. Blurry or poorly lit frames are rejected to prevent poisoning the temporal buffers of the rPPG models. Valid frames undergo spatial analysis (texture extraction via MiniFASNet) and temporal analysis (pulse and behavior tracking). The final aggregated result is committed to the database and streamed back to the client UI.
+
+\fi
+\input{chapters_10.tex}
+\iffalse
+\chapter{Testing Strategy}
+
+\section{Model Benchmark Testing}
+Evaluated against the combined CASIA-FASD and CelebA-Spoof validation datasets.
+\begin{itemize}
+    \item \textbf{APCER (Attack Presentation Classification Error Rate):} 1.2\% (Industry Standard: $<$ 5.0\%)
+    \item \textbf{BPCER (Bona Fide Presentation Classification Error Rate):} 0.8\% (Industry Standard: $<$ 3.0\%)
+    \item \textbf{ACER (Average Classification Error Rate):} 1.0\%
+\end{itemize}
+
+\section{Latency Profiling \& Ablation Study}
+Executed \texttt{cProfile} and custom ablation scripts on test videos.
+\begin{itemize}
+    \item Full Pipeline Latency: $\sim$45.45 ms per frame ($\sim$22 FPS).
+    \item \textbf{YOLOv8 + MediaPipe Configuration:} The audit revealed that executing YOLOv8 for bounding boxes prior to MediaPipe introduces a redundant 28ms penalty. Deprecating YOLOv8 improves latency by approximately 40\%.
+\end{itemize}
+
+\section{Integration \& Concurrency Testing}
+Simulated multiple concurrent WebSocket clients streaming 30 FPS video to the FastAPI server. The system exhibited severe bottlenecking under multi-client loads due to synchronous SQLite \texttt{cursor.execute} statements within the asynchronous ASGI thread.
+
+\section{Security \& Integrity Testing}
+Verified the implementation of the Safe Exam Browser (SEB) headers and cryptographic token validation. API security properly rejects unauthorized client requests lacking the correct SEB trust configuration.
+
+\fi
+\chapter{Future Enhancements}
+\begin{itemize}
+    \item \textbf{Decoupled Asynchronous Architecture:} Migrating from a synchronous FastAPI + SQLite model to a distributed architecture using PostgreSQL, Redis, and Celery workers.
+    \item \textbf{Computer Vision Streamlining:} Deprecating the YOLOv8 model in favor of utilizing the existing MediaPipe FaceLandmarker data for bounding box and ROI extraction.
+    \item \textbf{Robust Face Alignment:} Implementing a 5-point Affine Transformation utilizing the eye and mouth coordinates prior to passing the ROI to MiniFASNet.
+    \item \textbf{Advanced Identity Embeddings:} Replacing the current 2D-Euclidean geometric identity tracking with a lightweight facial embedding model (e.g., MobileFaceNet).
+    \item \textbf{Edge Deployment (Mobile NPU):} Transitioning the ONNX models directly into the Flutter application utilizing TFLite or platform-specific ML APIs.
+\end{itemize}
+
+\chapter{Conclusion}
+The \textbf{Secure Human Identity \& Liveness Evaluation Detection (SHIELD)} system successfully demonstrates the feasibility of real-time, multimodal presentation attack detection. By synthesizing deep-learning texture analysis (MiniFASNet), physiological pulse verification (rPPG), and dynamic behavioral tracking, the system effectively neutralizes a wide spectrum of spoofing vectors, from 2D printouts to digital replay attacks. 
+
+The architecture achieves impressive benchmark metrics (ACER of 1.0\%) while maintaining a sub-50ms inference profile per frame. More importantly, rigorous forensic profiling and ablation studies conducted during development provided critical insights into computational bottlenecks. Identifying the redundancy of cascaded object detectors (YOLO + MediaPipe) and the concurrency limitations of synchronous database I/O paves the way for highly scalable future iterations.
+
+Ultimately, SHIELD establishes a formidable foundation for next-generation biometric authentication, ensuring that remote digital environments remain secure, trustworthy, and resilient against evolving artificial intelligence and spoofing threats.
+
+\end{document}

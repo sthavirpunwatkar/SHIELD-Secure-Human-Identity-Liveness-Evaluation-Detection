@@ -1,0 +1,22 @@
+gantt
+    title Single Frame Request Execution Timeline
+    dateFormat  s.ms
+    axisFormat  %L ms
+    
+    section Network
+    WS Receive            :a1, 0, 5ms
+    
+    section Decoding
+    H.264 Decode          :a2, after a1, 15ms
+    
+    section AI Pipeline
+    YOLO Detect & Crop    :a3, after a2, 20ms
+    Quality Check         :a4, after a3, 5ms
+    Behavior/Landmarks    :a5, after a4, 15ms
+    MiniFASNet            :a6, after a5, 20ms
+    rPPG Processing       :a7, after a6, 10ms
+    
+    section Post-Proc
+    Fusion Algorithm      :a8, after a7, 2ms
+    DB Logging            :a9, after a8, 5ms
+    WS Send JSON          :a10, after a9, 3ms

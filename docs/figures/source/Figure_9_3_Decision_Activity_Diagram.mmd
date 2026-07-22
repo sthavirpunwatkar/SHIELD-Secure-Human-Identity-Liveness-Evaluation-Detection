@@ -1,0 +1,28 @@
+stateDiagram-v2
+    [*] --> FrameReceived
+    FrameReceived --> DecodeH264
+    DecodeH264 --> QualityGate
+    
+    state QualityGate {
+        CheckBlur --> CheckLighting
+    }
+    
+    QualityGate --> RejectFrame : Low Quality
+    QualityGate --> SpatialAnalysis : Pass
+    
+    state SpatialAnalysis {
+        ExtractMesh(MediaPipe) --> CropFace
+        CropFace --> MiniFASNet
+    }
+    
+    SpatialAnalysis --> TemporalAnalysis
+    
+    state TemporalAnalysis {
+        UpdateBuffer --> Extract_rPPG
+        CalculateEAR --> CheckActiveChallenge
+    }
+    
+    TemporalAnalysis --> Fusion
+    Fusion --> WriteToDatabase
+    WriteToDatabase --> EmitWebSocketResponse
+    EmitWebSocketResponse --> [*]

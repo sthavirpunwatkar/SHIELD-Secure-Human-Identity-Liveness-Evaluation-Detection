@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> SESSION_INIT: WebSocket Connect
+    SESSION_INIT --> CHALLENGE_ISSUED: Generate random sequence
+    CHALLENGE_ISSUED --> WAITING_FOR_ACTION: Send to frontend
+    WAITING_FOR_ACTION --> ACTION_DETECTED: Landmark analysis confirms
+    WAITING_FOR_ACTION --> CHALLENGE_TIMEOUT: Timer expires
+    ACTION_DETECTED --> NEXT_CHALLENGE: More challenges remain
+    ACTION_DETECTED --> ALL_PASSED: Sequence complete
+    CHALLENGE_TIMEOUT --> CHALLENGE_FAILED: Max retries exceeded
+    CHALLENGE_TIMEOUT --> CHALLENGE_ISSUED: Retry (if attempts remain)
+    NEXT_CHALLENGE --> CHALLENGE_ISSUED
+    ALL_PASSED --> [*]: challenge_score = 1.0
+    CHALLENGE_FAILED --> [*]: challenge_score = 0.0

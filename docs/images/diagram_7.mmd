@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant User
+    participant Flutter
+    participant CameraService
+    participant FastAPI
+    participant FusionService
+    participant DB
+    
+    User->>Flutter: Start Challenge Session
+    Flutter->>FastAPI: WebSocket Connect (/ws/challenge)
+    FastAPI-->>Flutter: Connect OK
+    Flutter->>FastAPI: {"type": "start_challenge"}
+    FastAPI-->>Flutter: {"type": "challenge", "action": "blink"}
+    
+    loop Every Frame
+        CameraService->>Flutter: Capture Frame
+        Flutter->>FastAPI: Binary Frame Chunk
+        FastAPI->>FusionService: process_challenge_frame()
+        FusionService->>FusionService: YOLO -> Behav -> AntiSpoof -> rPPG -> Fusion
+        FusionService-->>FastAPI: Verdict + Challenge Update
+        FastAPI-->>Flutter: {"type": "challenge_result"} (if passed)
+    end
+    
+    FastAPI->>DB: save session results
+    FastAPI-->>Flutter: Final Verdict JSON
+    Flutter->>User: Display Result

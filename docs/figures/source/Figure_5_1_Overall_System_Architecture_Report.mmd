@@ -1,0 +1,16 @@
+graph TD
+    subgraph Client [Frontend - Flutter]
+        UI[User Interface] --> Camera[Camera Stream]
+        Camera --> Encoder[H.264 Encoder]
+        Encoder --> WS_Client[WebSocket Client]
+    end
+
+    subgraph Backend [Server - FastAPI]
+        WS_Server[WebSocket Endpoint] --> Decoder[WebCodecs Decoder]
+        Decoder --> Fusion[Fusion Service]
+        Fusion --> CVPipeline[Computer Vision Pipeline]
+        CVPipeline --> SessionManager[Session & State Manager]
+        SessionManager --> DB[(SQLite Database)]
+    end
+    
+    WS_Client <-->|Bi-directional WebSocket| WS_Server
